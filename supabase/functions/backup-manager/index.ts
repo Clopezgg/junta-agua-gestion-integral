@@ -1,14 +1,217 @@
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2';
-const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type'};
-const direct=['profiles','roles','subscribers','subscriber_identities','water_connections','duplicate_reviews','tariff_definitions','tariff_versions','obligations','debt_override_events','document_sequences','cash_sessions','payments','payment_events','suppliers','expenses','bank_accounts','ledger_entries','integrations','work_orders','inventory_items','inventory_movements','system_health_checks','communication_messages','ocr_extractions'];
-const restoreOrder=['roles','profiles','subscribers','subscriber_identities','water_connections','duplicate_reviews','tariff_definitions','tariff_versions','obligations','debt_override_events','document_sequences','cash_sessions','payments','payment_events','suppliers','expenses','bank_accounts','ledger_entries','integrations','work_orders','inventory_items','inventory_movements','system_health_checks','communication_messages','ocr_extractions'];
+
+const cors={
+  'Access-Control-Allow-Origin':'*',
+  'Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type'
+};
+
+const direct=[
+  'profiles','roles',
+  'subscribers','subscriber_identities','water_connections','duplicate_reviews',
+  'tariff_definitions','tariff_versions','obligations','debt_override_events',
+  'document_sequences','cash_sessions','payments','payment_events',
+  'suppliers','expenses','bank_accounts','ledger_entries',
+  'fiscal_periods','budget_categories','budget_lines',
+  'integrations',
+  'assets','maintenance_plans','work_orders','asset_maintenance_log',
+  'inventory_items','inventory_movements',
+  'system_health_checks','communication_messages','ocr_extractions'
+];
+
+const restoreOrder=[
+  'roles','profiles',
+  'subscribers','subscriber_identities','water_connections','duplicate_reviews',
+  'tariff_definitions','tariff_versions','obligations','debt_override_events',
+  'document_sequences','cash_sessions','payments','payment_events',
+  'suppliers','expenses','bank_accounts','ledger_entries',
+  'fiscal_periods','budget_categories','budget_lines',
+  'integrations',
+  'assets','maintenance_plans','work_orders','asset_maintenance_log',
+  'inventory_items','inventory_movements',
+  'system_health_checks','communication_messages','ocr_extractions'
+];
+
 const fileBuckets=['subscriber-documents','expense-evidence','receipt-documents','organization-assets'];
-async function sha256(text:string){const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));return[...new Uint8Array(hash)].map(x=>x.toString(16).padStart(2,'0')).join('');}
-function toBase64(bytes:Uint8Array){let binary='';for(let i=0;i<bytes.length;i+=0x8000)binary+=String.fromCharCode(...bytes.subarray(i,Math.min(i+0x8000,bytes.length)));return btoa(binary);}
-function fromBase64(value:string){const binary=atob(value);const bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);return bytes;}
-async function collectFiles(admin:any,bucket:string,root:string){const output:any[]=[];async function walk(path:string){let offset=0;while(true){const{data,error}=await admin.storage.from(bucket).list(path,{limit:1000,offset,sortBy:{column:'name',order:'asc'}});if(error)throw error;const rows=data??[];for(const item of rows){const full=path?`${path}/${item.name}`:item.name;if(item.id){const{data:file,error:downloadError}=await admin.storage.from(bucket).download(full);if(downloadError||!file)throw downloadError??new Error('FILE_DOWNLOAD_FAILED');const bytes=new Uint8Array(await file.arrayBuffer());output.push({path:full,content_type:file.type||item.metadata?.mimetype||'application/octet-stream',size:bytes.length,base64:toBase64(bytes)});}else await walk(full);}if(rows.length<1000)break;offset+=1000;}}await walk(root);return output;}
-Deno.serve(async req=>{if(req.method==='OPTIONS')return new Response('ok',{headers:cors});try{const url=Deno.env.get('SUPABASE_URL')!;const anon=Deno.env.get('SUPABASE_ANON_KEY')!;const service=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;const caller=createClient(url,anon,{global:{headers:{Authorization:req.headers.get('Authorization')??''}}});const{data:auth}=await caller.auth.getUser();if(!auth.user)throw new Error('AUTH_REQUIRED');const body=await req.json();const needed=body.action==='download'?'backups.read':'backups.manage';const{data:allowed}=await caller.rpc('has_permission',{p_code:needed});if(!allowed)throw new Error('FORBIDDEN');if(body.action!=='download'){const{data:aal}=await caller.auth.mfa.getAuthenticatorAssuranceLevel();if(aal?.currentLevel!=='aal2')throw new Error('MFA_REQUIRED');}const admin=createClient(url,service,{auth:{persistSession:false,autoRefreshToken:false}});const{data:profile}=await admin.from('profiles').select('organization_id').eq('id',auth.user.id).single();if(!profile)throw new Error('PROFILE_NOT_FOUND');const org=profile.organization_id;
- if(body.action==='create'){const{data:run,error:runErr}=await admin.from('backup_runs').insert({organization_id:org,status:'running',created_by:auth.user.id}).select('id').single();if(runErr)throw runErr;try{const{data:organization,error:orgError}=await admin.from('organizations').select('*').eq('id',org).single();if(orgError)throw orgError;const tables:Record<string,unknown[]>={};const counts:Record<string,number>={};for(const t of direct){const{data,error}=await admin.from(t).select('*').eq('organization_id',org);if(error)throw error;tables[t]=data??[];counts[t]=(data??[]).length;}const roleIds=(tables.roles as any[]).map(x=>x.id);const profileIds=(tables.profiles as any[]).map(x=>x.id);const paymentIds=(tables.payments as any[]).map(x=>x.id);const junctions:Record<string,unknown[]>={};if(roleIds.length)junctions.role_permissions=(await admin.from('role_permissions').select('*').in('role_id',roleIds)).data??[];if(profileIds.length)junctions.user_roles=(await admin.from('user_roles').select('*').in('user_id',profileIds)).data??[];if(paymentIds.length){junctions.payment_allocations=(await admin.from('payment_allocations').select('*').in('payment_id',paymentIds)).data??[];junctions.payment_components=(await admin.from('payment_components').select('*').in('payment_id',paymentIds)).data??[];}const files:Record<string,unknown[]>={};for(const bucket of fileBuckets)files[bucket]=await collectFiles(admin,bucket,String(org));const payload={format:'junta-agua-backup-v2',created_at:new Date().toISOString(),organization_id:org,organization,tables,junctions,files};const json=JSON.stringify(payload);const checksum=await sha256(json);const path=`${org}/${new Date().toISOString().replace(/[:.]/g,'-')}-${run.id}.json`;const{error:uploadError}=await admin.storage.from('system-backups').upload(path,new Blob([json],{type:'application/json'}),{upsert:false});if(uploadError)throw uploadError;const fileCount=Object.values(files).reduce((n:any,x:any)=>n+x.length,0);await admin.from('backup_runs').update({status:'completed',storage_path:path,checksum_sha256:checksum,size_bytes:new TextEncoder().encode(json).length,table_counts:{...counts,storage_files:fileCount},completed_at:new Date().toISOString()}).eq('id',run.id);return new Response(JSON.stringify({ok:true,backup_id:run.id,checksum,storage_files:fileCount}),{headers:{...cors,'Content-Type':'application/json'}});}catch(e){await admin.from('backup_runs').update({status:'failed',error_message:e instanceof Error?e.message:'UNKNOWN',completed_at:new Date().toISOString()}).eq('id',run.id);throw e;}}
- if(body.action==='download'){const{data:run}=await admin.from('backup_runs').select('storage_path').eq('id',body.backup_id).eq('organization_id',org).in('status',['completed','restored']).single();if(!run)throw new Error('BACKUP_NOT_FOUND');const{data,error}=await admin.storage.from('system-backups').createSignedUrl(run.storage_path,300);if(error)throw error;return new Response(JSON.stringify({url:data.signedUrl}),{headers:{...cors,'Content-Type':'application/json'}});}
- if(body.action==='restore'){if(body.confirm_phrase!=='RESTAURAR')throw new Error('CONFIRMATION_REQUIRED');const{data:run}=await admin.from('backup_runs').select('*').eq('id',body.backup_id).eq('organization_id',org).in('status',['completed','restored']).single();if(!run)throw new Error('BACKUP_NOT_FOUND');const{data:file,error:fileErr}=await admin.storage.from('system-backups').download(run.storage_path);if(fileErr||!file)throw new Error(fileErr?.message??'FILE_NOT_FOUND');const text=await file.text();if(await sha256(text)!==run.checksum_sha256)throw new Error('CHECKSUM_MISMATCH');const payload=JSON.parse(text);if(payload.organization_id!==org||!['junta-agua-backup-v1','junta-agua-backup-v2'].includes(payload.format))throw new Error('BACKUP_SCOPE_INVALID');if(payload.organization){const{error}=await admin.from('organizations').upsert(payload.organization);if(error)throw new Error(`organizations: ${error.message}`);}for(const t of restoreOrder){const rows=payload.tables?.[t]??[];if(rows.length){const{error}=await admin.from(t).upsert(rows);if(error)throw new Error(`${t}: ${error.message}`);}}for(const t of ['role_permissions','user_roles','payment_allocations','payment_components']){const rows=payload.junctions?.[t]??[];if(rows.length){const{error}=await admin.from(t).upsert(rows);if(error)throw new Error(`${t}: ${error.message}`);}}for(const[bucket,items]of Object.entries(payload.files??{})){if(!fileBuckets.includes(bucket))continue;for(const item of items as any[]){if(!String(item.path).startsWith(`${org}/`))throw new Error('FILE_SCOPE_INVALID');const{error}=await admin.storage.from(bucket).upload(item.path,fromBase64(item.base64),{upsert:true,contentType:item.content_type});if(error)throw new Error(`${bucket}/${item.path}: ${error.message}`);}}await admin.from('backup_runs').update({status:'restored',restored_at:new Date().toISOString(),restored_by:auth.user.id}).eq('id',run.id);return new Response(JSON.stringify({ok:true}),{headers:{...cors,'Content-Type':'application/json'}});}
- throw new Error('INVALID_ACTION');}catch(e){return new Response(JSON.stringify({error:e instanceof Error?e.message:'UNKNOWN_ERROR'}),{status:400,headers:{...cors,'Content-Type':'application/json'}})}});
+
+async function sha256(text:string){
+  const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));
+  return[...new Uint8Array(hash)].map(value=>value.toString(16).padStart(2,'0')).join('');
+}
+
+function toBase64(bytes:Uint8Array){
+  let binary='';
+  for(let index=0;index<bytes.length;index+=0x8000){
+    binary+=String.fromCharCode(...bytes.subarray(index,Math.min(index+0x8000,bytes.length)));
+  }
+  return btoa(binary);
+}
+
+function fromBase64(value:string){
+  const binary=atob(value);
+  const bytes=new Uint8Array(binary.length);
+  for(let index=0;index<binary.length;index++)bytes[index]=binary.charCodeAt(index);
+  return bytes;
+}
+
+async function collectFiles(admin:any,bucket:string,root:string){
+  const output:any[]=[];
+  async function walk(path:string){
+    let offset=0;
+    while(true){
+      const{data,error}=await admin.storage.from(bucket).list(path,{limit:1000,offset,sortBy:{column:'name',order:'asc'}});
+      if(error)throw error;
+      const rows=data??[];
+      for(const item of rows){
+        const full=path?`${path}/${item.name}`:item.name;
+        if(item.id){
+          const{data:file,error:downloadError}=await admin.storage.from(bucket).download(full);
+          if(downloadError||!file)throw downloadError??new Error('FILE_DOWNLOAD_FAILED');
+          const bytes=new Uint8Array(await file.arrayBuffer());
+          output.push({path:full,content_type:file.type||item.metadata?.mimetype||'application/octet-stream',size:bytes.length,base64:toBase64(bytes)});
+        }else await walk(full);
+      }
+      if(rows.length<1000)break;
+      offset+=1000;
+    }
+  }
+  await walk(root);
+  return output;
+}
+
+Deno.serve(async request=>{
+  if(request.method==='OPTIONS')return new Response('ok',{headers:cors});
+  try{
+    const url=Deno.env.get('SUPABASE_URL')!;
+    const anon=Deno.env.get('SUPABASE_ANON_KEY')!;
+    const service=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const caller=createClient(url,anon,{global:{headers:{Authorization:request.headers.get('Authorization')??''}}});
+    const{data:auth}=await caller.auth.getUser();
+    if(!auth.user)throw new Error('AUTH_REQUIRED');
+
+    const body=await request.json();
+    const needed=body.action==='download'?'backups.read':'backups.manage';
+    const{data:allowed}=await caller.rpc('has_permission',{p_code:needed});
+    if(!allowed)throw new Error('FORBIDDEN');
+    if(body.action!=='download'){
+      const{data:aal}=await caller.auth.mfa.getAuthenticatorAssuranceLevel();
+      if(aal?.currentLevel!=='aal2')throw new Error('MFA_REQUIRED');
+    }
+
+    const admin=createClient(url,service,{auth:{persistSession:false,autoRefreshToken:false}});
+    const{data:profile}=await admin.from('profiles').select('organization_id').eq('id',auth.user.id).single();
+    if(!profile)throw new Error('PROFILE_NOT_FOUND');
+    const organizationId=profile.organization_id;
+
+    if(body.action==='create'){
+      const{data:run,error:runError}=await admin.from('backup_runs').insert({organization_id:organizationId,status:'running',created_by:auth.user.id}).select('id').single();
+      if(runError)throw runError;
+      try{
+        const{data:organization,error:organizationError}=await admin.from('organizations').select('*').eq('id',organizationId).single();
+        if(organizationError)throw organizationError;
+
+        const tables:Record<string,unknown[]>={};
+        const counts:Record<string,number>={};
+        for(const table of direct){
+          const{data,error}=await admin.from(table).select('*').eq('organization_id',organizationId);
+          if(error)throw new Error(`${table}: ${error.message}`);
+          tables[table]=data??[];
+          counts[table]=(data??[]).length;
+        }
+
+        const roleIds=(tables.roles as any[]).map(row=>row.id);
+        const profileIds=(tables.profiles as any[]).map(row=>row.id);
+        const paymentIds=(tables.payments as any[]).map(row=>row.id);
+        const junctions:Record<string,unknown[]>={};
+        if(roleIds.length)junctions.role_permissions=(await admin.from('role_permissions').select('*').in('role_id',roleIds)).data??[];
+        if(profileIds.length)junctions.user_roles=(await admin.from('user_roles').select('*').in('user_id',profileIds)).data??[];
+        if(paymentIds.length){
+          junctions.payment_allocations=(await admin.from('payment_allocations').select('*').in('payment_id',paymentIds)).data??[];
+          junctions.payment_components=(await admin.from('payment_components').select('*').in('payment_id',paymentIds)).data??[];
+        }
+
+        const files:Record<string,unknown[]>={};
+        for(const bucket of fileBuckets)files[bucket]=await collectFiles(admin,bucket,String(organizationId));
+
+        const payload={
+          format:'junta-agua-backup-v3',
+          created_at:new Date().toISOString(),
+          organization_id:organizationId,
+          organization,
+          tables,
+          junctions,
+          files
+        };
+        const json=JSON.stringify(payload);
+        const checksum=await sha256(json);
+        const path=`${organizationId}/${new Date().toISOString().replace(/[:.]/g,'-')}-${run.id}.json`;
+        const{error:uploadError}=await admin.storage.from('system-backups').upload(path,new Blob([json],{type:'application/json'}),{upsert:false});
+        if(uploadError)throw uploadError;
+
+        const fileCount=Object.values(files).reduce((total:any,items:any)=>total+items.length,0);
+        await admin.from('backup_runs').update({
+          status:'completed',storage_path:path,checksum_sha256:checksum,
+          size_bytes:new TextEncoder().encode(json).length,
+          table_counts:{...counts,storage_files:fileCount},completed_at:new Date().toISOString()
+        }).eq('id',run.id);
+
+        return new Response(JSON.stringify({ok:true,backup_id:run.id,checksum,storage_files:fileCount,format:payload.format}),{headers:{...cors,'Content-Type':'application/json'}});
+      }catch(error){
+        await admin.from('backup_runs').update({status:'failed',error_message:error instanceof Error?error.message:'UNKNOWN',completed_at:new Date().toISOString()}).eq('id',run.id);
+        throw error;
+      }
+    }
+
+    if(body.action==='download'){
+      const{data:run}=await admin.from('backup_runs').select('storage_path').eq('id',body.backup_id).eq('organization_id',organizationId).in('status',['completed','restored']).single();
+      if(!run)throw new Error('BACKUP_NOT_FOUND');
+      const{data,error}=await admin.storage.from('system-backups').createSignedUrl(run.storage_path,300);
+      if(error)throw error;
+      return new Response(JSON.stringify({url:data.signedUrl}),{headers:{...cors,'Content-Type':'application/json'}});
+    }
+
+    if(body.action==='restore'){
+      if(body.confirm_phrase!=='RESTAURAR')throw new Error('CONFIRMATION_REQUIRED');
+      const{data:run}=await admin.from('backup_runs').select('*').eq('id',body.backup_id).eq('organization_id',organizationId).in('status',['completed','restored']).single();
+      if(!run)throw new Error('BACKUP_NOT_FOUND');
+      const{data:file,error:fileError}=await admin.storage.from('system-backups').download(run.storage_path);
+      if(fileError||!file)throw new Error(fileError?.message??'FILE_NOT_FOUND');
+      const text=await file.text();
+      if(await sha256(text)!==run.checksum_sha256)throw new Error('CHECKSUM_MISMATCH');
+      const payload=JSON.parse(text);
+      if(payload.organization_id!==organizationId||!['junta-agua-backup-v1','junta-agua-backup-v2','junta-agua-backup-v3'].includes(payload.format))throw new Error('BACKUP_SCOPE_INVALID');
+
+      if(payload.organization){
+        const{error}=await admin.from('organizations').upsert(payload.organization);
+        if(error)throw new Error(`organizations: ${error.message}`);
+      }
+      for(const table of restoreOrder){
+        const rows=payload.tables?.[table]??[];
+        if(rows.length){
+          const{error}=await admin.from(table).upsert(rows);
+          if(error)throw new Error(`${table}: ${error.message}`);
+        }
+      }
+      for(const table of ['role_permissions','user_roles','payment_allocations','payment_components']){
+        const rows=payload.junctions?.[table]??[];
+        if(rows.length){
+          const{error}=await admin.from(table).upsert(rows);
+          if(error)throw new Error(`${table}: ${error.message}`);
+        }
+      }
+      for(const[bucket,items]of Object.entries(payload.files??{})){
+        if(!fileBuckets.includes(bucket))continue;
+        for(const item of items as any[]){
+          if(!String(item.path).startsWith(`${organizationId}/`))throw new Error('FILE_SCOPE_INVALID');
+          const{error}=await admin.storage.from(bucket).upload(item.path,fromBase64(item.base64),{upsert:true,contentType:item.content_type});
+          if(error)throw new Error(`${bucket}/${item.path}: ${error.message}`);
+        }
+      }
+      await admin.from('backup_runs').update({status:'restored',restored_at:new Date().toISOString(),restored_by:auth.user.id}).eq('id',run.id);
+      return new Response(JSON.stringify({ok:true,format:payload.format}),{headers:{...cors,'Content-Type':'application/json'}});
+    }
+
+    throw new Error('INVALID_ACTION');
+  }catch(error){
+    return new Response(JSON.stringify({error:error instanceof Error?error.message:'UNKNOWN_ERROR'}),{status:400,headers:{...cors,'Content-Type':'application/json'}});
+  }
+});
