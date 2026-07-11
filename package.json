@@ -1,11 +1,15 @@
 {
-  "name": "junta-agua-desde-cero",
+  "name": "junta-agua-gestion-integral",
   "private": true,
-  "version": "1.1.0-final-audit",
+  "version": "1.1.1-render-fix",
   "type": "module",
+  "engines": {
+    "node": ">=22.12.0 <23"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:render": "npm run build && test -f dist/index.html",
     "test": "vitest run",
     "lint": "eslint ."
   },
