@@ -18,9 +18,12 @@ jobs:
         with:
           node-version: '22.14.0'
           registry-url: 'https://registry.npmjs.org'
-          cache: 'npm'
+      - name: Verificar registro público
+        run: |
+          test "$(npm config get registry)" = "https://registry.npmjs.org/"
+          test ! -f package-lock.json
       - name: Instalar dependencias
-        run: npm ci --include=dev
+        run: npm install --include=dev --no-audit --no-fund --registry=https://registry.npmjs.org/
       - name: Pruebas
         run: npm test
       - name: Lint
