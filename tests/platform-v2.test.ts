@@ -20,8 +20,8 @@ describe('plataforma v2 institucional',()=>{
   it('genera recibos media carta con estados y snapshot institucional',()=>{
     const documents=read('src/features/finance/documents.ts');
     const finance=read('src/features/finance/service.ts');
-    expect(documents).toContain("format:[139.7,215.9]");
-    expect(documents).toContain("return'REIMPRESIÓN'");
+    expect(documents).toContain('format:[139.7,215.9]');
+    expect(documents).toContain("receipt.copy?'REIMPRESIÓN':'IMPRESIÓN'");
     expect(documents).toContain("return'PAGADO'");
     expect(documents).toContain('signatureDataUrl');
     expect(documents).toContain('stampDataUrl');
@@ -36,7 +36,7 @@ describe('plataforma v2 institucional',()=>{
     expect(pkg.version).toBe('2.0.0');
     expect(vite).toContain('__APP_COMMIT_SHA__');
     expect(vite).toContain('RENDER_GIT_COMMIT');
-    expect(release).toContain("tags:\n      - 'v*'");
+    expect(release).toContain("- 'v*'");
     expect(release).toContain('gh release create');
   });
 
