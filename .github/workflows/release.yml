@@ -2,8 +2,8 @@ name: Publicar versión
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -14,29 +14,60 @@ jobs:
     steps:
       - name: Descargar código
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Configurar Node
         uses: actions/setup-node@v4
         with:
           node-version: '22.14.0'
           registry-url: 'https://registry.npmjs.org'
-      - name: Instalar dependencias
-        run: npm install --include=dev --no-audit --no-fund --registry=https://registry.npmjs.org/
-      - name: Validar versión del tag
-        run: |
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          test "v${PACKAGE_VERSION}" = "${GITHUB_REF_NAME}"
-      - name: Probar y compilar
+
+      - name: Resolver versión
+        id: version
         env:
-          VITE_APP_VERSION: ${{ github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v${VERSION}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Versión ya publicada
+        if: steps.version.outputs.exists == 'true'
+        run: echo "La versión ${{ steps.version.outputs.tag }} ya tiene un GitHub Release."
+
+      - name: Instalar dependencias
+        if: steps.version.outputs.exists != 'true'
+        run: npm install --include=dev --no-audit --no-fund --registry=https://registry.npmjs.org/
+
+      - name: Probar y compilar
+        if: steps.version.outputs.exists != 'true'
+        env:
+          VITE_APP_VERSION: ${{ steps.version.outputs.version }}
           VITE_APP_BUILD_DATE: ${{ github.event.repository.updated_at }}
-          VITE_APP_RELEASE_URL: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}
+          VITE_APP_RELEASE_URL: https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}
         run: |
           npm test
           npm run lint
           npm run build:render
+
       - name: Empaquetar aplicación
-        run: tar -czf junta-agua-${GITHUB_REF_NAME}.tar.gz dist
+        if: steps.version.outputs.exists != 'true'
+        run: tar -czf "junta-agua-${{ steps.version.outputs.tag }}.tar.gz" dist
+
       - name: Crear GitHub Release
+        if: steps.version.outputs.exists != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" junta-agua-${GITHUB_REF_NAME}.tar.gz --generate-notes --title "Junta de Agua ${GITHUB_REF_NAME}"
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" \
+            "junta-agua-${{ steps.version.outputs.tag }}.tar.gz" \
+            --target "${GITHUB_SHA}" \
+            --generate-notes \
+            --title "Junta de Agua ${{ steps.version.outputs.tag }}"
