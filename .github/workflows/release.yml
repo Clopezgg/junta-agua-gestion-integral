@@ -1,0 +1,42 @@
+name: Publicar versión
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Instalar dependencias
+        run: npm install --include=dev --no-audit --no-fund --registry=https://registry.npmjs.org/
+      - name: Validar versión del tag
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          test "v${PACKAGE_VERSION}" = "${GITHUB_REF_NAME}"
+      - name: Probar y compilar
+        env:
+          VITE_APP_VERSION: ${{ github.ref_name }}
+          VITE_APP_BUILD_DATE: ${{ github.event.repository.updated_at }}
+          VITE_APP_RELEASE_URL: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}
+        run: |
+          npm test
+          npm run lint
+          npm run build:render
+      - name: Empaquetar aplicación
+        run: tar -czf junta-agua-${GITHUB_REF_NAME}.tar.gz dist
+      - name: Crear GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" junta-agua-${GITHUB_REF_NAME}.tar.gz --generate-notes --title "Junta de Agua ${GITHUB_REF_NAME}"

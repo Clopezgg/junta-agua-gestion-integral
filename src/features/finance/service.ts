@@ -15,11 +15,22 @@ export async function approveExpense(id:string,decision:'approved'|'rejected',no
 export async function confirmExpense(input:{expense_id:string;invoice_path:string;invoice_number:string;paid_from:string}){const {data,error}=await db().rpc('confirm_expense',{p_expense_id:input.expense_id,p_invoice_path:input.invoice_path,p_invoice_number:input.invoice_number,p_paid_from:input.paid_from});fail(error);return data;}
 export async function uploadExpenseEvidence(file:File,expenseId:string){const {data:auth}=await db().auth.getUser();const {data:profile,error:pe}=await db().from('profiles').select('organization_id').eq('id',auth.user?.id??'').single();fail(pe);if(!profile)throw new Error('No se pudo determinar la organización.');const path=`${profile.organization_id}/${expenseId}/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;const {error}=await db().storage.from('expense-evidence').upload(path,file,{upsert:false});fail(error);return path;}
 export async function getFinancialDashboard(from:string,to:string){const {data,error}=await db().rpc('get_financial_dashboard',{p_from:from,p_to:to});fail(error);return data;}
+export async function getRoleDashboard(){const{data,error}=await db().rpc('get_role_dashboard');fail(error);return data??{};}
 export async function getTransparencyReport(year:number){const {data,error}=await db().rpc('get_transparency_report',{p_year:year});fail(error);return data;}
 export async function getExpenseEvidenceUrl(path:string){const {data,error}=await db().storage.from('expense-evidence').createSignedUrl(path,300);fail(error);return data?.signedUrl??'';}
 
-export async function uploadPaymentReceipt(paymentId:string,receiptNumber:string,blob:Blob){const {data:auth}=await db().auth.getUser();const {data:profile,error:pe}=await db().from('profiles').select('organization_id').eq('id',auth.user?.id??'').single();fail(pe);if(!profile)throw new Error('No se pudo determinar la organización.');const path=`${profile.organization_id}/${new Date().getFullYear()}/${paymentId}/${receiptNumber}.pdf`;const {error}=await db().storage.from('receipt-documents').upload(path,blob,{contentType:'application/pdf',upsert:true});fail(error);const {error:ae}=await db().rpc('attach_payment_receipt',{p_payment_id:paymentId,p_storage_path:path});fail(ae);return path;}
+export async function uploadPaymentReceipt(paymentId:string,receiptNumber:string,blob:Blob,brandSnapshot:Record<string,unknown>={}){
+ const {data:auth}=await db().auth.getUser();
+ const {data:profile,error:profileError}=await db().from('profiles').select('organization_id').eq('id',auth.user?.id??'').single();
+ fail(profileError);
+ if(!profile)throw new Error('No se pudo determinar la organización.');
+ const path=`${profile.organization_id}/${new Date().getFullYear()}/${paymentId}/${receiptNumber}.pdf`;
+ const {error}=await db().storage.from('receipt-documents').upload(path,blob,{contentType:'application/pdf',upsert:true});
+ fail(error);
+ const {error:attachError}=await db().rpc('attach_payment_receipt_v2',{p_payment_id:paymentId,p_storage_path:path,p_brand_snapshot:brandSnapshot});
+ fail(attachError);
+ return path;
+}
 export async function getPaymentReceiptUrl(path:string){const {data,error}=await db().storage.from('receipt-documents').createSignedUrl(path,600);fail(error);return data?.signedUrl??'';}
-
 export async function getPaymentReceiptData(paymentId:string){const{data,error}=await db().rpc('get_payment_receipt_data',{p_payment_id:paymentId});fail(error);return data;}
 export async function recordPaymentReprint(paymentId:string){const{error}=await db().rpc('record_payment_reprint',{p_payment_id:paymentId});fail(error);}

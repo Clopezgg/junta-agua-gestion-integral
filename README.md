@@ -1,38 +1,37 @@
 # Sistema Integral de Junta de Agua
 
-Proyecto nuevo creado desde cero para la Junta de Agua. No deriva ni contiene carpetas, componentes, pruebas, nombres, servicios o datos de los ZIP de referencia.
+Plataforma privada para administrar abonados, pegues, tarifas, obligaciones, pagos, caja, gastos, presupuesto, activos, mantenimiento, inventario, comunicaciones, auditoría y respaldos.
 
-## Fases incluidas
-
-### Fase 1
-- Supabase Auth.
-- Contraseña individual.
-- MFA TOTP obligatorio.
-- Administrador principal único durante el arranque.
-- Roles y permisos.
-- Protección de rutas.
+## Seguridad
+- Supabase Auth y MFA TOTP obligatorio.
+- Roles y permisos por tarea.
 - Row Level Security.
-- Auditoría inalterable desde la interfaz.
-- Almacenamiento privado.
+- Escrituras sensibles mediante funciones auditadas.
+- Archivos institucionales y documentos en buckets privados.
+- Sin datos demo ni acceso simulado.
 
-### Fase 2
-- Abonados con código correlativo de seis dígitos.
-- Identidad única normalizada.
-- Búsqueda avanzada.
-- Bloqueo de duplicados exactos.
-- Detección de nombres similares.
-- Aclaratoria obligatoria para homónimos.
-- Varios pegues por abonado.
-- Prevención de medidor activo duplicado.
-- Ficha técnica y documentos privados.
+## Capacidades principales
+- Abonados con identidad normalizada, homónimos controlados y múltiples pegues.
+- Tarifas versionadas, anualidades, morosidad y estados de cuenta.
+- Pagos mixtos, caja, anulaciones, devoluciones y QR de verificación.
+- Recibo institucional media carta con logo, firma, sello, marca de impresión y estado PAGADO.
+- Identidad histórica inmutable para reimpresiones.
+- Gastos con separación de funciones y factura obligatoria.
+- Presupuesto anual, saldos iniciales, reservas y presupuesto vs. ejecutado sin doble conteo.
+- Activos georreferenciados, órdenes de trabajo y mantenimiento preventivo sin saltos de calendario.
+- Inventario vinculado a órdenes.
+- Búsqueda universal y dashboard de pendientes por rol.
+- WhatsApp, correo, OCR, Google Maps y respaldos mediante integraciones configurables.
 
 ## Puesta en marcha
-1. Cree un proyecto Supabase.
-2. Ejecute las migraciones en orden.
-3. Cree el primer usuario en Supabase Auth.
-4. Copie `.env.example` a `.env` y agregue las claves públicas.
-5. Inicie sesión con el primer usuario y ejecute `bootstrap_organization` una sola vez desde una herramienta administrativa segura.
-6. Configure TOTP para el usuario.
+1. Crear un proyecto Supabase exclusivo.
+2. Ejecutar las migraciones en orden 001–017.
+3. Crear el primer usuario y completar `/setup`.
+4. Activar MFA.
+5. Configurar `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en Render.
+6. Desplegar las Edge Functions.
+7. Cargar logo, firma y sello en Configuración.
+8. Ejecutar las pruebas end-to-end antes de usar dinero real.
 
 ## Comandos
 ```bash
@@ -43,19 +42,13 @@ npm test
 npm run lint
 ```
 
-No contiene datos demo ni acceso simulado. Sin Supabase configurado, el sistema se bloquea de forma explícita.
+## Versión 2.0.0
+Las migraciones `202607110014_platform_v2_premium_budget_assets_ux.sql` a `202607110017_preventive_schedule_integrity.sql` incorporan las cinco mejoras mayores, garantizan sus permisos, evitan doble conteo financiero y protegen el calendario preventivo. Consulte `docs/PLATAFORMA-V2.md` y `CHANGELOG.md`.
 
-## Fase 3 incorporada
-La versión 0.3.0 añade tarifas versionadas, anualidades idempotentes, obligaciones manuales, estados de cuenta, morosidad automática y bloqueos operativos por deuda. Consulte `docs/FASE-3.md`.
-
-
-## Estado actual
-Fases 1 a 9 integradas. Visor interno: `/avance`. La validación remota requiere desplegar las migraciones en Supabase.
+La aplicación muestra versión, commit y fecha de compilación. Los tags `v*` activan el workflow de GitHub Releases, que valida el tag contra `package.json`, ejecuta pruebas, compila y publica el artefacto.
 
 ## Integraciones externas
-La implementación completa en código está documentada en `docs/INTEGRACIONES-COMPLETAS.md`. Las credenciales privadas deben configurarse como Supabase Secrets y las claves públicas del mapa como variables de Render.
+Las credenciales privadas se configuran como Supabase Secrets. Las claves públicas de mapas se configuran en Render. Nunca coloque `service_role`, tokens de WhatsApp o claves privadas en variables `VITE_`.
 
-## Auditoría final 1.1.0
-La migración `202607110012_final_audit_corrections.sql` corrige devoluciones, caja, pagos mixtos, configuración institucional, auditoría visible, reimpresiones y reportes detallados. Consulte `docs/AUDITORIA-FINAL-OBJETIVO.md` antes de desplegar.
-
-Para el webhook de WhatsApp, despliegue respetando `supabase/config.toml`; esta función debe aceptar llamadas de Meta sin JWT de usuario y valida su propio token de verificación.
+## Regla de producción
+No operar con datos financieros reales hasta completar migraciones, MFA, RLS con dos roles, pago y reimpresión de prueba, cierre de caja, gasto con factura, presupuesto, orden preventiva, respaldo y restauración controlada.

@@ -25,13 +25,53 @@ jobs:
       - name: Instalar dependencias
         run: npm install --include=dev --no-audit --no-fund --registry=https://registry.npmjs.org/
       - name: Pruebas
-        run: npm test
-      - name: Lint
-        run: npm run lint
-      - name: Compilar
-        run: npm run build:render
-      - name: Verificar publicación
+        id: tests
+        continue-on-error: true
+        shell: bash
         run: |
-          test -f dist/index.html
-          test -f dist/health.txt
-          test -f dist/_redirects
+          set -o pipefail
+          npm test 2>&1 | tee test-output.log
+      - name: Lint
+        id: lint
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run lint 2>&1 | tee lint-output.log
+      - name: Compilar
+        id: build
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run build:render 2>&1 | tee build-output.log
+      - name: Verificar publicación
+        id: publish
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          {
+            test -f dist/index.html
+            test -f dist/health.txt
+            test -f dist/_redirects
+          } 2>&1 | tee publish-output.log
+      - name: Guardar diagnósticos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnosticos-validacion
+          path: |
+            test-output.log
+            lint-output.log
+            build-output.log
+            publish-output.log
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Fallar si alguna validación falló
+        if: always()
+        run: |
+          test "${{ steps.tests.outcome }}" = "success"
+          test "${{ steps.lint.outcome }}" = "success"
+          test "${{ steps.build.outcome }}" = "success"
+          test "${{ steps.publish.outcome }}" = "success"
