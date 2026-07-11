@@ -1,0 +1,20 @@
+[functions.whatsapp-webhook]
+verify_jwt = false
+
+[functions.send-email]
+verify_jwt = true
+
+[functions.send-whatsapp]
+verify_jwt = true
+
+[functions.ocr-document]
+verify_jwt = true
+
+[functions.backup-manager]
+verify_jwt = true
+
+[functions.integration-test]
+verify_jwt = true
+
+[functions.admin-create-user]
+verify_jwt = true

@@ -1,0 +1,1 @@
+export function Setup(){return <main className="auth"><section className="panel"><h1>Configuración segura pendiente</h1><p>Defina <code>VITE_SUPABASE_URL</code> y <code>VITE_SUPABASE_ANON_KEY</code>, ejecute las migraciones y cree el primer usuario en Supabase Auth.</p><p>El sistema no mostrará datos simulados ni permitirá acceso sin una base real.</p></section></main>}
