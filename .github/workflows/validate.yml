@@ -1,0 +1,33 @@
+name: Validar aplicación
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+      - name: Instalar dependencias
+        run: npm ci --include=dev
+      - name: Pruebas
+        run: npm test
+      - name: Lint
+        run: npm run lint
+      - name: Compilar
+        run: npm run build:render
+      - name: Verificar publicación
+        run: |
+          test -f dist/index.html
+          test -f dist/health.txt
+          test -f dist/_redirects
