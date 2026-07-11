@@ -5,22 +5,25 @@ Ejecute después de las migraciones 001–013 y exactamente en este orden:
 
 1. `supabase/migrations/202607110014_platform_v2_premium_budget_assets_ux.sql`
 2. `supabase/migrations/202607110015_platform_v2_role_permissions.sql`
+3. `supabase/migrations/202607110016_budget_actual_matching_fix.sql`
 
-La 014 incorpora RLS, presupuesto, activos, mantenimiento, búsqueda universal, panel por rol y snapshot histórico del recibo. La 015 actualiza `seed_default_roles` para garantizar que instalaciones nuevas y organizaciones existentes reciban correctamente los permisos de presupuesto, activos y mantenimiento.
+La 014 incorpora RLS, presupuesto, activos, mantenimiento, búsqueda universal, panel por rol y snapshot histórico del recibo. La 015 actualiza `seed_default_roles` para garantizar que instalaciones nuevas y organizaciones existentes reciban correctamente los permisos de presupuesto, activos y mantenimiento. La 016 evita que un rubro sin patrón de coincidencia contabilice todos los movimientos del libro mayor y produzca doble conteo.
 
 ## Secuencia de despliegue
 1. Ejecutar la migración 014 en Supabase SQL Editor.
 2. Confirmar `Success. No rows returned`.
 3. Ejecutar la migración 015.
 4. Confirmar nuevamente `Success. No rows returned`.
-5. Desplegar la rama aprobada en Render.
-6. Entrar en Configuración y cargar logo, firma y sello.
-7. Guardar nombre y cargo del firmante.
-8. Crear el periodo fiscal y saldos iniciales.
-9. Crear rubros y aprobar el presupuesto con MFA.
-10. Registrar activos y coordenadas GIS.
-11. Crear planes preventivos.
-12. Ejecutar una operación completa con datos de prueba.
+5. Ejecutar la migración 016.
+6. Confirmar nuevamente `Success. No rows returned`.
+7. Desplegar la rama aprobada en Render.
+8. Entrar en Configuración y cargar logo, firma y sello.
+9. Guardar nombre y cargo del firmante.
+10. Crear el periodo fiscal y saldos iniciales.
+11. Crear rubros y aprobar el presupuesto con MFA.
+12. Registrar activos y coordenadas GIS.
+13. Crear planes preventivos.
+14. Ejecutar una operación completa con datos de prueba.
 
 ## Consultas de comprobación
 
@@ -32,7 +35,8 @@ select
   to_regprocedure('public.global_search(text,integer)') is not null as busqueda,
   to_regprocedure('public.get_role_dashboard()') is not null as panel_roles,
   to_regprocedure('public.attach_payment_receipt_v2(uuid,text,jsonb)') is not null as recibo_historico,
-  to_regprocedure('public.seed_default_roles(uuid)') is not null as roles_v2;
+  to_regprocedure('public.seed_default_roles(uuid)') is not null as roles_v2,
+  to_regprocedure('public.get_budget_dashboard(integer)') is not null as ejecucion_presupuestaria;
 ```
 
 Todos los valores deben ser `true`.
@@ -44,6 +48,7 @@ Todos los valores deben ser `true`.
 - La reimpresión conserva la identidad institucional histórica del pago.
 - Logo, firma y sello se almacenan en bucket privado.
 - El presupuesto muestra saldos iniciales, reserva, variación y ejecución.
+- Un rubro sin patrón de coincidencia muestra ejecución cero y no duplica movimientos de otros rubros.
 - Los activos incluyen condición, criticidad, reposición y coordenadas.
 - Los planes vencidos generan órdenes preventivas sin duplicarlas.
 - Completar una orden usa un formulario institucional y crea historial del activo.
