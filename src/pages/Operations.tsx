@@ -1,5 +1,5 @@
 import {useCallback,useEffect,useMemo,useState} from 'react';
-import {Boxes,ClipboardList,Gauge,MapPinned,PackagePlus,Plus,RefreshCw,Settings2,Wrench} from 'lucide-react';
+import {Boxes,ClipboardList,Gauge,MapPinned,PackagePlus,Plus,RefreshCw,Settings2,Wrench,X} from 'lucide-react';
 import {GoogleMapPicker} from '../components/maps/GoogleMapPicker';
 import {createAsset,createInventoryItem,createMaintenancePlan,createWorkOrder,generatePreventiveWorkOrders,listAssets,listInventory,listMaintenancePlans,listWorkOrders,registerInventoryMovement,updateWorkOrderDetails} from '../features/operations/service';
 import {useAuth} from '../contexts/AuthContext';
@@ -24,6 +24,7 @@ export function Operations(){
  const[plan,setPlan]=useState({asset_id:'',name:'',frequency_days:'30',next_due_date:today,estimated_cost:'0',checklist:''});
  const[item,setItem]=useState({code:'',name:'',unit:'unidad',minimum_stock:'0',unit_cost:'0'});
  const[movement,setMovement]=useState({item_id:'',movement_type:'entry',quantity:'',reason:'',work_order_id:''});
+ const[completion,setCompletion]=useState<{row:Row;actual_cost:string;notes:string}|null>(null);
 
  const load=useCallback(async()=>{
    try{
@@ -73,11 +74,16 @@ export function Operations(){
      setMessage(`${Number(result?.generated??0)} órdenes preventivas generadas.`);await load();
    }catch(e){setError((e as Error).message)}
  }
- async function completeOrder(row:Row){
-   const actual=window.prompt('Costo real de la orden',String(row.estimated_cost??0));
-   if(actual===null)return;
-   const notes=window.prompt('Detalle del trabajo realizado','Trabajo finalizado')??'Trabajo finalizado';
-   try{await updateWorkOrderDetails(row.id,{status:'completed',actual_cost:Number(actual),notes});setMessage('Orden completada y agregada al historial del activo.');await load()}catch(e){setError((e as Error).message)}
+ async function confirmCompletion(event:React.FormEvent){
+   event.preventDefault();
+   if(!completion)return;
+   const actualCost=Number(completion.actual_cost);
+   if(!Number.isFinite(actualCost)||actualCost<0){setError('El costo real no es válido.');return;}
+   if(completion.notes.trim().length<5){setError('Describa el trabajo realizado.');return;}
+   try{
+     await updateWorkOrderDetails(completion.row.id,{status:'completed',actual_cost:actualCost,notes:completion.notes.trim()});
+     setCompletion(null);setMessage('Orden completada y agregada al historial técnico del activo.');await load();
+   }catch(e){setError((e as Error).message)}
  }
 
  return <main className="content">
@@ -108,7 +114,7 @@ export function Operations(){
     <label>Costo estimado<input type="number" min="0" step="0.01" value={order.estimated_cost} onChange={e=>setOrder({...order,estimated_cost:e.target.value})}/></label>
     <button>Crear orden</button>
    </form></section>}
-   <section className="panel"><h2>Cola de trabajo</h2>{orders.length===0?<div className="empty">No existen órdenes.</div>:orders.map(row=><div className={`work-order priority-${row.priority}`} key={row.id}><div><strong>{row.order_number} — {row.type}</strong><small>{row.description}</small><span>{row.asset_name?`${row.asset_code} · ${row.asset_name}`:'Sin activo'} · {row.status}{row.due_date?` · vence ${row.due_date}`:''}</span><span>Estimado {money(row.estimated_cost)} · Real {money(row.actual_cost)}</span></div>{auth.has('operations.manage')&&!['completed','cancelled'].includes(row.status)&&<button className="compact" onClick={()=>void completeOrder(row)}>Completar</button>}</div>)}</section>
+   <section className="panel"><h2>Cola de trabajo</h2>{orders.length===0?<div className="empty">No existen órdenes.</div>:orders.map(row=><div className={`work-order priority-${row.priority}`} key={row.id}><div><strong>{row.order_number} — {row.type}</strong><small>{row.description}</small><span>{row.asset_name?`${row.asset_code} · ${row.asset_name}`:'Sin activo'} · {row.status}{row.due_date?` · vence ${row.due_date}`:''}</span><span>Estimado {money(row.estimated_cost)} · Real {money(row.actual_cost)}</span></div>{auth.has('operations.manage')&&!['completed','cancelled'].includes(row.status)&&<button className="compact" onClick={()=>setCompletion({row,actual_cost:String(row.estimated_cost??0),notes:''})}>Completar</button>}</div>)}</section>
   </div>}
 
   {tab==='assets'&&<>
@@ -149,5 +155,7 @@ export function Operations(){
    {auth.has('inventory.manage')&&<section className="panel"><h2><PackagePlus size={19}/>Nuevo material</h2><form className="subform" onSubmit={async event=>{event.preventDefault();try{await createInventoryItem({...item,minimum_stock:Number(item.minimum_stock),unit_cost:Number(item.unit_cost)});setItem({code:'',name:'',unit:'unidad',minimum_stock:'0',unit_cost:'0'});await load()}catch(e){setError((e as Error).message)}}}><input required placeholder="Código" value={item.code} onChange={e=>setItem({...item,code:e.target.value})}/><input required placeholder="Nombre" value={item.name} onChange={e=>setItem({...item,name:e.target.value})}/><input required placeholder="Unidad" value={item.unit} onChange={e=>setItem({...item,unit:e.target.value})}/><input type="number" min="0" step="0.001" placeholder="Mínimo" value={item.minimum_stock} onChange={e=>setItem({...item,minimum_stock:e.target.value})}/><input type="number" min="0" step="0.01" placeholder="Costo unitario" value={item.unit_cost} onChange={e=>setItem({...item,unit_cost:e.target.value})}/><button>Crear material</button></form></section>}
    <section className="panel"><h2>Inventario</h2>{auth.has('inventory.manage')&&<form className="subform" onSubmit={async event=>{event.preventDefault();try{await registerInventoryMovement({...movement,quantity:Number(movement.quantity)});setMovement({item_id:'',movement_type:'entry',quantity:'',reason:'',work_order_id:''});await load()}catch(e){setError((e as Error).message)}}}><select required value={movement.item_id} onChange={e=>setMovement({...movement,item_id:e.target.value})}><option value="">Material</option>{stock.map(row=><option key={row.id} value={row.id}>{row.name}</option>)}</select><select value={movement.movement_type} onChange={e=>setMovement({...movement,movement_type:e.target.value})}><option value="entry">Entrada</option><option value="exit">Salida</option><option value="adjustment">Ajuste</option></select><input required type="number" min="0.001" step="0.001" value={movement.quantity} onChange={e=>setMovement({...movement,quantity:e.target.value})}/><input required placeholder="Motivo" value={movement.reason} onChange={e=>setMovement({...movement,reason:e.target.value})}/><select value={movement.work_order_id} onChange={e=>setMovement({...movement,work_order_id:e.target.value})}><option value="">Sin orden asociada</option>{orders.map(row=><option key={row.id} value={row.id}>{row.order_number}</option>)}</select><button>Registrar movimiento</button></form>}<div className="table-scroll"><table><thead><tr><th>Material</th><th>Existencia</th><th>Mínimo</th><th>Valor</th></tr></thead><tbody>{stock.map(row=><tr key={row.id}><td>{row.name}</td><td>{row.quantity} {row.unit}</td><td className={Number(row.quantity)<=Number(row.minimum_stock)?'warn':''}>{row.minimum_stock}</td><td>{money(Number(row.quantity)*Number(row.unit_cost))}</td></tr>)}</tbody></table></div></section>
   </div>}
+
+  {completion&&<div className="modal" role="dialog" aria-modal="true"><form className="modal-card" onSubmit={confirmCompletion}><div className="titlebar"><div><h2>Completar orden {completion.row.order_number}</h2><p>El cierre se guardará en auditoría y en el historial del activo.</p></div><button type="button" className="outline" onClick={()=>setCompletion(null)}><X size={18}/>Cerrar</button></div><p><strong>{completion.row.description}</strong></p><div className="form-grid"><label>Costo estimado<input readOnly value={Number(completion.row.estimated_cost??0).toFixed(2)}/></label><label>Costo real<input type="number" required min="0" step="0.01" value={completion.actual_cost} onChange={e=>setCompletion({...completion,actual_cost:e.target.value})}/></label><label className="span-2">Trabajo realizado<textarea required minLength={5} value={completion.notes} onChange={e=>setCompletion({...completion,notes:e.target.value})} placeholder="Detalle técnico, repuestos utilizados y resultado de la intervención."/></label></div><button>Finalizar orden y registrar historial</button></form></div>}
  </main>;
 }
