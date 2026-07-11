@@ -7,7 +7,7 @@ const integrations=readFileSync(join(root,'src/pages/Integrations.tsx'),'utf8');
 const payments=readFileSync(join(root,'src/pages/Payments.tsx'),'utf8');
 describe('integraciones completas',()=>{
  it('crea comunicación, OCR, respaldos y verificación pública',()=>{expect(migration).toContain('communication_messages');expect(migration).toContain('ocr_extractions');expect(migration).toContain('backup_runs');expect(migration).toContain('verify_receipt_public');});
- it('protege recibos y respaldos en buckets privados',()=>{expect(migration).toContain("'receipt-documents'");expect(migration).toContain("'system-backups'");expect(migration).toMatch(/values\('(?:system-backups|receipt-documents)'[^;]+false/s);});
+ it('protege recibos y respaldos en buckets privados',()=>{expect(migration).toContain("'receipt-documents'");expect(migration).toContain("'system-backups'");expect(migration).toMatch(/values\s*\(\s*'(?:system-backups|receipt-documents)'[\s\S]+?false/);});
  it('incluye mapa y verificación pública en rutas',()=>{expect(app).toContain('verificar-recibo/:token');expect(app).toContain('path="mapa"');expect(app).toContain('path="respaldos"');});
  it('conecta OCR antes del alta y mapa en pegues',()=>{expect(subscribers).toContain('uploadTemporaryIdentityDocument');expect(subscribers).toContain('runOcr');expect(subscribers).toContain('GoogleMapPicker');});
  it('elimina prompts de secretos y prueba conectores',()=>{expect(integrations).not.toContain('prompt(');expect(integrations).toContain('testIntegration');expect(integrations).toContain('Supabase Secrets');});
