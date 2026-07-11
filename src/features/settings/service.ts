@@ -12,8 +12,9 @@ export async function uploadOrganizationAsset(file:File,kind:'logo'|'signature'|
   fail(profileError);
   if(!profile)throw new Error('No se pudo determinar la organización.');
   const ext=file.name.split('.').pop()?.toLowerCase()||'png';
-  const path=`${profile.organization_id}/${kind}.${ext}`;
-  const{error}=await db().storage.from('organization-assets').upload(path,file,{upsert:true,contentType:file.type});
+  const timestamp=new Date().toISOString().replace(/[:.]/g,'-');
+  const path=`${profile.organization_id}/${kind}/${timestamp}-${crypto.randomUUID()}.${ext}`;
+  const{error}=await db().storage.from('organization-assets').upload(path,file,{upsert:false,contentType:file.type});
   fail(error);
   return path;
 }
