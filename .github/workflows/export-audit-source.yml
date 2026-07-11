@@ -1,0 +1,26 @@
+name: Exportar código para auditoría
+
+on:
+  push:
+    branches:
+      - audit/multifuente-integracion-total
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+      - name: Empaquetar código fuente
+        run: |
+          zip -r junta-agua-main-audit.zip . \
+            -x '.git/*' 'node_modules/*' 'dist/*' '*.zip'
+      - name: Publicar artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: junta-agua-main-audit
+          path: junta-agua-main-audit.zip
+          retention-days: 2
