@@ -24,9 +24,20 @@ describe('plataforma v2 institucional',()=>{
     expect(sql).not.toContain('bc.match_pattern is null\n            or');
   });
 
-  it('genera recibos media carta con estados y snapshot institucional',()=>{
+  it('no adelanta planes preventivos cuando ya existe una orden abierta',()=>{
+    const sql=read('supabase/migrations/202607110017_preventive_schedule_integrity.sql');
+    const insertion=sql.indexOf('insert into public.work_orders');
+    const advancement=sql.indexOf('update public.maintenance_plans');
+    expect(insertion).toBeGreaterThan(-1);
+    expect(advancement).toBeGreaterThan(insertion);
+    expect(sql).toContain("w.status not in('completed','cancelled')");
+    expect(sql).toContain("'skipped_open_orders'");
+  });
+
+  it('genera recibos media carta con estados e identidad institucional histórica',()=>{
     const documents=read('src/features/finance/documents.ts');
     const finance=read('src/features/finance/service.ts');
+    const settings=read('src/features/settings/service.ts');
     expect(documents).toContain('format:[139.7,215.9]');
     expect(documents).toContain("receipt.copy?'REIMPRESIÓN':'IMPRESIÓN'");
     expect(documents).toContain("return'PAGADO'");
@@ -34,6 +45,8 @@ describe('plataforma v2 institucional',()=>{
     expect(documents).toContain('stampDataUrl');
     expect(finance).toContain('attach_payment_receipt_v2');
     expect(finance).toContain('p_brand_snapshot');
+    expect(settings).toContain('crypto.randomUUID()');
+    expect(settings).toContain('upsert:false');
   });
 
   it('muestra versión y automatiza GitHub Releases',()=>{
