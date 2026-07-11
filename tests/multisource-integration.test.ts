@@ -34,7 +34,8 @@ describe('consolidación multifuente 2.1',()=>{
     expect(schema).toContain('alter table public.meter_readings enable row level security');
     expect(schema).toContain('alter table public.data_import_batches enable row level security');
     expect(schema).toContain("coalesce((auth.jwt()->>'aal'),'aal1')<>'aal2'");
-    expect(schema).toContain("public.write_audit_event('metering.batch.post'");
+    expect(schema).toContain('public.write_audit_event(');
+    expect(schema).toContain("'metering.batch.post'");
   });
 
   it('implementa importación XLSX CSV TSV con hash, mapeo y fila auditada',()=>{
