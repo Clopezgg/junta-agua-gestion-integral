@@ -49,6 +49,14 @@ describe('plataforma v2 institucional',()=>{
     expect(settings).toContain('upsert:false');
   });
 
+  it('incluye presupuesto, activos, mantenimiento y archivos históricos en respaldos',()=>{
+    const backup=read('supabase/functions/backup-manager/index.ts');
+    for(const table of ['fiscal_periods','budget_categories','budget_lines','assets','maintenance_plans','asset_maintenance_log'])expect(backup).toContain(`'${table}'`);
+    expect(backup).toContain("format:'junta-agua-backup-v3'");
+    expect(backup).toContain("'organization-assets'");
+    expect(backup).toContain("'junta-agua-backup-v3'");
+  });
+
   it('muestra versión y automatiza GitHub Releases',()=>{
     const pkg=JSON.parse(read('package.json')) as {version:string};
     const vite=read('vite.config.ts');
