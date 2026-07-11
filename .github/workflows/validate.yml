@@ -55,6 +55,8 @@ jobs:
             test -f dist/index.html
             test -f dist/health.txt
             test -f dist/_redirects
+            test -f dist/manifest.webmanifest
+            test -f dist/sw.js
           } 2>&1 | tee publish-output.log
       - name: Guardar diagnósticos
         if: always()

@@ -52,16 +52,16 @@ describe('plataforma v2 institucional',()=>{
   it('incluye presupuesto, activos, mantenimiento y archivos históricos en respaldos',()=>{
     const backup=read('supabase/functions/backup-manager/index.ts');
     for(const table of ['fiscal_periods','budget_categories','budget_lines','assets','maintenance_plans','asset_maintenance_log'])expect(backup).toContain(`'${table}'`);
-    expect(backup).toContain("format:'junta-agua-backup-v3'");
+    expect(backup).toContain("format:'junta-agua-backup-v4'");
     expect(backup).toContain("'organization-assets'");
-    expect(backup).toContain("'junta-agua-backup-v3'");
+    expect(backup).toContain("'junta-agua-backup-v4'");
   });
 
   it('muestra versión y publica GitHub Releases desde main',()=>{
     const pkg=JSON.parse(read('package.json')) as {version:string};
     const vite=read('vite.config.ts');
     const release=read('.github/workflows/release.yml');
-    expect(pkg.version).toBe('2.0.0');
+    expect(pkg.version).toBe('2.1.0');
     expect(vite).toContain('__APP_COMMIT_SHA__');
     expect(vite).toContain('RENDER_GIT_COMMIT');
     expect(release).toContain('branches: [main]');
