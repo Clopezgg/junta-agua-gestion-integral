@@ -57,15 +57,18 @@ describe('plataforma v2 institucional',()=>{
     expect(backup).toContain("'junta-agua-backup-v3'");
   });
 
-  it('muestra versión y automatiza GitHub Releases',()=>{
+  it('muestra versión y publica GitHub Releases desde main',()=>{
     const pkg=JSON.parse(read('package.json')) as {version:string};
     const vite=read('vite.config.ts');
     const release=read('.github/workflows/release.yml');
     expect(pkg.version).toBe('2.0.0');
     expect(vite).toContain('__APP_COMMIT_SHA__');
     expect(vite).toContain('RENDER_GIT_COMMIT');
-    expect(release).toContain("- 'v*'");
+    expect(release).toContain('branches: [main]');
+    expect(release).toContain('workflow_dispatch:');
+    expect(release).toContain('gh release view');
     expect(release).toContain('gh release create');
+    expect(release).toContain('--target "${GITHUB_SHA}"');
   });
 
   it('integra módulos y navegación orientada a tareas',()=>{
