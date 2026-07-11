@@ -16,7 +16,7 @@ Plataforma privada para administrar abonados, pegues, tarifas, obligaciones, pag
 - Pagos mixtos, caja, anulaciones, devoluciones y QR de verificación.
 - Recibo institucional media carta con logo, firma, sello, marca de impresión y estado PAGADO.
 - Gastos con separación de funciones y factura obligatoria.
-- Presupuesto anual, saldos iniciales, reservas y presupuesto vs. ejecutado.
+- Presupuesto anual, saldos iniciales, reservas y presupuesto vs. ejecutado sin doble conteo.
 - Activos georreferenciados, órdenes de trabajo y mantenimiento preventivo.
 - Inventario vinculado a órdenes.
 - Búsqueda universal y dashboard de pendientes por rol.
@@ -24,7 +24,7 @@ Plataforma privada para administrar abonados, pegues, tarifas, obligaciones, pag
 
 ## Puesta en marcha
 1. Crear un proyecto Supabase exclusivo.
-2. Ejecutar las migraciones en orden 001–015.
+2. Ejecutar las migraciones en orden 001–016.
 3. Crear el primer usuario y completar `/setup`.
 4. Activar MFA.
 5. Configurar `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en Render.
@@ -42,7 +42,7 @@ npm run lint
 ```
 
 ## Versión 2.0.0
-Las migraciones `202607110014_platform_v2_premium_budget_assets_ux.sql` y `202607110015_platform_v2_role_permissions.sql` incorporan las cinco mejoras mayores de producto y garantizan sus permisos en instalaciones nuevas y existentes. Consulte `docs/PLATAFORMA-V2.md` y `CHANGELOG.md`.
+Las migraciones `202607110014_platform_v2_premium_budget_assets_ux.sql`, `202607110015_platform_v2_role_permissions.sql` y `202607110016_budget_actual_matching_fix.sql` incorporan las cinco mejoras mayores, garantizan sus permisos y evitan doble conteo en presupuesto vs. ejecutado. Consulte `docs/PLATAFORMA-V2.md` y `CHANGELOG.md`.
 
 La aplicación muestra versión, commit y fecha de compilación. Los tags `v*` activan el workflow de GitHub Releases, que valida el tag contra `package.json`, ejecuta pruebas, compila y publica el artefacto.
 
