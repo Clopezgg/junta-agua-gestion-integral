@@ -17,6 +17,13 @@ describe('plataforma v2 institucional',()=>{
     expect(sql).toContain('create or replace function public.get_role_dashboard');
   });
 
+  it('evita doble conteo en presupuesto ejecutado',()=>{
+    const sql=read('supabase/migrations/202607110016_budget_actual_matching_fix.sql');
+    expect(sql).toContain('bc.match_pattern is not null');
+    expect(sql).toContain("trim(bc.match_pattern)<>''");
+    expect(sql).not.toContain('bc.match_pattern is null\n            or');
+  });
+
   it('genera recibos media carta con estados y snapshot institucional',()=>{
     const documents=read('src/features/finance/documents.ts');
     const finance=read('src/features/finance/service.ts');
@@ -44,10 +51,13 @@ describe('plataforma v2 institucional',()=>{
     const app=read('src/App.tsx');
     const layout=read('src/components/Layout.tsx');
     const home=read('src/pages/Home.tsx');
+    const operations=read('src/pages/Operations.tsx');
     expect(app).toContain('path="presupuesto"');
     expect(layout).toContain('<GlobalSearch/>');
     expect(layout).toContain('appVersion.version');
     expect(home).toContain('Centro de pendientes');
     expect(home).toContain('Acciones rápidas');
+    expect(operations).not.toContain('window.prompt');
+    expect(operations).toContain('Finalizar orden y registrar historial');
   });
 });
