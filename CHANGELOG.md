@@ -1,5 +1,28 @@
 # Historial de versiones
 
+## 2.1.0 — Consolidación multifuente
+
+### Medición y facturación
+- Lecturas manuales e importadas por lote.
+- Tarifas escalonadas por bloques de consumo y cargo fijo.
+- Detección de retroceso de medidor y consumo inusualmente alto.
+- Facturación idempotente con obligación vinculada a cada lectura.
+- Candidatos a corte por antigüedad y deuda real, sin ejecución automática.
+
+### Importaciones
+- Lectura de XLSX, CSV y TSV.
+- Mapeo de columnas y vista previa.
+- Validación con los mismos esquemas del registro manual.
+- Control de identidad duplicada y homónimos.
+- Historial por lote, SHA-256 y resultado por fila.
+
+### Integraciones y operación
+- Historial de ejecuciones con duración, estado y error normalizado.
+- Verificador de GitHub Releases con caché y soporte para repositorios privados.
+- Diagnóstico dinámico de RLS, MFA, migraciones y conectores.
+- PWA instalable con caché de shell, sin almacenar transacciones financieras fuera de línea.
+- Respaldo `junta-agua-backup-v4`.
+
 ## 2.0.0 — Plataforma institucional
 
 ### Recibos

@@ -9,26 +9,28 @@ const direct=[
   'profiles','roles',
   'subscribers','subscriber_identities','water_connections','duplicate_reviews',
   'tariff_definitions','tariff_versions','obligations','debt_override_events',
+  'consumption_tariff_schemes','consumption_tariff_blocks','meter_reading_batches','meter_readings',
   'document_sequences','cash_sessions','payments','payment_events',
   'suppliers','expenses','bank_accounts','ledger_entries',
   'fiscal_periods','budget_categories','budget_lines',
-  'integrations',
+  'integrations','integration_runs','system_update_state',
   'assets','maintenance_plans','work_orders','asset_maintenance_log',
   'inventory_items','inventory_movements',
-  'system_health_checks','communication_messages','ocr_extractions'
+  'system_health_checks','communication_messages','ocr_extractions','data_import_batches','data_import_rows'
 ];
 
 const restoreOrder=[
   'roles','profiles',
   'subscribers','subscriber_identities','water_connections','duplicate_reviews',
   'tariff_definitions','tariff_versions','obligations','debt_override_events',
+  'consumption_tariff_schemes','consumption_tariff_blocks','meter_reading_batches','meter_readings',
   'document_sequences','cash_sessions','payments','payment_events',
   'suppliers','expenses','bank_accounts','ledger_entries',
   'fiscal_periods','budget_categories','budget_lines',
-  'integrations',
+  'integrations','integration_runs','system_update_state',
   'assets','maintenance_plans','work_orders','asset_maintenance_log',
   'inventory_items','inventory_movements',
-  'system_health_checks','communication_messages','ocr_extractions'
+  'system_health_checks','communication_messages','ocr_extractions','data_import_batches','data_import_rows'
 ];
 
 const fileBuckets=['subscriber-documents','expense-evidence','receipt-documents','organization-assets'];
@@ -133,7 +135,7 @@ Deno.serve(async request=>{
         for(const bucket of fileBuckets)files[bucket]=await collectFiles(admin,bucket,String(organizationId));
 
         const payload={
-          format:'junta-agua-backup-v3',
+          format:'junta-agua-backup-v4',
           created_at:new Date().toISOString(),
           organization_id:organizationId,
           organization,
@@ -178,7 +180,7 @@ Deno.serve(async request=>{
       const text=await file.text();
       if(await sha256(text)!==run.checksum_sha256)throw new Error('CHECKSUM_MISMATCH');
       const payload=JSON.parse(text);
-      if(payload.organization_id!==organizationId||!['junta-agua-backup-v1','junta-agua-backup-v2','junta-agua-backup-v3'].includes(payload.format))throw new Error('BACKUP_SCOPE_INVALID');
+      if(payload.organization_id!==organizationId||!['junta-agua-backup-v1','junta-agua-backup-v2','junta-agua-backup-v3','junta-agua-backup-v4'].includes(payload.format))throw new Error('BACKUP_SCOPE_INVALID');
 
       if(payload.organization){
         const{error}=await admin.from('organizations').upsert(payload.organization);

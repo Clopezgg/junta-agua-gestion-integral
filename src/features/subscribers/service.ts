@@ -30,3 +30,9 @@ export async function uploadTemporaryIdentityDocument(file:File){
  return path;
 }
 export async function attachExistingIdentityDocument(subscriberId:string,path:string){const db=requireDb();const {error}=await db.rpc('attach_identity_document',{p_subscriber_id:subscriberId,p_storage_path:path});if(error)throw new Error(error.message);return path;}
+export async function importSubscriberWithConnection(subscriber:SubscriberInput,connection?:ConnectionInput){
+ const db=requireDb();
+ const {data,error}=await db.rpc('import_subscriber_with_connection',{p_subscriber:subscriber,p_connection:connection??null});
+ if(error)throw new Error(error.message);
+ return data as {subscriber_id:string;connection_id?:string|null};
+}

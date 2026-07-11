@@ -6,9 +6,10 @@ export const appVersion={
 };
 
 export const releaseHighlights=[
-  'Recibo institucional premium en media carta con QR, sello, firma y marcas de estado.',
-  'Presupuesto anual, saldos iniciales, reservas y comparación presupuesto vs. ejecutado.',
-  'Catastro de activos, GIS, órdenes vinculadas y mantenimiento preventivo.',
-  'Búsqueda universal, panel de pendientes y navegación orientada a roles.',
-  'Versión visible y flujo formal de GitHub Releases.'
+  'Lecturas de medidor, tarifas escalonadas por consumo y facturación idempotente.',
+  'Importación auditada de abonados y lecturas desde XLSX, CSV o TSV.',
+  'Candidatos a corte calculados desde deuda real, sin suspensiones automáticas.',
+  'Historial de conectores, diagnóstico dinámico y búsqueda de GitHub Releases.',
+  'PWA instalable con caché segura únicamente para el shell de la aplicación.',
+  'Respaldo v4 con medición, importaciones, ejecuciones y estado de actualizaciones.'
 ];
