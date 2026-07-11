@@ -14,6 +14,11 @@ const normalizeHeader=(value:unknown,index:number)=>{
   return text||`columna_${index+1}`;
 };
 
+function normalizeCellValue(value:unknown):CellValue{
+  if(value===null||typeof value==='string'||typeof value==='number'||typeof value==='boolean'||value instanceof Date)return value;
+  return String(value);
+}
+
 function uniqueHeaders(values:unknown[]){
   const counts=new Map<string,number>();
   return values.map((value,index)=>{
@@ -55,7 +60,11 @@ export async function parseDataFile(file:File):Promise<ParsedDataFile>{
   let matrix:CellValue[][];
   let sourceType:ParsedDataFile['sourceType'];
   if(extension==='xlsx'){
-    matrix=(await readXlsxFile(file)) as CellValue[][];
+    const spreadsheet:unknown[]=await readXlsxFile(file);
+    matrix=spreadsheet.map(row=>{
+      if(!Array.isArray(row))throw new Error('La hoja contiene una fila con formato no compatible.');
+      return row.map(normalizeCellValue);
+    });
     sourceType='xlsx';
   }else if(extension==='csv'||extension==='tsv'){
     const text=await file.text();
