@@ -34,11 +34,17 @@ function methodLabel(value:string){
   return({cash:'Efectivo',transfer:'Transferencia',deposit:'Depósito',check:'Cheque',mixed:'Pago mixto'} as Record<string,string>)[value]??value;
 }
 
-function stateLabel(receipt:ReceiptInput){
+function documentLabel(receipt:ReceiptInput){
   if(receipt.status==='voided')return'ANULADO';
   if(receipt.status==='refunded')return'DEVUELTO';
   if(receipt.status==='partially_refunded')return'DEVOLUCIÓN PARCIAL';
-  if(receipt.copy)return'REIMPRESIÓN';
+  return receipt.copy?'REIMPRESIÓN':'IMPRESIÓN';
+}
+
+function paymentStatusLabel(receipt:ReceiptInput){
+  if(receipt.status==='voided')return'ANULADO';
+  if(receipt.status==='refunded')return'DEVUELTO';
+  if(receipt.status==='partially_refunded')return'DEVOLUCIÓN PARCIAL';
   return'PAGADO';
 }
 
@@ -46,19 +52,20 @@ export async function createReceiptPdfBlob(receipt:ReceiptInput){
   const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:[139.7,215.9],compress:true});
   const brand=receipt.brand??{};
   const width=139.7;
-  const height=215.9;
   const margin=8;
-  const state=stateLabel(receipt);
+  const documentState=documentLabel(receipt);
+  const paymentState=paymentStatusLabel(receipt);
   const primary:[number,number,number]=[7,59,76];
-  const accent:[number,number,number]=state==='ANULADO'||state==='DEVUELTO'?[153,27,27]:[11,110,117];
+  const isNegative=['ANULADO','DEVUELTO','DEVOLUCIÓN PARCIAL'].includes(paymentState);
+  const accent:[number,number,number]=isNegative?[153,27,27]:[11,110,117];
 
   pdf.setFillColor(...primary);
   pdf.rect(0,0,width,4,'F');
 
   pdf.setTextColor(225,232,236);
   pdf.setFont('helvetica','bold');
-  pdf.setFontSize(state.length>12?22:30);
-  pdf.text(state,width/2,112,{align:'center',angle:35});
+  pdf.setFontSize(documentState.length>12?22:30);
+  pdf.text(documentState,width/2,112,{align:'center',angle:35});
   pdf.setTextColor(20,33,61);
 
   addImageSafe(pdf,brand.logoDataUrl,margin,9,19,19);
@@ -138,8 +145,8 @@ export async function createReceiptPdfBlob(receipt:ReceiptInput){
   pdf.setLineWidth(.8);
   pdf.circle(28,150,15);
   pdf.setFont('helvetica','bold');
-  pdf.setFontSize(state.length>12?6.5:9);
-  pdf.text(state,28,149,{align:'center'});
+  pdf.setFontSize(paymentState.length>12?6.5:9);
+  pdf.text(paymentState,28,149,{align:'center'});
   pdf.setFontSize(6.5);
   pdf.text(receipt.number,28,154,{align:'center'});
   pdf.setTextColor(20,33,61);
@@ -170,7 +177,7 @@ export async function createReceiptPdfBlob(receipt:ReceiptInput){
   pdf.setTextColor(71,85,105);
   const footer=brand.footer||'Conserve este comprobante. Su autenticidad puede verificarse mediante el código QR.';
   pdf.text(pdf.splitTextToSize(footer,112).slice(0,2),margin,209);
-  pdf.text(`${receipt.copy?'REIMPRESIÓN':'ORIGINAL'} · ${receipt.number}`,width-margin,213,{align:'right'});
+  pdf.text(`${receipt.copy?'REIMPRESIÓN':'IMPRESIÓN ORIGINAL'} · ${receipt.number}`,width-margin,213,{align:'right'});
 
   pdf.setProperties({title:`Recibo ${receipt.number}`,subject:'Comprobante institucional de pago',author:brand.name||'Junta de Agua',keywords:'recibo,pago,agua,QR'});
   return pdf.output('blob');
