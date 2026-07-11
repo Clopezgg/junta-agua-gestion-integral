@@ -56,6 +56,10 @@ jobs:
             test -f dist/health.txt
             test -f dist/_redirects
           } 2>&1 | tee publish-output.log
+      - name: Empaquetar fuente para auditoría
+        run: |
+          zip -r junta-agua-source-audit.zip . \
+            -x '.git/*' 'node_modules/*' 'dist/*' '*.zip'
       - name: Guardar diagnósticos
         if: always()
         uses: actions/upload-artifact@v4
@@ -68,6 +72,12 @@ jobs:
             publish-output.log
           if-no-files-found: warn
           retention-days: 7
+      - name: Guardar fuente temporal
+        uses: actions/upload-artifact@v4
+        with:
+          name: junta-agua-source-audit
+          path: junta-agua-source-audit.zip
+          retention-days: 2
       - name: Fallar si alguna validación falló
         if: always()
         run: |
