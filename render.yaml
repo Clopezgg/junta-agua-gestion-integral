@@ -1,11 +1,13 @@
 services:
   - type: web
-    name: junta-agua-gestion
+    name: junta-agua-gestion-integral
     runtime: static
-    buildCommand: npm ci && npm run build
-    staticPublishPath: ./dist
+    buildCommand: npm ci --include=dev && npm run build:render
+    staticPublishPath: dist
     autoDeployTrigger: commit
     envVars:
+      - key: NODE_VERSION
+        value: 22.14.0
       - key: VITE_SUPABASE_URL
         sync: false
       - key: VITE_SUPABASE_ANON_KEY
