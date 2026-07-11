@@ -2,7 +2,7 @@ services:
   - type: web
     name: junta-agua-gestion-integral
     runtime: static
-    buildCommand: npm ci --include=dev && npm run build:render
+    buildCommand: npm install --include=dev --no-audit --no-fund --registry=https://registry.npmjs.org/ && npm run build:render
     staticPublishPath: dist
     autoDeployTrigger: commit
     envVars:
