@@ -18,24 +18,25 @@ describe('plataforma completa V3',()=>{
     const page=read('src/pages/PortalLogin.tsx');
     const edge=read('supabase/functions/subscriber-portal-login/index.ts');
     expect(page).toContain('DNI y contraseña');
-    expect(page).toContain('type={show?\'text\':\'password\'}');
+    expect(page).toContain("type={show?'text':'password'}");
     expect(edge).toContain('signInWithPassword');
     expect(edge).toContain('failed_login_count');
     expect(edge).toContain('ACCOUNT_TEMPORARILY_LOCKED');
   });
 
   it('restringe los campos editables del portal',()=>{
-    const migration=read('supabase/migrations/202607110027_subscriber_card_secure_portal.sql');
+    const migration=read('supabase/migrations/202607110026_annual_service_receipts_benefits_portal.sql');
     expect(migration).toContain("field_name text not null check(field_name in('whatsapp','email','address','photo_path'))");
     expect(migration).not.toContain("field_name in('full_name'");
     expect(migration).not.toContain("field_name in('document_number'");
   });
 
   it('mantiene la regla de adulto mayor de 60 años y 25 por ciento',()=>{
-    const migration=read('supabase/migrations/202607110026_annual_service_receipts_benefits_portal.sql');
-    expect(migration).toContain("'SENIOR_60'");
-    expect(migration).toContain('60,25,true,true,true');
-    expect(migration).toContain("benefit_percentage:=25");
+    const benefits=read('supabase/migrations/202607110026_annual_service_receipts_benefits_portal.sql');
+    const posting=read('supabase/migrations/202607110028_financial_document_posting_reversal.sql');
+    expect(benefits).toContain("'SENIOR_60'");
+    expect(benefits).toContain('60,25,true,true,true');
+    expect(posting).toContain('benefit_percentage:=25');
   });
 
   it('prioriza cuota anual y oculta medición en la navegación principal',()=>{
