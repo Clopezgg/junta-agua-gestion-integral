@@ -1,4 +1,4 @@
-import {useEffect,useState} from 'react';
+import {useCallback,useEffect,useState} from 'react';
 import {BadgeCheck,Camera,Copy,KeyRound,MapPin,Search,ShieldCheck,UserRound,WalletCards,Waves,X} from 'lucide-react';
 import {getSubscriberDigitalCard,getSubscriberDocumentUrl,searchSubscribers,uploadSubscriberPhoto} from '../features/subscribers/service';
 import {createPortalAccess} from '../features/portal/service';
@@ -19,9 +19,9 @@ export function SubscriberCards(){
   const[temporaryPassword,setTemporaryPassword]=useState('');
   const[portalResult,setPortalResult]=useState<Row|null>(null);
 
-  async function search(){try{setResults(await searchSubscribers(query));setError('')}catch(e){setError((e as Error).message)}}
+  const search=useCallback(async(searchQuery=query)=>{try{setResults(await searchSubscribers(searchQuery));setError('')}catch(e){setError((e as Error).message)}},[query]);
   async function open(id:string){try{const data=await getSubscriberDigitalCard(id);setCard(data);setPhotoUrl(await getSubscriberDocumentUrl(data?.photo_path));setPortalResult(null);setError('')}catch(e){setError((e as Error).message)}}
-  useEffect(()=>{if(query.trim().length===0)void search()},[]);
+  useEffect(()=>{void search('')},[search]);
   async function upload(file?:File){if(!file||!card)return;try{const path=await uploadSubscriberPhoto(card.id,file);setPhotoUrl(await getSubscriberDocumentUrl(path));setCard({...card,photo_path:path});setMessage('Fotografía actualizada y registrada en auditoría.')}catch(e){setError((e as Error).message)}}
   async function createAccess(){if(!card)return;try{const result=await createPortalAccess(card.id,temporaryPassword||undefined);setPortalResult(result);setTemporaryPassword('');setMessage('Acceso del abonado creado o restablecido con MFA.')}catch(e){setError((e as Error).message)}}
   async function copyAccess(){if(!portalResult)return;await navigator.clipboard.writeText(`DNI: ${portalResult.dni_masked}\nContraseña temporal: ${portalResult.temporary_password}\nPortal: ${window.location.origin}/portal`);setMessage('Datos temporales copiados. Entréguelos únicamente al titular.')}
