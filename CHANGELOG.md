@@ -1,5 +1,39 @@
 # Historial de versiones
 
+## 2.2.0 — Experiencia institucional, recibos y beneficios
+
+### Seguridad y usuarios
+- El superadministrador queda protegido en servidor e interfaz y no puede pasar a inactivo o bloqueado.
+- Gestión de usuarios con controles visuales por estado, roles y cuenta maestra protegida.
+- Login institucional rediseñado con explicación de MFA, privacidad y cuentas individuales.
+
+### Cuota anual y adulto mayor
+- Cuota anual predeterminada de L 400 por cada pegue activo.
+- Vigencia anual desde el 1 de enero y vencimiento el 30 de noviembre.
+- Mora aplicable desde el 1 de diciembre mediante concepto configurable.
+- Beneficio automático de adulto mayor desde los 60 años.
+- Descuento del 25% sobre la cuota anual de todos los pegues del titular.
+- DNI como evidencia requerida y cálculo auditado.
+
+### Recibos y configuración documental
+- Plantillas documentales versionadas con estados borrador, activa y retirada.
+- Edición de título, ubicación, concepto, textos, fechas, colores, estados, marca de agua, firma, sello, escudo y QR sin tocar código.
+- Vista previa institucional con original, reimpresión, pagado y descuento de adulto mayor.
+- Modelo de documentos financieros relacionados para factura, recibo, anulación, devolución y ajustes.
+
+### Catálogo de servicios
+- Códigos automáticos para tarifas y servicios.
+- Catálogo editable para nuevo pegue, reconexión, cambio o reparación de tubería, fuga, mano de obra, materiales, mora y aportes extraordinarios.
+- Configuración de cálculo, unidad, valor, aprobación, evidencia y elegibilidad de descuento.
+
+### Ficha y portal
+- Datos de ficha digital: fotografía, identidad protegida, pegues, beneficios e historial anual.
+- Preparación de solicitudes de actualización limitadas a teléfono, correo, dirección y fotografía.
+- Nombre, DNI, códigos, tarifa, estado y finanzas permanecen bloqueados para el abonado.
+
+### Respaldo
+- Formato `junta-agua-backup-v5` con beneficios, plantillas, catálogo, documentos financieros y actualizaciones del portal.
+
 ## 2.1.0 — Consolidación multifuente
 
 ### Medición y facturación
