@@ -22,7 +22,9 @@ Deno.serve(async(req)=>{
     if(req.method==='GET'){
       const{data,error}=await caller.rpc('get_my_subscriber_card');
       if(error)throw error;
-      return json(data);
+      let photoUrl='';
+      if(data?.photo_path){const{data:signed}=await admin.storage.from('subscriber-documents').createSignedUrl(data.photo_path,600);photoUrl=signed?.signedUrl??'';}
+      return json({...data,photo_url:photoUrl});
     }
 
     if(req.method!=='POST'&&req.method!=='PUT')return json({error:'METHOD_NOT_ALLOWED'},405);
