@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useState} from 'react';
-import {BadgeCheck,CalendarDays,Download,Droplets,FileImage,IdCard,MapPin,Palette,Printer,QrCode,Shield,Stamp,Upload,WalletCards} from 'lucide-react';
+import {BadgeCheck,CalendarDays,Download,Droplets,FileImage,IdCard,Palette,Printer,QrCode,Shield,Stamp,Upload,WalletCards} from 'lucide-react';
 import QRCode from 'qrcode';
 import {downloadReceiptPdf,type ReceiptBrand,type ReceiptInput} from '../features/finance/documents';
 
