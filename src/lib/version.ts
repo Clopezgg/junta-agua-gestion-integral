@@ -6,10 +6,11 @@ export const appVersion={
 };
 
 export const releaseHighlights=[
-  'Lecturas de medidor, tarifas escalonadas por consumo y facturación idempotente.',
-  'Importación auditada de abonados y lecturas desde XLSX, CSV o TSV.',
-  'Candidatos a corte calculados desde deuda real, sin suspensiones automáticas.',
-  'Historial de conectores, diagnóstico dinámico y búsqueda de GitHub Releases.',
-  'PWA instalable con caché segura únicamente para el shell de la aplicación.',
-  'Respaldo v4 con medición, importaciones, ejecuciones y estado de actualizaciones.'
+  'Rediseño institucional completo del acceso, navegación, paneles y vistas móviles.',
+  'Expediente profesional del abonado con fotografía, identidad protegida, pegues y beneficios.',
+  'Portal del abonado con DNI y contraseña, cambio obligatorio de clave y edición restringida.',
+  'Cuota anual de L 400 por pegue con vigencia hasta el 30 de noviembre y mora desde el 1 de diciembre.',
+  'Descuento automático del 25% para adultos mayores de 60 años, aplicado a todos sus pegues.',
+  'Documentos financieros, recibos, contabilización, anulaciones, devoluciones y trazabilidad.',
+  'Configuración documental, catálogo de servicios y fichas digitales institucionales.'
 ];
