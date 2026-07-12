@@ -27,6 +27,8 @@ const Backups=lazy(()=>import('./pages/Backups').then(module=>({default:module.B
 const Budget=lazy(()=>import('./pages/Budget').then(module=>({default:module.Budget})));
 const Metering=lazy(()=>import('./pages/Metering').then(module=>({default:module.Metering})));
 const Imports=lazy(()=>import('./pages/Imports').then(module=>({default:module.Imports})));
+const DocumentSettings=lazy(()=>import('./pages/DocumentSettings').then(module=>({default:module.DocumentSettings})));
+const SubscriberCards=lazy(()=>import('./pages/SubscriberCards').then(module=>({default:module.SubscriberCards})));
 const loading=<main className="content"><div className="panel">Cargando módulo seguro…</div></main>;
 
 export default function App(){
@@ -39,6 +41,7 @@ export default function App(){
       <Route index element={<Home/>}/>
       <Route path="usuarios" element={<ProtectedRoute permission="users.manage"><Users/></ProtectedRoute>}/>
       <Route path="abonados" element={<ProtectedRoute permission="subscribers.read"><Subscribers/></ProtectedRoute>}/>
+      <Route path="fichas-abonados" element={<ProtectedRoute permission="subscribers.read"><SubscriberCards/></ProtectedRoute>}/>
       <Route path="importaciones" element={<ProtectedRoute permission="imports.read"><Imports/></ProtectedRoute>}/>
       <Route path="mapa" element={<ProtectedRoute permission="map.read"><MapView/></ProtectedRoute>}/>
       <Route path="medicion" element={<ProtectedRoute permission="metering.read"><Metering/></ProtectedRoute>}/>
@@ -53,6 +56,7 @@ export default function App(){
       <Route path="operaciones" element={<ProtectedRoute permission="operations.read"><Operations/></ProtectedRoute>}/>
       <Route path="avance" element={<Progress/>}/>
       <Route path="auditoria" element={<ProtectedRoute permission="audit.read"><Audit/></ProtectedRoute>}/>
+      <Route path="configuracion-documental" element={<ProtectedRoute permission="document_templates.read"><DocumentSettings/></ProtectedRoute>}/>
       <Route path="configuracion" element={<ProtectedRoute permission="settings.manage"><Settings/></ProtectedRoute>}/>
       <Route path="seguridad" element={<Security/>}/>
     </Route>

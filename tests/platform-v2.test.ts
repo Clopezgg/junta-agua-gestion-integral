@@ -49,19 +49,19 @@ describe('plataforma v2 institucional',()=>{
     expect(settings).toContain('upsert:false');
   });
 
-  it('incluye presupuesto, activos, mantenimiento y archivos históricos en respaldos',()=>{
+  it('incluye presupuesto, activos, mantenimiento y documentos en respaldo v5',()=>{
     const backup=read('supabase/functions/backup-manager/index.ts');
-    for(const table of ['fiscal_periods','budget_categories','budget_lines','assets','maintenance_plans','asset_maintenance_log'])expect(backup).toContain(`'${table}'`);
-    expect(backup).toContain("format:'junta-agua-backup-v4'");
+    for(const table of ['fiscal_periods','budget_categories','budget_lines','assets','maintenance_plans','asset_maintenance_log','benefit_definitions','document_template_versions','financial_documents'])expect(backup).toContain(`'${table}'`);
+    expect(backup).toContain("format:'junta-agua-backup-v5'");
     expect(backup).toContain("'organization-assets'");
-    expect(backup).toContain("'junta-agua-backup-v4'");
+    expect(backup).toContain("'junta-agua-backup-v5'");
   });
 
   it('muestra versión y publica GitHub Releases desde main',()=>{
     const pkg=JSON.parse(read('package.json')) as {version:string};
     const vite=read('vite.config.ts');
     const release=read('.github/workflows/release.yml');
-    expect(pkg.version).toBe('2.1.0');
+    expect(pkg.version).toBe('2.2.0');
     expect(vite).toContain('__APP_COMMIT_SHA__');
     expect(vite).toContain('RENDER_GIT_COMMIT');
     expect(release).toContain('branches: [main]');
@@ -77,6 +77,7 @@ describe('plataforma v2 institucional',()=>{
     const home=read('src/pages/Home.tsx');
     const operations=read('src/pages/Operations.tsx');
     expect(app).toContain('path="presupuesto"');
+    expect(app).toContain('configuracion-documental');
     expect(layout).toContain('<GlobalSearch/>');
     expect(layout).toContain('appVersion.version');
     expect(home).toContain('Centro de pendientes');

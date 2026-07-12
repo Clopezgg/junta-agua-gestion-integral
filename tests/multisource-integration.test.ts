@@ -42,7 +42,7 @@ describe('consolidación multifuente 2.1',()=>{
     const parser=read('src/features/imports/parser.ts');
     const page=read('src/pages/Imports.tsx');
     const service=read('src/features/imports/service.ts');
-    expect(parser).toContain("read-excel-file/browser");
+    expect(parser).toContain('read-excel-file/browser');
     expect(parser).toContain("extension==='csv'||extension==='tsv'");
     expect(parser).toContain("crypto.subtle.digest('SHA-256'");
     expect(page).toContain('Mapeo de columnas');
@@ -89,15 +89,15 @@ describe('consolidación multifuente 2.1',()=>{
     const main=read('src/main.tsx');
     expect(manifest).toContain('"display": "standalone"');
     expect(worker).toContain("request.method!=='GET'");
-    expect(worker).toContain("url.origin!==self.location.origin");
+    expect(worker).toContain('url.origin!==self.location.origin');
     expect(main).toContain("navigator.serviceWorker.register('/sw.js')");
   });
 
-  it('respaldo v4 contiene los módulos nuevos',()=>{
+  it('el respaldo vigente contiene los módulos multifuente y v2.2',()=>{
     const backup=read('supabase/functions/backup-manager/index.ts');
-    for(const table of ['consumption_tariff_schemes','meter_reading_batches','meter_readings','data_import_batches','integration_runs','system_update_state'])expect(backup).toContain(`'${table}'`);
-    expect(backup).toContain("format:'junta-agua-backup-v4'");
-    expect(backup).toContain("'junta-agua-backup-v4'");
+    for(const table of ['consumption_tariff_schemes','meter_reading_batches','meter_readings','data_import_batches','integration_runs','system_update_state','benefit_definitions','subscriber_benefits','document_template_versions','financial_documents'])expect(backup).toContain(`'${table}'`);
+    expect(backup).toContain("format:'junta-agua-backup-v5'");
+    expect(backup).toContain("'junta-agua-backup-v5'");
   });
 
   it('incluye ejemplos de entorno sin secretos reales',()=>{
