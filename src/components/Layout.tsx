@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {Activity,BadgeDollarSign,Banknote,BarChart3,DatabaseBackup,Droplets,FileClock,FileSpreadsheet,Files,Home,IdCard,Landmark,LogOut,Map,Menu,PlugZap,ReceiptText,Settings as SettingsIcon,ShieldCheck,UserCog,Users,WalletCards,Wrench,X} from 'lucide-react';
+import {Activity,BadgeDollarSign,Banknote,BarChart3,DatabaseBackup,Droplets,FileClock,FileSpreadsheet,Files,Home,IdCard,Landmark,LogOut,Map,Menu,Palette,PlugZap,ReceiptText,Settings as SettingsIcon,ShieldCheck,UserCog,Users,WalletCards,Wrench,X} from 'lucide-react';
 import {NavLink,Outlet} from 'react-router-dom';
 import {useAuth} from '../contexts/AuthContext';
 import {GlobalSearch} from './GlobalSearch';
@@ -32,6 +32,7 @@ export function Layout(){
     {auth.has('operations.read')&&<NavGroup title="Operación"><NavLink to="/operaciones"><Wrench size={18}/>Activos y órdenes</NavLink></NavGroup>}
     <NavGroup title="Administración">
       {auth.has('users.manage')&&<NavLink to="/usuarios"><UserCog size={18}/>Usuarios</NavLink>}
+      {auth.has('document_templates.read')&&<NavLink to="/estudio-recibo"><Palette size={18}/>Vista visual del recibo</NavLink>}
       {auth.has('document_templates.read')&&<NavLink to="/configuracion-documental"><Files size={18}/>Documentos y recibos</NavLink>}
       {auth.has('integrations.read')&&<NavLink to="/integraciones"><PlugZap size={18}/>Integraciones</NavLink>}
       {auth.has('backups.read')&&<NavLink to="/respaldos"><DatabaseBackup size={18}/>Respaldos</NavLink>}
