@@ -8,9 +8,10 @@ const cors={
 const direct=[
   'profiles','roles',
   'subscribers','subscriber_identities','water_connections','duplicate_reviews',
-  'tariff_definitions','tariff_versions','obligations','debt_override_events',
+  'benefit_definitions','subscriber_benefits','portal_update_requests',
+  'tariff_definitions','tariff_versions','service_catalog','obligations','debt_override_events',
   'consumption_tariff_schemes','consumption_tariff_blocks','meter_reading_batches','meter_readings',
-  'document_sequences','cash_sessions','payments','payment_events',
+  'document_template_versions','financial_documents','document_sequences','cash_sessions','payments','payment_events',
   'suppliers','expenses','bank_accounts','ledger_entries',
   'fiscal_periods','budget_categories','budget_lines',
   'integrations','integration_runs','system_update_state',
@@ -22,9 +23,10 @@ const direct=[
 const restoreOrder=[
   'roles','profiles',
   'subscribers','subscriber_identities','water_connections','duplicate_reviews',
-  'tariff_definitions','tariff_versions','obligations','debt_override_events',
+  'benefit_definitions','subscriber_benefits','portal_update_requests',
+  'tariff_definitions','tariff_versions','service_catalog','obligations','debt_override_events',
   'consumption_tariff_schemes','consumption_tariff_blocks','meter_reading_batches','meter_readings',
-  'document_sequences','cash_sessions','payments','payment_events',
+  'document_template_versions','document_sequences','cash_sessions','payments','payment_events','financial_documents',
   'suppliers','expenses','bank_accounts','ledger_entries',
   'fiscal_periods','budget_categories','budget_lines',
   'integrations','integration_runs','system_update_state',
@@ -135,7 +137,7 @@ Deno.serve(async request=>{
         for(const bucket of fileBuckets)files[bucket]=await collectFiles(admin,bucket,String(organizationId));
 
         const payload={
-          format:'junta-agua-backup-v4',
+          format:'junta-agua-backup-v5',
           created_at:new Date().toISOString(),
           organization_id:organizationId,
           organization,
@@ -180,7 +182,7 @@ Deno.serve(async request=>{
       const text=await file.text();
       if(await sha256(text)!==run.checksum_sha256)throw new Error('CHECKSUM_MISMATCH');
       const payload=JSON.parse(text);
-      if(payload.organization_id!==organizationId||!['junta-agua-backup-v1','junta-agua-backup-v2','junta-agua-backup-v3','junta-agua-backup-v4'].includes(payload.format))throw new Error('BACKUP_SCOPE_INVALID');
+      if(payload.organization_id!==organizationId||!['junta-agua-backup-v1','junta-agua-backup-v2','junta-agua-backup-v3','junta-agua-backup-v4','junta-agua-backup-v5'].includes(payload.format))throw new Error('BACKUP_SCOPE_INVALID');
 
       if(payload.organization){
         const{error}=await admin.from('organizations').upsert(payload.organization);
