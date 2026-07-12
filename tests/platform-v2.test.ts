@@ -39,10 +39,13 @@ describe('plataforma v2 institucional',()=>{
     const finance=read('src/features/finance/service.ts');
     const settings=read('src/features/settings/service.ts');
     expect(documents).toContain('format:[139.7,215.9]');
-    expect(documents).toContain("receipt.copy?'REIMPRESIÓN':'IMPRESIÓN'");
+    expect(documents).toContain("receipt.copy?'REIMPRESIÓN':'ORIGINAL'");
     expect(documents).toContain("return'PAGADO'");
     expect(documents).toContain('signatureDataUrl');
     expect(documents).toContain('stampDataUrl');
+    expect(documents).toContain('nationalEmblemDataUrl');
+    expect(documents).toContain('discountPercentage');
+    expect(documents).toContain('connectionCodes');
     expect(finance).toContain('attach_payment_receipt_v2');
     expect(finance).toContain('p_brand_snapshot');
     expect(settings).toContain('crypto.randomUUID()');
@@ -61,7 +64,7 @@ describe('plataforma v2 institucional',()=>{
     const pkg=JSON.parse(read('package.json')) as {version:string};
     const vite=read('vite.config.ts');
     const release=read('.github/workflows/release.yml');
-    expect(pkg.version).toBe('2.2.0');
+    expect(pkg.version).toBe('3.1.0');
     expect(vite).toContain('__APP_COMMIT_SHA__');
     expect(vite).toContain('RENDER_GIT_COMMIT');
     expect(release).toContain('branches: [main]');
@@ -78,8 +81,10 @@ describe('plataforma v2 institucional',()=>{
     const operations=read('src/pages/Operations.tsx');
     expect(app).toContain('path="presupuesto"');
     expect(app).toContain('configuracion-documental');
+    expect(app).toContain('estudio-recibo');
     expect(layout).toContain('<GlobalSearch/>');
     expect(layout).toContain('appVersion.version');
+    expect(layout).toContain('Vista visual del recibo');
     expect(home).toContain('Centro de pendientes');
     expect(home).toContain('Acciones rápidas');
     expect(operations).not.toContain('window.prompt');
