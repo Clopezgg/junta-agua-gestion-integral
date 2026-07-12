@@ -20,6 +20,20 @@ export async function uploadIdentityDocument(subscriberId:string,file:File){
  const{error:benefitError}=await db.rpc('sync_senior_benefit',{p_subscriber_id:subscriberId,p_reference_date:new Date().toISOString().slice(0,10)});if(benefitError&&!benefitError.message.includes('BENEFIT_NOT_CONFIGURED'))throw new Error(benefitError.message);
  return path;
 }
+export async function uploadSubscriberPhoto(subscriberId:string,file:File){
+ const db=requireDb();
+ if(file.size>5*1024*1024)throw new Error('La fotografía supera 5 MB.');
+ if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('La fotografía debe ser JPG, PNG o WEBP.');
+ const{data:auth}=await db.auth.getUser();
+ const{data:profile,error:profileError}=await db.from('profiles').select('organization_id').eq('id',auth.user?.id??'').single();
+ if(profileError||!profile)throw new Error('No se pudo determinar la organización.');
+ const extension=file.name.split('.').pop()?.toLowerCase()||'jpg';
+ const path=`${profile.organization_id}/${subscriberId}/profile/${crypto.randomUUID()}.${extension}`;
+ const{error}=await db.storage.from('subscriber-documents').upload(path,file,{upsert:false,contentType:file.type});if(error)throw new Error(error.message);
+ const{error:attachError}=await db.rpc('attach_subscriber_photo',{p_subscriber_id:subscriberId,p_storage_path:path});if(attachError){await db.storage.from('subscriber-documents').remove([path]);throw new Error(attachError.message);}
+ return path;
+}
+export async function getSubscriberDocumentUrl(path?:string|null){if(!path)return'';const db=requireDb();const{data,error}=await db.storage.from('subscriber-documents').createSignedUrl(path,600);if(error)throw new Error(error.message);return data?.signedUrl??'';}
 export async function uploadTemporaryIdentityDocument(file:File){
  const db=requireDb();
  if(file.size>10*1024*1024)throw new Error('El archivo supera 10 MB.');
