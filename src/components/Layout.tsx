@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {Activity,BadgeDollarSign,Banknote,BarChart3,DatabaseBackup,Droplets,FileClock,FileSpreadsheet,Files,Home,Landmark,LogOut,Map,Menu,PlugZap,ReceiptText,Settings as SettingsIcon,ShieldCheck,UserCog,Users,WalletCards,Wrench,X,Gauge} from 'lucide-react';
+import {Activity,BadgeDollarSign,Banknote,BarChart3,DatabaseBackup,Droplets,FileClock,FileSpreadsheet,Files,Home,IdCard,Landmark,LogOut,Map,Menu,PlugZap,ReceiptText,Settings as SettingsIcon,ShieldCheck,UserCog,Users,WalletCards,Wrench,X,Gauge} from 'lucide-react';
 import {NavLink,Outlet} from 'react-router-dom';
 import {useAuth} from '../contexts/AuthContext';
 import {GlobalSearch} from './GlobalSearch';
@@ -16,6 +16,7 @@ export function Layout(){
     <NavGroup title="Trabajo"><NavLink to="/"><Home size={18}/>Inicio</NavLink><NavLink to="/avance"><Activity size={18}/>Diagnóstico</NavLink></NavGroup>
     {(auth.has('subscribers.read')||auth.has('map.read')||auth.has('metering.read'))&&<NavGroup title="Abonados y servicio">
       {auth.has('subscribers.read')&&<NavLink to="/abonados"><Users size={18}/>Abonados</NavLink>}
+      {auth.has('subscribers.read')&&<NavLink to="/fichas-abonados"><IdCard size={18}/>Fichas digitales</NavLink>}
       {auth.has('imports.read')&&<NavLink to="/importaciones"><FileSpreadsheet size={18}/>Importaciones</NavLink>}
       {auth.has('map.read')&&<NavLink to="/mapa"><Map size={18}/>Mapa de pegues</NavLink>}
       {auth.has('metering.read')&&<NavLink to="/medicion"><Gauge size={18}/>Medición y consumo</NavLink>}
