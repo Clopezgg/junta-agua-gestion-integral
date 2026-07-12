@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {Activity,BadgeDollarSign,Banknote,BarChart3,DatabaseBackup,Droplets,FileClock,FileSpreadsheet,Files,Home,IdCard,Landmark,LogOut,Map,Menu,Palette,PlugZap,ReceiptText,Settings as SettingsIcon,ShieldCheck,UserCog,Users,WalletCards,Wrench,X} from 'lucide-react';
+import {Activity,BadgeDollarSign,Banknote,BarChart3,DatabaseBackup,Droplets,FileClock,FileSpreadsheet,Files,Home,IdCard,Landmark,LogOut,Map,Menu,Palette,PlugZap,ReceiptText,Search,Settings as SettingsIcon,ShieldCheck,UserCog,Users,WalletCards,Wrench,X} from 'lucide-react';
 import {NavLink,Outlet} from 'react-router-dom';
 import {useAuth} from '../contexts/AuthContext';
 import {GlobalSearch} from './GlobalSearch';
@@ -9,7 +9,13 @@ export function Layout(){
  const auth=useAuth();
  const[navOpen,setNavOpen]=useState(false);
  const[releaseOpen,setReleaseOpen]=useState(false);
- return <div className="shell">
+ const mobileLinks=[
+  {to:'/',label:'Inicio',icon:<Home size={20}/>,show:true},
+  {to:'/abonados',label:'Abonados',icon:<Users size={20}/>,show:auth.has('subscribers.read')},
+  {to:'/pagos',label:'Pagos',icon:<Banknote size={20}/>,show:auth.has('payments.read')},
+  {to:'/informes',label:'Informes',icon:<BarChart3 size={20}/>,show:auth.has('reports.read')}
+ ].filter(item=>item.show);
+ return <div className="shell device-shell">
   <aside className={navOpen?'open':''}>
    <div className="brand-row"><div className="brand"><span className="brand-mark"><Droplets/></span><span><strong>Junta de Agua</strong><small>El Achiotal</small></span></div><button className="mobile-nav-toggle outline" onClick={()=>setNavOpen(false)} aria-label="Cerrar navegación"><X size={18}/></button></div>
    <nav onClick={()=>setNavOpen(false)}>
@@ -49,10 +55,12 @@ export function Layout(){
    <header>
     <button className="mobile-nav-toggle outline" onClick={()=>setNavOpen(true)} aria-label="Abrir navegación"><Menu size={19}/></button>
     <GlobalSearch/>
-    <div className="header-user"><div><strong>{auth.profile?.full_name}</strong><small>{auth.profile?.username}</small></div><span className="pill">MFA verificado</span></div>
+    <div className="mobile-context-bar"><span><small>Sistema completo</small><strong>Modo móvil seguro</strong></span><button className="outline" onClick={()=>setNavOpen(true)}><Search size={16}/>Módulos</button></div>
+    <div className="header-user desktop-user"><div><strong>{auth.profile?.full_name}</strong><small>{auth.profile?.username}</small></div><span className="pill">MFA verificado</span></div>
    </header>
    <Outlet/>
   </div>
+  <nav className="mobile-quick-nav" aria-label="Navegación móvil principal">{mobileLinks.map(item=><NavLink key={item.to} to={item.to} end={item.to==='/'}>{item.icon}<span>{item.label}</span></NavLink>)}<button type="button" onClick={()=>setNavOpen(true)}><Menu size={20}/><span>Más</span></button></nav>
   {releaseOpen&&<div className="modal"><div className="modal-card release-modal"><div className="titlebar"><div><h2>Novedades de la versión {appVersion.version}</h2><p>Compilación {appVersion.commit} · {new Date(appVersion.buildDate).toLocaleString('es-HN')}</p></div><button className="outline" onClick={()=>setReleaseOpen(false)}><X size={18}/>Cerrar</button></div><div className="release-list">{releaseHighlights.map(item=><div key={item}><span>✓</span><p>{item}</p></div>)}</div><a className="button-link" href={appVersion.releaseUrl} target="_blank" rel="noreferrer">Abrir GitHub Release</a></div></div>}
  </div>;
 }

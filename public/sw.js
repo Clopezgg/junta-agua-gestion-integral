@@ -1,4 +1,4 @@
-const CACHE='junta-agua-shell-v2.1.0';
+const CACHE='junta-agua-shell-v3.1.0';
 const SHELL=['/','/index.html','/manifest.webmanifest','/icons/icon.svg','/health.txt'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)));self.skipWaiting()});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))));self.clients.claim()});

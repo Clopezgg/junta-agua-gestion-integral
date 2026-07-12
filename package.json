@@ -11,7 +11,10 @@
     "build": "tsc -b && vite build",
     "build:render": "npm run build && test -f dist/index.html",
     "test": "vitest run",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:e2e": "vitest run src/tests/e2e",
+    "readiness:offline": "node scripts/validate-commercial-readiness.mjs --offline",
+    "readiness:staging": "node scripts/validate-commercial-readiness.mjs --staging"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.110.2",
