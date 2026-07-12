@@ -1,0 +1,15 @@
+import {useState} from 'react';
+import {Droplets,Eye,EyeOff,IdCard,KeyRound,ShieldCheck} from 'lucide-react';
+import {Navigate,useNavigate} from 'react-router-dom';
+import {useAuth} from '../contexts/AuthContext';
+import {portalLogin} from '../features/portal/service';
+
+export function PortalLogin(){
+ const auth=useAuth();const navigate=useNavigate();const[dni,setDni]=useState('');const[password,setPassword]=useState('');const[show,setShow]=useState(false);const[error,setError]=useState('');const[loading,setLoading]=useState(false);
+ if(auth.session&&auth.accountKind==='subscriber')return <Navigate to="/mi-cuenta" replace/>;
+ async function submit(event:React.FormEvent){event.preventDefault();setError('');setLoading(true);try{const session=await portalLogin(dni,password);await auth.setPortalSession(session.access_token,session.refresh_token);navigate('/mi-cuenta',{replace:true})}catch(e){setError((e as Error).message)}finally{setLoading(false)}}
+ return <main className="portal-login-page">
+  <section className="portal-login-brand"><div className="portal-brand-mark"><Droplets size={36}/></div><span className="eyebrow">Portal comunitario</span><h1>Junta Patronal de Agua Potable El Achiotal</h1><p>Consulte su ficha, pegues, pagos, recibos y datos de contacto desde un acceso privado.</p><div className="portal-login-points"><div><ShieldCheck size={20}/><span><strong>Acceso protegido</strong><small>Su DNI funciona como identificador; la contraseña es obligatoria.</small></span></div><div><IdCard size={20}/><span><strong>Datos controlados</strong><small>Nombre, identidad, pegues y pagos no pueden ser modificados por el abonado.</small></span></div></div><footer>Aldea El Achiotal · Santa Cruz de Yojoa · Cortés</footer></section>
+  <section className="portal-login-form-wrap"><form className="portal-login-card" onSubmit={submit}><div className="portal-login-heading"><span><IdCard size={23}/></span><div><h2>Acceso del abonado</h2><p>Ingrese su DNI y contraseña personal.</p></div></div><label>DNI<div className="input-with-icon"><IdCard size={17}/><input inputMode="numeric" autoComplete="username" required minLength={8} value={dni} onChange={e=>setDni(e.target.value.replace(/[^0-9-]/g,''))} placeholder="0000-0000-00000"/></div></label><label>Contraseña<div className="input-with-icon"><KeyRound size={17}/><input type={show?'text':'password'} autoComplete="current-password" required minLength={8} value={password} onChange={e=>setPassword(e.target.value)} placeholder="Contraseña de acceso"/><button type="button" className="password-toggle" onClick={()=>setShow(value=>!value)} aria-label={show?'Ocultar contraseña':'Mostrar contraseña'}>{show?<EyeOff size={17}/>:<Eye size={17}/>}</button></div></label>{error&&<div className="error">{error}</div>}<button className="login-action" disabled={loading}>{loading?'Validando acceso…':<><ShieldCheck size={18}/>Ingresar a mi cuenta</>}</button><div className="auth-help"><small>La Junta debe activar su acceso previamente. Después de cinco intentos fallidos la cuenta se bloquea temporalmente.</small></div></form></section>
+ </main>;
+}
