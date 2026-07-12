@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {Activity,BadgeDollarSign,Banknote,BarChart3,DatabaseBackup,Droplets,FileClock,FileSpreadsheet,Files,Home,IdCard,Landmark,LogOut,Map,Menu,PlugZap,ReceiptText,Settings as SettingsIcon,ShieldCheck,UserCog,Users,WalletCards,Wrench,X,Gauge} from 'lucide-react';
+import {Activity,BadgeDollarSign,Banknote,BarChart3,DatabaseBackup,Droplets,FileClock,FileSpreadsheet,Files,Home,IdCard,Landmark,LogOut,Map,Menu,PlugZap,ReceiptText,Settings as SettingsIcon,ShieldCheck,UserCog,Users,WalletCards,Wrench,X} from 'lucide-react';
 import {NavLink,Outlet} from 'react-router-dom';
 import {useAuth} from '../contexts/AuthContext';
 import {GlobalSearch} from './GlobalSearch';
@@ -14,17 +14,17 @@ export function Layout(){
    <div className="brand-row"><div className="brand"><span className="brand-mark"><Droplets/></span><span><strong>Junta de Agua</strong><small>El Achiotal</small></span></div><button className="mobile-nav-toggle outline" onClick={()=>setNavOpen(false)} aria-label="Cerrar navegación"><X size={18}/></button></div>
    <nav onClick={()=>setNavOpen(false)}>
     <NavGroup title="Trabajo"><NavLink to="/"><Home size={18}/>Inicio</NavLink><NavLink to="/avance"><Activity size={18}/>Diagnóstico</NavLink></NavGroup>
-    {(auth.has('subscribers.read')||auth.has('map.read')||auth.has('metering.read'))&&<NavGroup title="Abonados y servicio">
+    {(auth.has('subscribers.read')||auth.has('map.read')||auth.has('tariffs.read')||auth.has('obligations.read'))&&<NavGroup title="Abonados y servicio">
       {auth.has('subscribers.read')&&<NavLink to="/abonados"><Users size={18}/>Abonados</NavLink>}
       {auth.has('subscribers.read')&&<NavLink to="/fichas-abonados"><IdCard size={18}/>Fichas digitales</NavLink>}
       {auth.has('imports.read')&&<NavLink to="/importaciones"><FileSpreadsheet size={18}/>Importaciones</NavLink>}
       {auth.has('map.read')&&<NavLink to="/mapa"><Map size={18}/>Mapa de pegues</NavLink>}
-      {auth.has('metering.read')&&<NavLink to="/medicion"><Gauge size={18}/>Medición y consumo</NavLink>}
       {auth.has('tariffs.read')&&<NavLink to="/tarifas"><BadgeDollarSign size={18}/>Tarifas y servicios</NavLink>}
       {auth.has('obligations.read')&&<NavLink to="/estados-cuenta"><WalletCards size={18}/>Estados de cuenta</NavLink>}
     </NavGroup>}
     {(auth.has('payments.read')||auth.has('expenses.read')||auth.has('budget.read')||auth.has('reports.read'))&&<NavGroup title="Finanzas">
       {auth.has('payments.read')&&<NavLink to="/pagos"><Banknote size={18}/>Pagos y caja</NavLink>}
+      {auth.has('payments.read')&&<NavLink to="/documentos-financieros"><Files size={18}/>Documentos financieros</NavLink>}
       {auth.has('expenses.read')&&<NavLink to="/gastos"><ReceiptText size={18}/>Gastos</NavLink>}
       {auth.has('budget.read')&&<NavLink to="/presupuesto"><Landmark size={18}/>Presupuesto</NavLink>}
       {auth.has('reports.read')&&<NavLink to="/informes"><BarChart3 size={18}/>Informes</NavLink>}
