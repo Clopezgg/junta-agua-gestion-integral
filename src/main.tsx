@@ -6,6 +6,7 @@ import './v2.css';
 import './v3.css';
 import './v3-card.css';
 import './portal.css';
+import './workflows.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);
 
