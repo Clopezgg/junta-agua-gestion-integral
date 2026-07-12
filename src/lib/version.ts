@@ -6,11 +6,11 @@ export const appVersion={
 };
 
 export const releaseHighlights=[
-  'Rediseño institucional completo del acceso, navegación, paneles y vistas móviles.',
-  'Expediente profesional del abonado con fotografía, identidad protegida, pegues y beneficios.',
-  'Portal del abonado con DNI y contraseña, cambio obligatorio de clave y edición restringida.',
-  'Cuota anual de L 400 por pegue con vigencia hasta el 30 de noviembre y mora desde el 1 de diciembre.',
-  'Descuento automático del 25% para adultos mayores de 60 años, aplicado a todos sus pegues.',
-  'Documentos financieros, recibos, contabilización, anulaciones, devoluciones y trazabilidad.',
-  'Configuración documental, catálogo de servicios y fichas digitales institucionales.'
+  'Nuevo estudio visual del recibo anual independiente de Supabase para revisar el diseño antes de conectarlo.',
+  'Recibo institucional completo con logo provisional, espacio para escudo de Honduras, firma, sello y QR.',
+  'Datos del abonado, identidad protegida, cantidad y códigos de pegues, dirección y estado del servicio.',
+  'Periodo anual del 1 de enero al 30 de noviembre y señalización de mora desde el 1 de diciembre.',
+  'Descuento visual del 25% para adultos mayores de 60 años aplicado a todos los pegues del titular.',
+  'Tabla de conceptos, base, descuento, mora, total pagado, total en letras y forma de pago.',
+  'Estados PAGADO, PENDIENTE, VENCIDO, ANULADO, DEVUELTO y DEVOLUCIÓN PARCIAL con PDF equivalente.'
 ];
