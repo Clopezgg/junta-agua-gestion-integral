@@ -18,15 +18,15 @@ describe('versión 2.2 experiencia institucional',()=>{
     const sql=read('supabase/migrations/202607110026_annual_service_receipts_benefits_portal.sql');
     expect(sql).toContain("'SENIOR_60'");
     expect(sql).toContain("60,25,true,true,true,'dni'");
-    expect(sql).toContain("benefit_percentage:=25");
-    expect(sql).toContain("base_total:=connection_count*p_unit_amount");
+    expect(sql).toContain('benefit_percentage:=25');
+    expect(sql).toContain('base_total:=connection_count*p_unit_amount');
   });
 
   it('incluye cuota anual por pegue con vencimiento al 30 de noviembre',()=>{
     const sql=read('supabase/migrations/202607110026_annual_service_receipts_benefits_portal.sql');
     const tariffs=read('src/pages/Tariffs.tsx');
-    expect(sql).toContain("make_date(p_year,11,30)");
-    expect(sql).toContain("make_date(p_year,12,1)");
+    expect(sql).toContain('make_date(p_year,11,30)');
+    expect(sql).toContain('make_date(p_year,12,1)');
     expect(sql).toContain("'ANUAL','Cuota anual del servicio comunitario de agua potable'");
     expect(tariffs).toContain('Genera obligación anual por pegue');
     expect(tariffs).toContain('Código automático');
@@ -43,12 +43,18 @@ describe('versión 2.2 experiencia institucional',()=>{
     expect(page).toContain('Descuento adulto mayor');
   });
 
-  it('prepara ficha digital protegida del abonado',()=>{
-    const sql=read('supabase/migrations/202607110026_annual_service_receipts_benefits_portal.sql');
-    expect(sql).toContain('create table if not exists public.portal_update_requests');
-    expect(sql).toContain('create or replace function public.get_subscriber_digital_card');
-    expect(sql).toContain("'identity_masked'");
-    expect(sql).toContain("field_name in('whatsapp','email','address','photo_path')");
+  it('crea ficha digital y portal con campos editables limitados',()=>{
+    const base=read('supabase/migrations/202607110026_annual_service_receipts_benefits_portal.sql');
+    const portal=read('supabase/migrations/202607110027_subscriber_card_secure_portal.sql');
+    const page=read('src/pages/SubscriberCards.tsx');
+    expect(base).toContain('create table if not exists public.portal_update_requests');
+    expect(base).toContain('create or replace function public.get_subscriber_digital_card');
+    expect(base).toContain("field_name in('whatsapp','email','address','photo_path')");
+    expect(portal).toContain('create table if not exists public.subscriber_portal_accounts');
+    expect(portal).toContain('create or replace function public.update_my_subscriber_profile');
+    expect(portal).toContain('portal.profile.update');
+    expect(page).toContain('Fichas digitales de abonados');
+    expect(page).toContain('Fotografía actualizada');
   });
 
   it('mejora el login y navegación institucional',()=>{
@@ -58,6 +64,8 @@ describe('versión 2.2 experiencia institucional',()=>{
     expect(login).toContain('Junta Patronal de Agua Potable El Achiotal');
     expect(login).toContain('MFA obligatorio');
     expect(layout).toContain('Documentos y recibos');
+    expect(layout).toContain('Fichas digitales');
     expect(app).toContain('configuracion-documental');
+    expect(app).toContain('fichas-abonados');
   });
 });
