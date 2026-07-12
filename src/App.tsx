@@ -31,6 +31,7 @@ const Budget=lazy(()=>import('./pages/Budget').then(module=>({default:module.Bud
 const Metering=lazy(()=>import('./pages/Metering').then(module=>({default:module.Metering})));
 const Imports=lazy(()=>import('./pages/Imports').then(module=>({default:module.Imports})));
 const DocumentSettings=lazy(()=>import('./pages/DocumentSettings').then(module=>({default:module.DocumentSettings})));
+const ReceiptVisualStudio=lazy(()=>import('./pages/ReceiptVisualStudio').then(module=>({default:module.ReceiptVisualStudio})));
 const SubscriberCards=lazy(()=>import('./pages/SubscriberCards').then(module=>({default:module.SubscriberCards})));
 const FinancialDocuments=lazy(()=>import('./pages/FinancialDocuments').then(module=>({default:module.FinancialDocuments})));
 const loading=<main className="content"><div className="panel">Cargando módulo seguro…</div></main>;
@@ -63,6 +64,7 @@ export default function App(){
       <Route path="operaciones" element={<ProtectedRoute permission="operations.read"><Operations/></ProtectedRoute>}/>
       <Route path="avance" element={<Progress/>}/>
       <Route path="auditoria" element={<ProtectedRoute permission="audit.read"><Audit/></ProtectedRoute>}/>
+      <Route path="estudio-recibo" element={<ProtectedRoute permission="document_templates.read"><ReceiptVisualStudio/></ProtectedRoute>}/>
       <Route path="configuracion-documental" element={<ProtectedRoute permission="document_templates.read"><DocumentSettings/></ProtectedRoute>}/>
       <Route path="configuracion" element={<ProtectedRoute permission="settings.manage"><Settings/></ProtectedRoute>}/>
       <Route path="seguridad" element={<Security/>}/>
