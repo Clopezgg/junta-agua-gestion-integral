@@ -19,11 +19,9 @@ jobs:
           node-version: '22.14.0'
           registry-url: 'https://registry.npmjs.org'
       - name: Verificar registro público
-        run: |
-          test "$(npm config get registry)" = "https://registry.npmjs.org/"
-          test ! -f package-lock.json
-      - name: Instalar dependencias
-        run: npm install --include=dev --no-audit --no-fund --registry=https://registry.npmjs.org/
+        run: test "$(npm config get registry)" = "https://registry.npmjs.org/"
+      - name: Instalar dependencias reproducibles
+        run: npm ci --include=dev --no-audit --no-fund --registry=https://registry.npmjs.org/
       - name: Pruebas
         id: tests
         continue-on-error: true
