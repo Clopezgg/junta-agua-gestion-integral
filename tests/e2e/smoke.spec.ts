@@ -6,8 +6,8 @@ const PASSWORD='E2e-Demo-2026!';
 async function login(page:Page){
   await page.goto('/login');
   await page.getByPlaceholder(/correo|email/i).first().fill(EMAIL);
-  await page.getByPlaceholder(/contraseña|password/i).first().fill(PASSWORD);
-  await page.getByRole('button',{name:/entrar|iniciar sesión/i}).first().click();
+  await page.getByLabel(/contraseña/i).first().fill(PASSWORD);
+  await page.getByRole('button',{name:/continuar de forma segura|entrar|iniciar sesión/i}).first().click();
   await expect(page).toHaveURL(/\/$/,{timeout:20_000});
 }
 
