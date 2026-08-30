@@ -3,15 +3,24 @@ import {authenticator} from 'otplib';
 
 const EMAIL='e2e-demo@junta.test';
 const PASSWORD='E2e-Demo-2026!';
-const TOTP_SECRET='GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
+
+let totpSecret:string|undefined;
 
 async function mfa(page:Page){
   await expect(page).toHaveURL(/\/mfa/,{timeout:20_000});
-  await expect(page.getByRole('heading',{name:/segundo factor/i})).toBeVisible();
+  if(!totpSecret){
+    await expect(page.getByRole('heading',{name:/activar autenticador/i})).toBeVisible();
+    await page.getByRole('button',{name:/generar código qr/i}).first().click();
+    await expect(page.locator('code').first()).toBeVisible();
+    totpSecret=(await page.locator('code').first().textContent())?.trim()??'';
+    if(!totpSecret)throw new Error('No se pudo leer el secreto de enrolamiento.');
+  }else{
+    await expect(page.getByRole('heading',{name:/segundo factor/i})).toBeVisible();
+  }
   for(let attempt=0;attempt<3;attempt++){
     if(attempt>0)await page.waitForTimeout(authenticator.timeRemaining()+500);
-    await page.getByLabel(/código de seis dígitos/i).fill(authenticator.generate(TOTP_SECRET));
-    await page.getByRole('button',{name:/verificar y continuar/i}).click();
+    await page.getByLabel(/código de seis dígitos/i).fill(authenticator.generate(totpSecret));
+    await page.getByRole('button',{name:/verificar y continuar/i}).first().click();
     try{
       await expect(page).toHaveURL(/\/$/,{timeout:25_000});
       return;

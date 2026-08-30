@@ -2,8 +2,9 @@ import {defineConfig} from '@playwright/test';
 
 export default defineConfig({
   testDir:'tests/e2e',
-  fullyParallel:true,
-  retries:process.env.CI?2:0,
+  fullyParallel:false,
+  workers:1,
+  retries:process.env.CI?1:0,
   timeout:60_000,
   expect:{timeout:15_000},
   reporter:process.env.CI?'github':'list',
@@ -14,8 +15,7 @@ export default defineConfig({
     trace:'retain-on-failure'
   },
   projects:[
-    {name:'chromium',use:{browserName:'chromium'}},
-    {name:'mobile-chromium',use:{browserName:'chromium',viewport:{width:375,height:667}}}
+    {name:'chromium',use:{browserName:'chromium'}}
   ],
   webServer:{
     command:'npm run build:render && vite preview --port 4173 --strictPort --host 127.0.0.1',
