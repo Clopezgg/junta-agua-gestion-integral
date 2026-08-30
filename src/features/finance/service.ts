@@ -4,7 +4,13 @@ function fail(e:{message:string}|null){if(e)throw new Error(e.message);}
 export async function searchPayableAccounts(q:string){const {data,error}=await db().rpc('search_payable_accounts',{p_query:q,p_limit:50});fail(error);return data??[];}
 export async function openCashSession(input:{opening_amount:number;location?:string}){const {data,error}=await db().rpc('open_cash_session',{p_opening_amount:input.opening_amount,p_location:input.location??null});fail(error);return data;}
 export async function getActiveCashSession(){const {data,error}=await db().rpc('get_active_cash_session');fail(error);return data;}
-export async function registerPayment(input:{subscriber_id:string;cash_session_id?:string;method:string;received_amount:number;reference?:string;components?:{method:'cash'|'transfer'|'deposit'|'check';amount:number;reference?:string}[];allocations:{obligation_id:string;amount:number}[]}){const {data,error}=await db().rpc('register_payment_with_document',{p_payload:input});fail(error);return data;}
+export async function registerPayment(input:{subscriber_id:string;cash_session_id?:string;method:string;received_amount:number;reference?:string;idempotency_key?:string;components?:{method:'cash'|'transfer'|'deposit'|'check';amount:number;reference?:string}[];allocations:{obligation_id:string;amount:number}[]}){const {data,error}=await db().rpc('register_payment_with_document',{p_payload:input});fail(error);return data;}
+export function draftPaymentKey(input:{subscriber_id:string;method:string;received_amount:number;allocations:{obligation_id:string;amount:number}[]}){
+ const inline=(input.allocations??[]).map(a=>`${a.obligation_id}:${Number(a.amount.toFixed(2))}`).sort().join('|');
+ const raw=`${input.subscriber_id}|${input.method}|${Number(input.received_amount.toFixed(2))}|${inline}`;
+ let h=5381;for(let i=0;i<raw.length;i++)h=((h*33)^raw.charCodeAt(i))>>>0;
+ return `payment-${h.toString(36)}-${Math.floor(Number(input.received_amount.toFixed(2))*100)}`;
+}
 export async function closeCashSession(input:{session_id:string;counted_amount:number;notes?:string}){const {data,error}=await db().rpc('close_cash_session',{p_session_id:input.session_id,p_counted_amount:input.counted_amount,p_notes:input.notes??null});fail(error);return data;}
 export async function voidPayment(input:{payment_id:string;reason:string}){const {data,error}=await db().rpc('void_payment_with_document',{p_payment_id:input.payment_id,p_reason:input.reason});fail(error);return data;}
 export async function refundPayment(input:{payment_id:string;amount:number;reason:string}){const {data,error}=await db().rpc('refund_payment_with_document',{p_payment_id:input.payment_id,p_amount:input.amount,p_reason:input.reason});fail(error);return data;}
@@ -24,8 +30,8 @@ export async function uploadPaymentReceipt(paymentId:string,receiptNumber:string
  const {data:profile,error:profileError}=await db().from('profiles').select('organization_id').eq('id',auth.user?.id??'').single();
  fail(profileError);
  if(!profile)throw new Error('No se pudo determinar la organización.');
- const path=`${profile.organization_id}/${new Date().getFullYear()}/${paymentId}/${receiptNumber}.pdf`;
- const {error}=await db().storage.from('receipt-documents').upload(path,blob,{contentType:'application/pdf',upsert:true});
+ const path=`${profile.organization_id}/${new Date().getFullYear()}/${paymentId}/${receiptNumber}-${crypto.randomUUID().slice(0,8)}.pdf`;
+ const {error}=await db().storage.from('receipt-documents').upload(path,blob,{contentType:'application/pdf',upsert:false});
  fail(error);
  const {error:attachError}=await db().rpc('attach_payment_receipt_v2',{p_payment_id:paymentId,p_storage_path:path,p_brand_snapshot:brandSnapshot});
  fail(attachError);
