@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const cors={ 'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type' };
-async function findExistingUser(admin:ReturnType<typeof createClient>,email:string){
+async function findExistingUser(admin:any,email:string){
   let page=1;
   while(true){
     const{data:list}=await admin.auth.admin.listUsers({page,perPage:500});
