@@ -22,5 +22,6 @@ verify_jwt = true
 [auth]
 enable_signup = false
 enable_confirmations = false
+enable_totp = true
 site_url = "http://127.0.0.1:4173"
 additional_redirect_urls = ["http://127.0.0.1:4173/login"]
