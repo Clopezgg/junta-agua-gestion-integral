@@ -17,11 +17,9 @@ jobs:
         uses: supabase/setup-cli@v1
         with:
           version: latest
-      - name: Iniciar pila local (Postgres)
+      - name: Iniciar pila local (Postgres) y aplicar migraciones 001..034 desde cero
         run: supabase start
-      - name: Aplicar migraciones 001..034 desde cero
-        run: supabase db reset --db-url "$(supabase status -o env | sed -n 's/^DATABASE_URL=//p')"
-      - name: Verificar integridad financiera (migraciones 032 y 033)
+      - name: Verificar integridad financiera (migraciones 032 a 034)
         run: |
           docker run --rm --network host \
             -e PGPASSWORD=postgres \
