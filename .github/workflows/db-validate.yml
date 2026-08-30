@@ -19,7 +19,7 @@ jobs:
           version: latest
       - name: Iniciar pila local (Postgres)
         run: supabase start
-      - name: Aplicar migraciones 001..033 desde cero
+      - name: Aplicar migraciones 001..034 desde cero
         run: supabase db reset --db-url "$(supabase status -o env | sed -n 's/^DATABASE_URL=//p')"
       - name: Verificar integridad financiera (migraciones 032 y 033)
         run: |

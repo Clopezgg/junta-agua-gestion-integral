@@ -1,5 +1,5 @@
 -- Verificación estructural de integridad financiera sobre una base local recién
--- migrada (001..033). Ejecución: psql "$DATABASE_URL" -f supabase/tests/db_integrity.sql
+-- migrada (001..034). Ejecución: psql "$DATABASE_URL" -f supabase/tests/db_integrity.sql
 -- Falla (exit != 0) ante cualquier invariante roto. No muta datos: solo inspección.
 
 \set ON_ERROR_STOP on
@@ -86,5 +86,11 @@ begin
   if to_regclass('public.login_attempt_cooldowns') is null then raise exception 'FALTA login_attempt_cooldowns'; end if;
 
   raise notice 'Integridad financiera (migración 032) e invariantes (033) verificadas: OK';
+
+  -- 9) Trazabilidad de restauraciones (migración 034)
+  if to_regclass('public.backup_restore_sessions') is null then raise exception 'FALTA backup_restore_sessions'; end if;
+  if to_regprocedure('public.get_backup_restore_sessions(int)') is null then raise exception 'FALTA get_backup_restore_sessions'; end if;
+
+  raise notice 'Trazabilidad de restauraciones (migración 034) verificada: OK';
 end
 $$;

@@ -96,10 +96,8 @@ Deno.serve(async request=>{
     const needed=body.action==='download'?'backups.read':'backups.manage';
     const{data:allowed}=await caller.rpc('has_permission',{p_code:needed});
     if(!allowed)throw new Error('FORBIDDEN');
-    if(body.action!=='download'){
-      const{data:aal}=await caller.auth.mfa.getAuthenticatorAssuranceLevel();
-      if(aal?.currentLevel!=='aal2')throw new Error('MFA_REQUIRED');
-    }
+    const{data:aal}=await caller.auth.mfa.getAuthenticatorAssuranceLevel();
+    if(aal?.currentLevel!=='aal2')throw new Error('MFA_REQUIRED');
 
     const admin=createClient(url,service,{auth:{persistSession:false,autoRefreshToken:false}});
     const{data:profile}=await admin.from('profiles').select('organization_id').eq('id',auth.user.id).single();
@@ -184,34 +182,54 @@ Deno.serve(async request=>{
       const payload=JSON.parse(text);
       if(payload.organization_id!==organizationId||!['junta-agua-backup-v1','junta-agua-backup-v2','junta-agua-backup-v3','junta-agua-backup-v4','junta-agua-backup-v5'].includes(payload.format))throw new Error('BACKUP_SCOPE_INVALID');
 
-      if(payload.organization){
-        const{error}=await admin.from('organizations').upsert(payload.organization);
-        if(error)throw new Error(`organizations: ${error.message}`);
-      }
-      for(const table of restoreOrder){
-        const rows=payload.tables?.[table]??[];
-        if(rows.length){
-          const{error}=await admin.from(table).upsert(rows);
-          if(error)throw new Error(`${table}: ${error.message}`);
+      const{data:session,error:sessionError}=await admin.from('backup_restore_sessions').insert({organization_id:organizationId,backup_run_id:run.id,requested_by:auth.user.id,status:'running'}).select('id').single();
+      if(sessionError)throw sessionError;
+      const failRestore=async(message:string)=>{
+        await admin.from('backup_restore_sessions').update({status:'failed',error_message:message,finished_at:new Date().toISOString()}).eq('id',session.id).maybeSingle();
+        await admin.from('backup_runs').update({status:'failed',error_message:`restore: ${message}`,completed_at:new Date().toISOString()}).eq('id',run.id).maybeSingle();
+      };
+      try{
+        let restoredRows=0;
+        let restoredFiles=0;
+        if(payload.organization){
+          const{error}=await admin.from('organizations').upsert(payload.organization);
+          if(error)throw new Error(`organizations: ${error.message}`);
+          restoredRows+=1;
         }
-      }
-      for(const table of ['role_permissions','user_roles','payment_allocations','payment_components']){
-        const rows=payload.junctions?.[table]??[];
-        if(rows.length){
-          const{error}=await admin.from(table).upsert(rows);
-          if(error)throw new Error(`${table}: ${error.message}`);
+        for(const table of restoreOrder){
+          const rows=payload.tables?.[table]??[];
+          if(rows.length){
+            const{error}=await admin.from(table).upsert(rows);
+            if(error)throw new Error(`${table}: ${error.message}`);
+            restoredRows+=rows.length;
+          }
         }
-      }
-      for(const[bucket,items]of Object.entries(payload.files??{})){
-        if(!fileBuckets.includes(bucket))continue;
-        for(const item of items as any[]){
-          if(!String(item.path).startsWith(`${organizationId}/`))throw new Error('FILE_SCOPE_INVALID');
-          const{error}=await admin.storage.from(bucket).upload(item.path,fromBase64(item.base64),{upsert:true,contentType:item.content_type});
-          if(error)throw new Error(`${bucket}/${item.path}: ${error.message}`);
+        for(const table of ['role_permissions','user_roles','payment_allocations','payment_components']){
+          const rows=payload.junctions?.[table]??[];
+          if(rows.length){
+            const{error}=await admin.from(table).upsert(rows);
+            if(error)throw new Error(`${table}: ${error.message}`);
+            restoredRows+=rows.length;
+          }
         }
+        for(const[bucket,items]of Object.entries(payload.files??{})){
+          if(!fileBuckets.includes(bucket))continue;
+          for(const item of items as any[]){
+            if(!String(item.path).startsWith(`${organizationId}/`))throw new Error('FILE_SCOPE_INVALID');
+            const{error}=await admin.storage.from(bucket).upload(item.path,fromBase64(item.base64),{upsert:true,contentType:item.content_type});
+            if(error)throw new Error(`${bucket}/${item.path}: ${error.message}`);
+            restoredFiles+=1;
+          }
+        }
+        await admin.from('backup_restore_sessions').update({status:'completed',restored_format:payload.format,restored_rows:restoredRows,restored_files:restoredFiles,finished_at:new Date().toISOString()}).eq('id',session.id);
+        await admin.from('backup_runs').update({status:'restored',restored_at:new Date().toISOString(),restored_by:auth.user.id}).eq('id',run.id);
+        await admin.from('audit_events').insert({organization_id:organizationId,actor_id:auth.user.id,action:'backup.restore',entity_type:'backup_runs',entity_id:run.id,new_data:{format:payload.format,restored_rows:restoredRows,restored_files:restoredFiles,backup_run_id:run.id}});
+        return new Response(JSON.stringify({ok:true,format:payload.format,restored_rows:restoredRows,restored_files:restoredFiles,restore_session_id:session.id}),{headers:{...cors,'Content-Type':'application/json'}});
+      }catch(error){
+        const message=error instanceof Error?error.message:'UNKNOWN_ERROR';
+        await failRestore(message);
+        throw error;
       }
-      await admin.from('backup_runs').update({status:'restored',restored_at:new Date().toISOString(),restored_by:auth.user.id}).eq('id',run.id);
-      return new Response(JSON.stringify({ok:true,format:payload.format}),{headers:{...cors,'Content-Type':'application/json'}});
     }
 
     throw new Error('INVALID_ACTION');
