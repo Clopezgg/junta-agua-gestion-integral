@@ -62,12 +62,12 @@ export default function App(){
       <Route path="integraciones" element={<ProtectedRoute permission="integrations.read"><Integrations/></ProtectedRoute>}/>
       <Route path="respaldos" element={<ProtectedRoute permission="backups.read"><Backups/></ProtectedRoute>}/>
       <Route path="operaciones" element={<ProtectedRoute permission="operations.read"><Operations/></ProtectedRoute>}/>
-      <Route path="avance" element={<Progress/>}/>
+      <Route path="avance" element={<ProtectedRoute permission="updates.read"><Progress/></ProtectedRoute>}/>
       <Route path="auditoria" element={<ProtectedRoute permission="audit.read"><Audit/></ProtectedRoute>}/>
       <Route path="estudio-recibo" element={<ProtectedRoute permission="document_templates.read"><ReceiptVisualStudio/></ProtectedRoute>}/>
       <Route path="configuracion-documental" element={<ProtectedRoute permission="document_templates.read"><DocumentSettings/></ProtectedRoute>}/>
       <Route path="configuracion" element={<ProtectedRoute permission="settings.manage"><Settings/></ProtectedRoute>}/>
-      <Route path="seguridad" element={<Security/>}/>
+      <Route path="seguridad" element={<ProtectedRoute permission="settings.read"><Security/></ProtectedRoute>}/>
     </Route>
   </Routes></Suspense></AuthProvider></BrowserRouter>;
 }
