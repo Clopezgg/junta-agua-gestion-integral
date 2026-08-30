@@ -35,7 +35,7 @@ begin
   if to_regprocedure('public.register_payment(jsonb)') is null then raise exception 'FALTA register_payment'; end if;
   if to_regprocedure('public.create_expense_request(jsonb)') is null then raise exception 'FALTA create_expense_request'; end if;
   if to_regprocedure('public.evaluate_benefit_eligibility(uuid,text,date)') is null then raise exception 'FALTA evaluate_benefit_eligibility'; end if;
-  if to_regprocedure('public.calculate_annual_charge(uuid,integer)') is null then raise exception 'FALTA calculate_annual_charge'; end if;
+  if to_regprocedure('public.calculate_annual_charge(uuid,integer,numeric)') is null then raise exception 'FALTA calculate_annual_charge'; end if;
   if to_regprocedure('public.sync_senior_benefit(uuid,date)') is null then raise exception 'FALTA sync_senior_benefit'; end if;
   if to_regprocedure('public.get_late_fee_policy()') is null then raise exception 'FALTA get_late_fee_policy'; end if;
   if to_regprocedure('public.obligation_late_fee_label(numeric,boolean)') is null then raise exception 'FALTA obligation_late_fee_label'; end if;
@@ -44,7 +44,7 @@ begin
   if to_regprocedure('public.verify_receipt_public(uuid)') is null then raise exception 'FALTA verify_receipt_public'; end if;
   if to_regprocedure('public.get_payment_receipt_data(uuid)') is null then raise exception 'FALTA get_payment_receipt_data'; end if;
   if to_regprocedure('public.register_document_artifact(uuid,text)') is null then raise exception 'FALTA register_document_artifact'; end if;
-  if to_regprocedure('public.complete_document_artifact(uuid,text,text)') is null then raise exception 'FALTA complete_document_artifact'; end if;
+  if to_regprocedure('public.complete_document_artifact(uuid,text,text,text,text)') is null then raise exception 'FALTA complete_document_artifact'; end if;
   if to_regprocedure('public.fail_document_artifact(uuid,text)') is null then raise exception 'FALTA fail_document_artifact'; end if;
   if to_regprocedure('public.list_document_artifacts(uuid)') is null then raise exception 'FALTA list_document_artifacts'; end if;
 
