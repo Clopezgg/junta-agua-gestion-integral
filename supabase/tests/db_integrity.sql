@@ -24,10 +24,10 @@ begin
   if n<>9 then raise exception 'COLUMNAS_INTEGRIDAD_INCOMPLETAS: %', n; end if;
 
   -- 3) Índices de unicidad y acceso
-  if to_regindex('public.payments_idempotency_unique') is null then raise exception 'FALTA payments_idempotency_unique'; end if;
-  if to_regindex('public.expenses_idempotency_unique') is null then raise exception 'FALTA expenses_idempotency_unique'; end if;
-  if to_regindex('public.document_artifacts_document_idx') is null then raise exception 'FALTA document_artifacts_document_idx'; end if;
-  if to_regindex('public.cash_movements_session_idx') is null then raise exception 'FALTA cash_movements_session_idx'; end if;
+  if to_regclass('public.payments_idempotency_unique') is null then raise exception 'FALTA payments_idempotency_unique'; end if;
+  if to_regclass('public.expenses_idempotency_unique') is null then raise exception 'FALTA expenses_idempotency_unique'; end if;
+  if to_regclass('public.document_artifacts_document_idx') is null then raise exception 'FALTA document_artifacts_document_idx'; end if;
+  if to_regclass('public.cash_movements_session_idx') is null then raise exception 'FALTA cash_movements_session_idx'; end if;
 
   -- 4) Funciones críticas presentes con la firma esperada
   if to_regprocedure('public.next_connection_code(uuid)') is null then raise exception 'FALTA next_connection_code'; end if;
