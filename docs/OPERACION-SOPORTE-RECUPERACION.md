@@ -42,16 +42,17 @@ npm run readiness:staging
 2. Crear dos organizaciones.
 3. Crear superadmin, admin, secretaria, tesorero, auditor y abonado de portal.
 4. Crear abonados con 1, 2, 4 y 20 pegues.
-5. Generar anualidad y verificar L 400 por pegue.
+5. Generar anualidad y verificar el monto definido por el motor de tarifas (catálogo de servicios) en todos los pegues.
 6. Verificar adulto mayor: 60 años, 25%, con DNI primario, aplicado a todos los pegues.
 7. Registrar pagos en efectivo, transferencia, cheque, depósito y mixto.
-8. Cerrar caja y validar arqueo.
-9. Anular pago y registrar devolución parcial.
-10. Generar PDF, reimprimir y abrir QR público.
-11. Validar que el abonado solo edite celular, correo, dirección y foto.
-12. Validar RLS entre organizaciones.
-13. Crear backup, descargarlo y restaurarlo en base limpia.
-14. Ejecutar smoke test de Render staging.
+8. Enviar dos veces el mismo pago y confirmar que la clave de idempotencia registra una sola vez.
+9. Cerrar caja y validar arqueo.
+10. Anular pago y registrar devolución parcial.
+11. Generar PDF, reimprimir y abrir QR público.
+12. Validar que el abonado solo edite celular, correo, dirección y foto.
+13. Validar RLS entre organizaciones.
+14. Crear backup, descargarlo y restaurarlo en base limpia.
+15. Ejecutar smoke test de Render staging.
 
 ## Soporte
 

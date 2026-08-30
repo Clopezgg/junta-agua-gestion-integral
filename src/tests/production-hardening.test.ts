@@ -7,6 +7,8 @@ const dbWorkflow=fs.readFileSync('.github/workflows/db-validate.yml','utf8');
 const release=fs.readFileSync('.github/workflows/release.yml','utf8');
 const render=fs.readFileSync('render.yaml','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
+const readme=fs.readFileSync('README.md','utf8');
+const changelog=fs.readFileSync('CHANGELOG.md','utf8');
 const auth=fs.readFileSync('src/contexts/AuthContext.tsx','utf8');
 const app=fs.readFileSync('src/App.tsx','utf8');
 
@@ -43,5 +45,12 @@ describe('endurecimiento de producción',()=>{
   expect(auth).not.toContain('sessionStorage.clear()');
   expect(app).toContain('path="avance" element={<ProtectedRoute permission="updates.read"');
   expect(app).toContain('path="seguridad" element={<ProtectedRoute permission="settings.read"');
+ });
+ it('la documentación principal refleja la miliración 032 y el motor de tarifas',()=>{
+  expect(readme).toContain('001` a `032');
+  expect(readme).toContain('erp_financial_integrity_core');
+  expect(readme).not.toContain('Cuota anual predeterminada de L 400');
+  expect(readme).toContain('WHATSAPP_APP_SECRET');
+  expect(changelog).toContain('3.1.1');
  });
 });

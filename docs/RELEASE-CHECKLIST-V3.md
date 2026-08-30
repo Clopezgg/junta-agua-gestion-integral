@@ -24,14 +24,17 @@
 
 ## Reglas de negocio
 
-- [ ] L 400 por pegue activo.
+- [ ] Cuota anual por pegue definida en el motor de tarifas (catálogo de servicios), sin montos fijos en el código.
 - [ ] Vencimiento 30 de noviembre.
-- [ ] Mora desde 1 de diciembre.
+- [ ] Mora desde 1 de diciembre, con política de mora configurada (sin importes inventados).
 - [ ] Adulto mayor desde 60 años.
-- [ ] Descuento 25% en todos los pegues del titular.
+- [ ] Descuento 25% en todos los pegues del titular, congelado en el pegue.
 - [ ] Descuento limitado a cuota anual.
 - [ ] DNI principal requerido.
-- [ ] Códigos automáticos.
+- [ ] Códigos automáticos por secuencia segura por abonado.
+- [ ] Pago en dos envíos idénticos registrado una sola vez (idempotencia).
+- [ ] Modificación directa de pagos/documentos/auditoría bloqueada (inmutabilidad).
+- [ ] Emisión de recibo público sin exponer rutas internas (`verify_receipt_public`).
 
 ## Documentos
 
