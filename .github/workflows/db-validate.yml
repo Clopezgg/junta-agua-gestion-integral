@@ -16,7 +16,7 @@ jobs:
       - name: Configurar Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: v2.116.0
       - name: Iniciar pila local (Postgres) y aplicar migraciones 001..034 desde cero
         run: supabase start
       - name: Verificar integridad financiera (migraciones 032 a 034)

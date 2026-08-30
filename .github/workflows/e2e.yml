@@ -22,7 +22,7 @@ jobs:
       - name: Configurar Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: v2.116.0
       - name: Iniciar pila local (aplica migraciones 001..034)
         run: supabase start
       - name: Sembrar usuario, organización y datos de negocio
