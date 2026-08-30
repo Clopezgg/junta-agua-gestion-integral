@@ -11,7 +11,11 @@ async function mfa(page:Page){
   if(!totpSecret){
     await expect(page.getByRole('heading',{name:/activar autenticador/i})).toBeVisible();
     await page.getByRole('button',{name:/generar código qr/i}).first().click();
-    await expect(page.locator('code').first()).toBeVisible();
+    try{
+      await expect(page.locator('code').first()).toBeVisible({timeout:15_000});
+    }catch{
+      throw new Error(`No se pudo enrolar MFA: ${(await page.locator('.error').first().textContent()).trim()}`);
+    }
     totpSecret=(await page.locator('code').first().textContent())?.trim()??'';
     if(!totpSecret)throw new Error('No se pudo leer el secreto de enrolamiento.');
   }else{

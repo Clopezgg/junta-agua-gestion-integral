@@ -51,6 +51,16 @@ jobs:
           VITE_SUPABASE_URL: http://127.0.0.1:54321
           VITE_SUPABASE_ANON_KEY: ${{ steps.env.outputs.anon_key }}
         run: npx playwright test
+      - name: Subir trazas y reporte de Playwright
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            test-results/
+            playwright-report/
+            blob-report/
+          if-no-files-found: ignore
       - name: Detener pila local
         if: always()
         run: supabase stop
