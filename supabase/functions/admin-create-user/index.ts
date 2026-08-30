@@ -1,9 +1,11 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const cors={ 'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type' };
-async function findExistingUser(admin:any,email:string){
+async function findExistingUser(email:string){
+  const url=Deno.env.get('SUPABASE_URL')!;const service=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  const client=createClient(url,service,{auth:{autoRefreshToken:false,persistSession:false}});
   let page=1;
   while(true){
-    const{data:list}=await admin.auth.admin.listUsers({page,perPage:500});
+    const{data:list}=await client.auth.admin.listUsers({page,perPage:500});
     const found=list?.users.find(u=>u.email?.toLowerCase()===email.toLowerCase());
     if(found)return found;
     if(!list?.users.length)return null;
@@ -23,12 +25,12 @@ Deno.serve(async(req)=>{
    const admin=createClient(url,service,{auth:{autoRefreshToken:false,persistSession:false}});
    const {data:callerProfile,error:cpError}=await admin.from('profiles').select('organization_id').eq('id',auth.user.id).single();if(cpError)throw cpError;
    const {data:role,error:roleError}=await admin.from('roles').select('id').eq('id',roleId).eq('organization_id',callerProfile.organization_id).single();if(roleError||!role)throw new Error('INVALID_ROLE');
-   const existing=await findExistingUser(admin,email);
+   const existing=await findExistingUser(email);
    let userId:string|null=existing?.id??null;let replay=Boolean(existing);
    if(!userId){
     const {data:invite,error:inviteError}=await admin.auth.admin.inviteUserByEmail(email,{data:{full_name:fullName,username,organization_id:callerProfile.organization_id}});
     if(inviteError){
-     const duplicate=await findExistingUser(admin,email);
+     const duplicate=await findExistingUser(email);
      if(!duplicate)throw inviteError;
      userId=duplicate.id;replay=true;
     }else userId=invite.user.id;

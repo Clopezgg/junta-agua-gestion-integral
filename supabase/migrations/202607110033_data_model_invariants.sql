@@ -243,7 +243,9 @@ grant execute on function public.update_water_connection(uuid,jsonb) to authenti
 
 -- ---------------------------------------------------------------------------
 -- 6. PROTECCIÓN CONTRA FUERZA BRUTA EN EL LOGIN (F)
---    Ventana deslizante servidora previa a la autenticación (mailto hash SHA-256).
+--    Ventana deslizante servidora previa a la autenticación (hash SHA-256 de
+--    la identidad vía pgcrypto; se referencia con el esquema `extensions`,
+--    que es donde Supabase instala las extensiones).
 --      * >=5 fallos en 15 minutos  -> bloqueo 5 minutos.
 --      * >=10 fallos en 60 minutos -> bloqueo 15 minutos.
 --    La aplicación llama a record_login_attempt tras cada signIn y a
@@ -267,7 +269,7 @@ set search_path=public
 as $$
 declare
   email_lower text:=lower(trim(p_email));
-  h text:=encode(digest(email_lower,'sha256'),'hex');
+  h text:=encode(extensions.digest(email_lower,'sha256'),'hex');
   row public.login_attempt_cooldowns%rowtype;
 begin
   if coalesce(email_lower,'')='' then return; end if;
@@ -311,7 +313,7 @@ as $$
     when blocked_until is not null and blocked_until>now() then greatest(1,ceil(extract(epoch from (blocked_until-now())))::int)
     else 0 end
   from public.login_attempt_cooldowns
-  where email_hash=encode(digest(lower(trim(p_email)),'sha256'),'hex');
+  where email_hash=encode(extensions.digest(lower(trim(p_email)),'sha256'),'hex');
 $$;
 
 create index if not exists login_attempt_cooldowns_expiry_idx
