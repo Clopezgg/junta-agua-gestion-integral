@@ -21,6 +21,6 @@ export default defineConfig({
     command:'npm run build:render && vite preview --port 4173 --strictPort',
     url:'http://127.0.0.1:4173',
     reuseExistingServer:false,
-    timeout:240_000
+    timeout:420_000
   }
 });
