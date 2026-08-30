@@ -20,8 +20,8 @@ begin
     and ((table_name='payments' and column_name='idempotency_key')
       or (table_name='expenses' and column_name='idempotency_key')
       or (table_name='obligations' and column_name in
-          ('late_fee_pending','base_amount','discount_amount','late_fee_amount','calculation_snapshot','senior_discount_applied')));
-  if n<>8 then raise exception 'COLUMNAS_INTEGRIDAD_INCOMPLETAS: %', n; end if;
+          ('late_fee_pending','base_amount','discount_amount','late_fee_amount','calculation_snapshot','original_amount','paid_amount')));
+  if n<>9 then raise exception 'COLUMNAS_INTEGRIDAD_INCOMPLETAS: %', n; end if;
 
   -- 3) Índices de unicidad y acceso
   if to_regindex('public.payments_idempotency_unique') is null then raise exception 'FALTA payments_idempotency_unique'; end if;
@@ -53,7 +53,7 @@ begin
   if n<>4 then raise exception 'DISPARADORES_INMUTABILIDAD_INCOMPLETOS: %', n; end if;
   select count(*) into n from pg_trigger where tgname like 'cash_movements_%';
   if n<>5 then raise exception 'DISPARADORES_CAJA_INCOMPLETOS: %', n; end if;
-  perform 1 from pg_proc where proname='verify_receipt_public' and pg_get_functiondef(oid) like '%receipt_path%';
+  perform 1 from pg_proc where proname='verify_receipt_public' and pg_get_functiondef(oid) like '%decision_path%';
   if found then raise exception 'verify_receipt_public EXTIENDE rutas internas'; end if;
 
   -- 6) Permisos granulares de respaldo aplicados por rol
@@ -62,7 +62,7 @@ begin
   join public.roles r on r.id=rp.role_id
   join public.permissions p on p.code=rp.permission_code
   where p.code like 'backups.%';
-  if n<>8 then raise exception 'PERMISOS_RESPALDO_INCORRECTOS: %', n; end if;
+  if n<>6 then raise exception 'PERMISOS_RESPALDO_INCORRECTOS: %', n; end if;
 
   -- 7) Métodos de pago admitidos presentes
   select count(*) into n from pg_enum e
