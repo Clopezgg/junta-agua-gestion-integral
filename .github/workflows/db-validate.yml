@@ -19,6 +19,18 @@ jobs:
           version: v2.116.0
       - name: Iniciar pila local (Postgres) y aplicar migraciones 001..034 desde cero
         run: supabase start
+      - name: Sembrar estado post-bootstrap (organización y catálogo de permisos)
+        run: |
+          docker run --rm --network host \
+            -e PGPASSWORD=postgres \
+            -e PGHOST=127.0.0.1 \
+            -e PGPORT=54322 \
+            -e PGUSER=postgres \
+            -e PGDATABASE=postgres \
+            -v "$PWD/supabase/tests/seed_integrity.sql:/tmp/seed_integrity.sql:ro" \
+            --entrypoint psql postgres:16-alpine \
+            -v ON_ERROR_STOP=1 \
+            -f /tmp/seed_integrity.sql
       - name: Verificar integridad financiera (migraciones 032 a 034)
         run: |
           docker run --rm --network host \
