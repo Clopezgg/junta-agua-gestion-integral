@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
 type PackageInfo={version:string};
@@ -16,5 +16,8 @@ export default defineConfig({
     __APP_COMMIT_SHA__:JSON.stringify(commit),
     __APP_BUILD_DATE__:JSON.stringify(buildDate),
     __APP_RELEASE_URL__:JSON.stringify(releaseUrl)
+  },
+  test:{
+    exclude:['tests/**','node_modules/**']
   }
 });
