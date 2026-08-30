@@ -25,14 +25,15 @@ describe('endurecimiento de producción',()=>{
   expect(createUser).toContain('has_permission');
   expect(createUser).toContain('aal2');
  });
- it('la base de datos se valida en CI con una instancia real (migraciones 001..034)',()=>{
-  expect(dbWorkflow).toContain('supabase/setup-cli');
-  expect(dbWorkflow).toContain('supabase db reset --db-url');
-  expect(dbWorkflow).toContain('Aplicar migraciones 001..034 desde cero');
-  expect(fs.existsSync('supabase/tests/db_integrity.sql')).toBe(true);
-  expect(release).toContain('needs: [validate]');
-  expect(release).toContain('create-release:');
- });
+it('la base de datos se valida en CI con una instancia real (migraciones 001..034)',()=>{
+   expect(dbWorkflow).toContain('supabase/setup-cli');
+   expect(dbWorkflow).toContain('supabase start');
+   expect(dbWorkflow).toContain('Iniciar pila local (Postgres) y aplicar migraciones 001..034 desde cero');
+   expect(dbWorkflow).toContain('Verificar integridad financiera (migraciones 032 a 034)');
+   expect(fs.existsSync('supabase/tests/db_integrity.sql')).toBe(true);
+   expect(release).toContain('needs: [validate]');
+   expect(release).toContain('create-release:');
+  });
  it('render sirve encabezados de seguridad y el service worker se versiona por build',()=>{
   expect(render).toContain('Content-Security-Policy');
   expect(render).toContain('Strict-Transport-Security');
