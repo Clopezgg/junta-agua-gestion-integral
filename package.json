@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:render": "npm run build && test -f dist/index.html",
+    "build:render": "npm run build && node scripts/bake-sw.mjs && test -f dist/index.html",
     "test": "vitest run",
     "lint": "eslint .",
     "test:e2e": "vitest run src/tests/e2e",

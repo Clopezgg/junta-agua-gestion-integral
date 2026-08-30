@@ -9,20 +9,16 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Descargar código
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Configurar Node
         uses: actions/setup-node@v4
         with:
           node-version: '22.14.0'
           registry-url: 'https://registry.npmjs.org'
-
       - name: Resolver versión
         id: version
         env:
@@ -37,30 +33,85 @@ jobs:
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Versión ya publicada
-        if: steps.version.outputs.exists == 'true'
-        run: echo "La versión ${{ steps.version.outputs.tag }} ya tiene un GitHub Release."
-
-      - name: Instalar dependencias
-        if: steps.version.outputs.exists != 'true'
-        run: npm install --include=dev --no-audit --no-fund --registry=https://registry.npmjs.org/
-
-      - name: Probar y compilar
-        if: steps.version.outputs.exists != 'true'
+      - name: Verificar registro público
+        run: test "$(npm config get registry)" = "https://registry.npmjs.org/"
+      - name: Instalar dependencias reproducibles
+        run: npm ci --include=dev --no-audit --no-fund --registry=https://registry.npmjs.org/
+      - name: Pruebas, lint y compilación
         env:
           VITE_APP_VERSION: ${{ steps.version.outputs.version }}
           VITE_APP_BUILD_DATE: ${{ github.event.repository.updated_at }}
           VITE_APP_RELEASE_URL: https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}
         run: |
-          npm test
-          npm run lint
-          npm run build:render
+          set -o pipefail
+          npm test 2>&1 | tee test-output.log
+          npm run lint 2>&1 | tee lint-output.log
+          npm run build:render 2>&1 | tee build-output.log
+      - name: Verificar publicación
+        run: |
+          test -f dist/index.html
+          test -f dist/health.txt
+          test -f dist/_redirects
+          test -f dist/manifest.webmanifest
+          test -f dist/sw.js
+      - name: Guardar aplicación compilada
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-junta-agua
+          path: dist
+          if-no-files-found: error
+          retention-days: 7
+      - name: Guardar diagnósticos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnosticos-release
+          path: |
+            test-output.log
+            lint-output.log
+            build-output.log
+          if-no-files-found: warn
+          retention-days: 7
 
+  create-release:
+    needs: [validate]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+      - name: Resolver versión
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
+          if gh release view "v${VERSION}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Versión ya publicada
+        if: steps.version.outputs.exists == 'true'
+        run: echo "La versión ${{ steps.version.outputs.tag }} ya tiene un GitHub Release; no se vuelve a crear."
+      - name: Descargar aplicación compilada
+        if: steps.version.outputs.exists != 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-junta-agua
+          path: dist
       - name: Empaquetar aplicación
         if: steps.version.outputs.exists != 'true'
         run: tar -czf "junta-agua-${{ steps.version.outputs.tag }}.tar.gz" dist
-
       - name: Crear GitHub Release
         if: steps.version.outputs.exists != 'true'
         env:
