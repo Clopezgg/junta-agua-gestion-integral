@@ -6,7 +6,7 @@ begin;
 
 insert into public.organizations(name)
 select 'Integridad'
-on conflict(name) do nothing;
+where not exists (select 1 from public.organizations);
 
 insert into public.roles(organization_id,code,name)
 select o.id,v.code,v.name
