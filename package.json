@@ -24,7 +24,7 @@
     "qrcode": "1.5.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-router-dom": "7.18.1",
+    "react-router-dom": "^7.18.3",
     "read-excel-file": "9.3.0",
     "recharts": "3.9.2",
     "saxen": "11.0.2",
