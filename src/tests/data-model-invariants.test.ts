@@ -5,6 +5,7 @@ const m033=fs.readFileSync('supabase/migrations/202607110033_data_model_invarian
 const subscribers=fs.readFileSync('src/pages/Subscribers.tsx','utf8');
 const subscribersService=fs.readFileSync('src/features/subscribers/service.ts','utf8');
 const dbIntegrity=fs.readFileSync('supabase/tests/db_integrity.sql','utf8');
+const login=fs.readFileSync('src/pages/Login.tsx','utf8');
 
 describe('invariantes del modelo de datos (migración 033)',()=>{
  it('prohíbe el borrado físico de registros publicados',()=>{
@@ -52,6 +53,13 @@ describe('invariantes del modelo de datos (migración 033)',()=>{
   expect(subscribers).toContain('saveSubscriptionData');
   expect(subscribers).toContain('manageConnection');
   expect(subscribers).toContain('Suspender o retirar pegue (requiere MFA)');
+ });
+ it('el inicio de sesión consulta el enfriamiento y registra los intentos fallidos',()=>{
+  expect(login).toContain("'get_login_cooldown_seconds'");
+  expect(login).toContain("'record_login_attempt'");
+  expect(login).toContain('Demasiados intentos fallidos');
+  expect(login).toContain('p_success:false');
+  expect(login).toContain('p_success:true');
  });
  it('la validación de integridad en CI comprueba las garantías de la 033',()=>{
   expect(dbIntegrity).toContain("to_regprocedure('public.update_subscriber(uuid,jsonb)')");

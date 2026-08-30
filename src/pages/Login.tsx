@@ -2,6 +2,11 @@ import {useState} from 'react';
 import {Droplets,Eye,EyeOff,KeyRound,LockKeyhole,ShieldCheck} from 'lucide-react';
 import {Navigate} from 'react-router-dom';
 import {useAuth} from '../contexts/AuthContext';
+import {supabase} from '../lib/supabase';
+
+async function callRpc(name:string,args:Record<string,unknown>){if(!supabase)return null;const{data,error}=await supabase.rpc(name,args);return error?null:data;}
+async function cooldownSeconds(email:string){return Number((await callRpc('get_login_cooldown_seconds',{p_email:email}))??0);}
+function formatCooldown(seconds:number){const m=Math.floor(seconds/60);const s=seconds%60;return `${m} min ${s} s`;}
 
 export function Login(){
  const auth=useAuth();
@@ -11,7 +16,11 @@ export function Login(){
  const[error,setError]=useState('');
  const[loading,setLoading]=useState(false);
  if(auth.session)return <Navigate to="/mfa" replace/>;
- async function submit(event:React.FormEvent){event.preventDefault();setError('');setLoading(true);try{await auth.signIn(email,password)}catch(error){setError(error instanceof Error?error.message:'No se pudo iniciar sesión.')}finally{setLoading(false)}}
+ async function submit(event:React.FormEvent){event.preventDefault();setError('');setLoading(true);try{
+  const wait=await cooldownSeconds(email);if(wait>0){setError(`Demasiados intentos fallidos. Espere ${formatCooldown(wait)} para volver a intentar.`);return;}
+  try{await auth.signIn(email,password);await callRpc('record_login_attempt',{p_email:email,p_success:true});}
+  catch(signInError){await callRpc('record_login_attempt',{p_email:email,p_success:false});throw signInError;}
+ }catch(error){setError(error instanceof Error?error.message:'No se pudo iniciar sesión.')}finally{setLoading(false)}}
  return <main className="auth auth-premium">
   <section className="auth-showcase">
    <div className="auth-emblem"><Droplets size={34}/></div>
