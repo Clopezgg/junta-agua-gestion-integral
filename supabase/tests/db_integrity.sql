@@ -1,5 +1,5 @@
 -- Verificación estructural de integridad financiera sobre una base local recién
--- migrada (001..032). Ejecución: psql "$DATABASE_URL" -f supabase/tests/db_integrity.sql
+-- migrada (001..033). Ejecución: psql "$DATABASE_URL" -f supabase/tests/db_integrity.sql
 -- Falla (exit != 0) ante cualquier invariante roto. No muta datos: solo inspección.
 
 \set ON_ERROR_STOP on
@@ -70,6 +70,21 @@ begin
   where t.typname='payment_method' and e.enumlabel in ('cash','transfer','deposit','check','mixed');
   if n<>5 then raise exception 'ENUM payment_method INCOMPLETO: %', n; end if;
 
-  raise notice 'Integridad financiera (migración 032) verificada: OK';
+  -- 8) Invariantes de la migración 033
+  if to_regprocedure('public.update_subscriber(uuid,jsonb)') is null then raise exception 'FALTA update_subscriber'; end if;
+  if to_regprocedure('public.update_water_connection(uuid,jsonb)') is null then raise exception 'FALTA update_water_connection'; end if;
+  if to_regprocedure('public.record_login_attempt(text,boolean)') is null then raise exception 'FALTA record_login_attempt'; end if;
+  if to_regprocedure('public.get_login_cooldown_seconds(text)') is null then raise exception 'FALTA get_login_cooldown_seconds'; end if;
+  select count(*) into n from pg_trigger where tgname in
+    ('forbid_delete_payments','forbid_delete_financial_documents','forbid_delete_subscribers','forbid_delete_cash_sessions','forbid_delete_audit_events');
+  if n<>5 then raise exception 'PROTECCION_DELETE_INCOMPLETA: %', n; end if;
+  select count(*) into n from pg_trigger where tgname in ('cash_session_closed_guard','cash_movement_session_guard');
+  if n<>2 then raise exception 'PROTECCION_CAJA_INCOMPLETA: %', n; end if;
+  select count(*) into n from pg_constraint where conname in
+    ('water_connections_code_format','obligations_nonnegative_components','benefits_window_valid');
+  if n<>3 then raise exception 'CONSTRAINTS_033_INCOMPLETOS: %', n; end if;
+  if to_regclass('public.login_attempt_cooldowns') is null then raise exception 'FALTA login_attempt_cooldowns'; end if;
+
+  raise notice 'Integridad financiera (migración 032) e invariantes (033) verificadas: OK';
 end
 $$;

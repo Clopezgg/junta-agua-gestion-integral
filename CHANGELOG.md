@@ -23,7 +23,7 @@
 
 ### Despliegue y CI
 - `release.yml` separa validación y creación del Release; la validación nunca se omite aunque el tag exista.
-- `db-validate.yml` aplica migraciones 001–032 sobre una instancia Supabase real y verifica invariantes estructurales.
+- `db-validate.yml` aplica migraciones 001–033 sobre una instancia Supabase real y verifica invariantes estructurales.
 - Encabezados de seguridad en `render.yaml` (CSP, HSTS, Permissions-Policy, COOP).
 - Service worker versionado por compilación (hash del shell) en lugar de quedar clavado a una versión.
 - Documentación operativa actualizada (README, despliegue, checklist y soporte).

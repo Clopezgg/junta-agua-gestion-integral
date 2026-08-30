@@ -19,9 +19,9 @@ jobs:
           version: latest
       - name: Iniciar pila local (Postgres)
         run: supabase start
-      - name: Aplicar migraciones 001..032 desde cero
+      - name: Aplicar migraciones 001..033 desde cero
         run: supabase db reset --db-url "$(supabase status -o env | sed -n 's/^DATABASE_URL=//p')" --pg-migrations-schema public
-      - name: Verificar integridad financiera (migración 032)
+      - name: Verificar integridad financiera (migraciones 032 y 033)
         run: |
           docker run --rm --network host \
             -e PGPASSWORD=postgres \

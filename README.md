@@ -47,7 +47,7 @@ Aplicación privada para administrar abonados, pegues, identidad, cuotas anuales
 - PWA instalable: caché exclusiva del shell, versionada por compilación.
 - Backup y restauración `junta-agua-backup-v5`.
 - Validación automática de la base de datos en CI sobre una instancia Supabase
-  real (migraciones 001–032 desde cero).
+  real (migraciones 001–033 desde cero).
 
 ## Requisitos
 
@@ -74,13 +74,15 @@ git diff --check
 ```
 
 En CI además se valida la base de datos sobre una instancia Supabase real
-(`.github/workflows/db-validate.yml`): aplica las migraciones 001–032 desde cero
+(`.github/workflows/db-validate.yml`): aplica las migraciones 001–033 desde cero
 y verifica los invariantes de integridad (`supabase/tests/db_integrity.sql`).
 
 ## Base de datos
 
-Ejecute las migraciones en orden `001` a `032` (la 032 es el núcleo de
-integridad financiera y debe aplicarse después de todas las anteriores):
+Ejecute las migraciones en orden `001` a `033` (la 032 es el núcleo de
+integridad financiera y la 033 fija los invariantes del modelo, la corrección
+auditada de abonados/pegues y la protección contra fuerza bruta; ambas deben
+aplicarse después de todas las anteriores):
 
 1. `001`–`011`: seguridad, abonados, tarifas/obligaciones, pagos, gastos/balance y
    funciones de escritura auditadas.
