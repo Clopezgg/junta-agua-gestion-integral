@@ -10,11 +10,11 @@ compromiso (commit) que la respalda.
 | Invariantes del modelo + corrección auditada + login cooldown | ✅ | Migración 033 (anti-delete, formato código, no negativos, guards de caja, `record_login_attempt`/`get_login_cooldown_seconds`) · `data-model-invariants.test.ts` | `7222af3` |
 | Fuerza bruta conectado al login | ✅ | `src/pages/Login.tsx` consume cooldown + registro de intentos | `16e605a` |
 | MFA en todas las acciones de respaldo + sesiones de restauración | ✅ | Migración 034 (`backup_restore_sessions`) · `backup-manager` (aal2 en backup/download/restore) · `Backups.tsx` panel de sesiones · `backup-restore-hardening.test.ts` | `c12e201` |
-| Integridad validada en Supabase real (001..034) | 🔄 | `db-validate.yml`: `supabase start` aplica 001..034 · `db_integrity.sql` (Sección 8/9) | `8e51b15` + iteraciones en `36459da` |
+| Integridad validada en Supabase real (001..034) | ✅ | `db-validate.yml`: `supabase start` aplica 001..034 · `db_integrity.sql` (Secciones 1–9) · seed post-bootstrap `seed_integrity.sql` | `8e51b15` + `f5c9538` |
 | Edge functions tipadas por Deno (11 funciones) | ✅ | `deno check` verde en CI (todas `supabase/functions/*`) | `ab316df` |
 | Sin RPC fantasma: pantallas 100% respaldadas por backend | ✅ | `phase-g-real-rpcs.test.ts` (0 fantasma · 104 RPC verificadas contra migraciones) | `c386ab4` |
 | Contrato de CI sincronizado con la validación real | ✅ | `production-hardening.test.ts` (start + integridad 032–034) | `15ee3e6` |
-| E2E real de navegador (Playwright + Supabase local + seed) | 🔄 | `tests/e2e/smoke.spec.ts` · `e2e_seed.sql` · `e2e.yml` | `4e9ab66` (`c8ff131`) |
+| E2E real de navegador (Playwright + Supabase local + seed) | ✅ | `tests/e2e/smoke.spec.ts` (5 pruebas: login+panel, navegación, búsqueda, responsivo, logout; MFA TOTP real vía enrolamiento GoTrue) · `e2e_seed.sql` · `e2e.yml` · 5 passed en Chromium real | `4e9ab66` → `f5c9538` |
 | Vitest y Playwright aislados (sin colisión) | ✅ | `vitest.config.ts` (include/exclude) · 19 archivos / 106 pruebas | `a9d1525` |
 | UI sin emojis funcionales + dependencias sin vulnerabilidades | ✅ | `Layout.tsx` con lucide `Check` · `npm audit` = 0 | `f5c89b0` |
 | Arranque de Supabase aplica migraciones (sin paso db reset intermedio) | ✅ | `db-validate.yml` flujo real superado (start→integridad→migration list) | `5794b57` |
@@ -26,6 +26,5 @@ Leyenda: ✅ verificado por CI/contratos locales · 🔄 pipeline activo en la r
 (curso de último run) o pendiente de despliegue con credenciales reales.
 
 Riesgos observados, no bloqueantes para el código:
-- Validación DB/E2E final depende del último run de GitHub Actions (seguimiento en curso).
 - Despliegue real a Render/Supabase requiere credenciales externas (bloqueado externamente).
 - Retención automática de respaldos vencidos: pendiente documentado (no automatizado).

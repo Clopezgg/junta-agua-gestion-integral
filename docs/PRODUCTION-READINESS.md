@@ -9,9 +9,9 @@ Versión de referencia: **3.1.0** · Rama `work/junta-agua-erp-production-v2` ·
 | Unidad/contrato | `npx vitest run` (19 archivos, 106 pruebas, suites `src/tests/*.test.ts`) | Verde |
 | Estática | `eslint .` y `tsc -b` | Verde |
 | Render/empaquetado | `npm run build:render` (bake-sw versionado `junta-agua-shell-v3.1.0-<sha>`) | Verde |
-| Base de datos real | `.github/workflows/db-validate.yml`: `supabase start` aplica migraciones 001..034; `db_integrity.sql` valida integridad financiera, invariantes 033 y trazabilidad 034 | Pendiente de último run |
+| Base de datos real | `.github/workflows/db-validate.yml`: `supabase start` aplica migraciones 001..034; `db_integrity.sql` valida integridad financiera, invariantes 033 y trazabilidad 034; seed `seed_integrity.sql` emula el estado post-bootstrap | Verde |
 | Edge functions | `deno check --no-config --no-lock` sobre las 11 funciones en `supabase/functions/*` | Verde |
-| E2E de navegador real | `.github/workflows/e2e.yml`: Playwright (Chromium desktop + móvil) contra la pila local de Supabase sembrada (`supabase/tests/e2e_seed.sql`) | Sediento de un run completo |
+| E2E de navegador real | `.github/workflows/e2e.yml`: Playwright (Chromium) contra la pila local de Supabase sembrada (`supabase/tests/e2e_seed.sql`); login con MFA TOTP real. 5/5 pruebas | Verde |
 | Comercial offline | `npm run readiness:offline` (13 checks de artefactos y flujos) | Verde |
 | Dependencias | `npm audit` | 0 vulnerabilidades |
 
