@@ -1,14 +1,33 @@
 import {expect,test,type Page} from '@playwright/test';
+import {authenticator} from 'otplib';
 
 const EMAIL='e2e-demo@junta.test';
 const PASSWORD='E2e-Demo-2026!';
+const TOTP_SECRET='GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
+
+async function mfa(page:Page){
+  await expect(page).toHaveURL(/\/mfa/,{timeout:20_000});
+  await expect(page.getByRole('heading',{name:/segundo factor/i})).toBeVisible();
+  for(let attempt=0;attempt<3;attempt++){
+    if(attempt>0)await page.waitForTimeout(authenticator.timeRemaining()+500);
+    await page.getByLabel(/código de seis dígitos/i).fill(authenticator.generate(TOTP_SECRET));
+    await page.getByRole('button',{name:/verificar y continuar/i}).click();
+    try{
+      await expect(page).toHaveURL(/\/$/,{timeout:25_000});
+      return;
+    }catch{
+      continue;
+    }
+  }
+  throw new Error('No se pudo completar la verificación MFA.');
+}
 
 async function login(page:Page){
   await page.goto('/login');
   await page.getByPlaceholder(/correo|email/i).first().fill(EMAIL);
   await page.getByLabel(/contraseña/i).first().fill(PASSWORD);
   await page.getByRole('button',{name:/continuar de forma segura|entrar|iniciar sesión/i}).first().click();
-  await expect(page).toHaveURL(/\/$/,{timeout:20_000});
+  await mfa(page);
 }
 
 test.describe('flujo operativo real (browser) sobre Supabase local',()=>{
