@@ -1,0 +1,61 @@
+name: Validar base de datos (Supabase local)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  db:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+      - name: Configurar Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Iniciar pila local (Postgres)
+        run: supabase start
+      - name: Aplicar migraciones 001..032 desde cero
+        run: supabase db reset --db-url "$(supabase status -o env | sed -n 's/^DATABASE_URL=//p')" --pg-migrations-schema public
+      - name: Verificar integridad financiera (migración 032)
+        run: |
+          docker run --rm --network host \
+            -e PGPASSWORD=postgres \
+            -e PGHOST=127.0.0.1 \
+            -e PGPORT=54322 \
+            -e PGUSER=postgres \
+            -e PGDATABASE=postgres \
+            -v "$PWD/supabase/tests/db_integrity.sql:/tmp/db_integrity.sql:ro" \
+            --entrypoint psql postgres:16-alpine \
+            -f /tmp/db_integrity.sql
+      - name: Inspeccionar plan de migraciones
+        run: supabase migration list --db-url "$(supabase status -o env | sed -n 's/^DATABASE_URL=//p')" || true
+      - name: Detener pila local
+        if: always()
+        run: supabase stop
+
+  functions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+      - name: Configurar Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Comprobar sintaxis y tipos de funciones edge
+        run: |
+          set -e
+          for dir in supabase/functions/*/; do
+            name="$(basename "$dir")"
+            deno check --no-config --no-lock "$dir/index.ts"
+            echo "OK: supabase/functions/${name}"
+          done
+      - name: Verificar configuración de funciones
+        run: |
+          grep -q '\[functions.whatsapp-webhook\]' supabase/config.toml
+          grep -q 'verify_jwt = false' supabase/config.toml
