@@ -45,12 +45,12 @@ select set_config(
 -- 3) Factor TOTP verificado con secreto determinista (semilla de código real);
 --    "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ" = base32 de "12345678901234567890".
 insert into auth.mfa_factors(
-  user_id, friendly_name, factor_type, status, secret, aal, created_at, updated_at
+  user_id, friendly_name, factor_type, status, secret, created_at, updated_at
 )
 values(
   'e2e00000-0000-4000-8000-00000000e2e0',
   'E2E', 'totp', 'verified',
-  'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', 'aal2', now(), now()
+  'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ', now(), now()
 );
 
 -- 4) Inicialización real de la organización con el único usuario existente.
