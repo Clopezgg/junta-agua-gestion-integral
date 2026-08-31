@@ -42,8 +42,10 @@ Este documento describe el comportamiento real del subsistema de respaldo y rest
 
 ## 4. Retención y limpieza
 
-- **NO hay limpieza automática implementada en el código real.** La Edge Function no lee `retention_days`; el único lugar donde aparece retención es `src/pages/Integrations.tsx` (campo `retention_days`, default `90`) para la integración externa de respaldo, que `backup-manager` no utiliza.
-- La retención por vencimiento debe gestionarse operativamente (limpieza manual o desplegable externa). No se debe asumir purgado automático de archivos viejos en `system-backups`.
+- **Limpieza automática implementada (migración 035 + `backup-manager`)**: al crear un respaldo, la Edge Function resuelve la retención de la integración `backup` (`public_config.retention_days`; predeterminado `90` días) y la guarda como `retention_days` en la fila del respaldo (rango `[1,3650]`).
+- Cada corrida en estado `completed` o `restored` con `completed_at` anterior al corte (`now() - retention_days`) se poda: se elimina el archivo de `system-backups`, la fila pasa a `status='pruned'` con `storage_path=null`, `pruned_at` y `pruned_by`, y se escribe `audit_events` (`backup.prune`) con ruta, checksum, tamaño y retención aplicada. Así las filas eliminadas conservan su traza en la lista.
+- `list_backup_runs()` no filtra por estado: los respaldos podados aparecen como `Eliminado por retención` en la pantalla y **no ofrecen descarga/restauración** (la lógica de descarga/restauración solo acepta `completed`/`restored`). La poda es idempotente y por organización.
+- Si un borrado de storage falla, la fila no se marca y el directorio se reporta en `prune_failed`; la siguiente corrida reintentará.
 
 ## 5. Restricciones y seguridad
 

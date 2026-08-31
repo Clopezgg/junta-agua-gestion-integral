@@ -82,6 +82,41 @@ async function collectFiles(admin:any,bucket:string,root:string){
   return output;
 }
 
+function defaultRetentionDays(value:unknown){
+  const parsed=Number(value);
+  if(Number.isFinite(parsed)&&parsed>=1&&parsed<=3650)return Math.floor(parsed);
+  return 90;
+}
+
+async function resolveRetentionDays(admin:any,organizationId:string){
+  const{data,error}=await admin.from('integrations').select('public_config').eq('organization_id',organizationId).eq('key','backup').limit(1).maybeSingle();
+  if(error)return 90;
+  return defaultRetentionDays((data?.public_config as any)?.retention_days);
+}
+
+async function pruneExpired(admin:any,organizationId:string,retentionDays:number,actorId:string){
+  const cutoff=new Date(Date.now()-retentionDays*86_400_000).toISOString();
+  const{data:expired}=await admin.from('backup_runs')
+    .select('id,storage_path,checksum_sha256,size_bytes,completed_at')
+    .eq('organization_id',organizationId)
+    .in('status',['completed','restored'])
+    .not('storage_path','is',null)
+    .lt('completed_at',cutoff)
+    .order('completed_at',{ascending:true})
+    .limit(1000);
+  let pruned=0;
+  const failed:string[]=[];
+  for(const row of expired??[]){
+    const{error}=await admin.storage.from('system-backups').remove([row.storage_path]);
+    if(error){failed.push(row.storage_path);continue;}
+    const{error:updateError}=await admin.from('backup_runs').update({status:'pruned',storage_path:null,pruned_at:new Date().toISOString(),pruned_by:actorId}).eq('id',row.id).maybeSingle();
+    if(updateError){failed.push(row.storage_path);continue;}
+    await admin.from('audit_events').insert({organization_id:organizationId,actor_id:actorId,action:'backup.prune',entity_type:'backup_runs',entity_id:row.id,new_data:{retention_days:retentionDays,storage_path:row.storage_path,checksum:row.checksum_sha256,size_bytes:row.size_bytes}}).maybeSingle();
+    pruned+=1;
+  }
+  return{pruned,failed};
+}
+
 Deno.serve(async request=>{
   if(request.method==='OPTIONS')return new Response('ok',{headers:cors});
   try{
@@ -103,9 +138,10 @@ Deno.serve(async request=>{
     const{data:profile}=await admin.from('profiles').select('organization_id').eq('id',auth.user.id).single();
     if(!profile)throw new Error('PROFILE_NOT_FOUND');
     const organizationId=profile.organization_id;
+    const retentionDays=await resolveRetentionDays(admin,organizationId);
 
     if(body.action==='create'){
-      const{data:run,error:runError}=await admin.from('backup_runs').insert({organization_id:organizationId,status:'running',created_by:auth.user.id}).select('id').single();
+      const{data:run,error:runError}=await admin.from('backup_runs').insert({organization_id:organizationId,status:'running',created_by:auth.user.id,retention_days:retentionDays}).select('id').single();
       if(runError)throw runError;
       try{
         const{data:organization,error:organizationError}=await admin.from('organizations').select('*').eq('id',organizationId).single();
@@ -156,7 +192,9 @@ Deno.serve(async request=>{
           table_counts:{...counts,storage_files:fileCount},completed_at:new Date().toISOString()
         }).eq('id',run.id);
 
-        return new Response(JSON.stringify({ok:true,backup_id:run.id,checksum,storage_files:fileCount,format:payload.format}),{headers:{...cors,'Content-Type':'application/json'}});
+        const prune=await pruneExpired(admin,organizationId,retentionDays,auth.user.id);
+
+        return new Response(JSON.stringify({ok:true,backup_id:run.id,checksum,storage_files:fileCount,format:payload.format,retention_days:retentionDays,pruned:prune.pruned,prune_failed:prune.failed.length}),{headers:{...cors,'Content-Type':'application/json'}});
       }catch(error){
         await admin.from('backup_runs').update({status:'failed',error_message:error instanceof Error?error.message:'UNKNOWN',completed_at:new Date().toISOString()}).eq('id',run.id);
         throw error;

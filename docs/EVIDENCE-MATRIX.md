@@ -10,6 +10,7 @@ compromiso (commit) que la respalda.
 | Invariantes del modelo + corrección auditada + login cooldown | ✅ | Migración 033 (anti-delete, formato código, no negativos, guards de caja, `record_login_attempt`/`get_login_cooldown_seconds`) · `data-model-invariants.test.ts` | `7222af3` |
 | Fuerza bruta conectado al login | ✅ | `src/pages/Login.tsx` consume cooldown + registro de intentos | `16e605a` |
 | MFA en todas las acciones de respaldo + sesiones de restauración | ✅ | Migración 034 (`backup_restore_sessions`) · `backup-manager` (aal2 en backup/download/restore) · `Backups.tsx` panel de sesiones · `backup-restore-hardening.test.ts` | `c12e201` |
+| Retención automática de respaldos vencidos | ✅ | Migración 035 (`retention_days`/`pruned_at`/`pruned_by` + estado `pruned`) · `backup-manager` poda por `retention_days` de la integración `backup` (default 90) · traza `backup.prune` en `audit_events` · `db_integrity.sql` sección 10 | `202608300035` (rama/ci) |
 | Integridad validada en Supabase real (001..034) | ✅ | `db-validate.yml`: `supabase start` aplica 001..034 · `db_integrity.sql` (Secciones 1–9) · seed post-bootstrap `seed_integrity.sql` | `8e51b15` + `f5c9538` |
 | Edge functions tipadas por Deno (11 funciones) | ✅ | `deno check` verde en CI (todas `supabase/functions/*`) | `ab316df` |
 | Sin RPC fantasma: pantallas 100% respaldadas por backend | ✅ | `phase-g-real-rpcs.test.ts` (0 fantasma · 104 RPC verificadas contra migraciones) | `c386ab4` |
@@ -27,4 +28,3 @@ Leyenda: ✅ verificado por CI/contratos locales · 🔄 pipeline activo en la r
 
 Riesgos observados, no bloqueantes para el código:
 - Despliegue real a Render/Supabase requiere credenciales externas (bloqueado externamente).
-- Retención automática de respaldos vencidos: pendiente documentado (no automatizado).

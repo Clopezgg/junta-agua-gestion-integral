@@ -90,7 +90,14 @@ begin
   -- 9) Trazabilidad de restauraciones (migración 034)
   if to_regclass('public.backup_restore_sessions') is null then raise exception 'FALTA backup_restore_sessions'; end if;
   if to_regprocedure('public.get_backup_restore_sessions(int)') is null then raise exception 'FALTA get_backup_restore_sessions'; end if;
-
   raise notice 'Trazabilidad de restauraciones (migración 034) verificada: OK';
+
+  -- 10) Retención automática de respaldos (migración 035)
+  select count(*) into n
+  from information_schema.columns
+  where table_schema='public' and table_name='backup_runs'
+    and column_name in ('retention_days','pruned_at','pruned_by');
+  if n<>3 then raise exception 'RETENCION_RESPALDOS_INCOMPLETA: %', n; end if;
+  raise notice 'Retención de respaldos (migración 035) verificada: OK';
 end
 $$;

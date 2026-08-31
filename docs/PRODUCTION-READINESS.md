@@ -51,7 +51,9 @@ Versión de referencia: **3.1.0** · Rama `work/junta-agua-erp-production-v2` ·
 
 ## 6. Huecos intencionalmente documentados (no accidentales)
 
-- Retención/limpieza automática de respaldos vencidos: no automatizada.
 - La vista `ReceiptVisualStudio` es una herramienta de diseño (solo preview local).
 - El portal de abonados requiere habilitar MFA y configuraciones SMTP/WhatsApp del
   entorno de despliegue.
+- La retención automática de respaldos vencidos está implementada (migración 035,
+  default de 90 días ajustable en `Integraciones → Respaldo externo`); el respaldo
+  administrado del servidor de Supabase sigue siendo responsabilidad del proveedor.
