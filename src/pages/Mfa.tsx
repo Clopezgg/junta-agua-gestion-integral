@@ -8,6 +8,7 @@ export function Mfa(){
  const[code,setCode]=useState('');
  const[error,setError]=useState('');
  const[enrollment,setEnrollment]=useState<{factorId:string;qr:string;secret:string}|null>(null);
+ const hasFactor=a.hasVerifiedFactor||a.hasTotpFactor;
 
  if(!a.session)return <Navigate to="/login" replace/>;
  if(a.mfaVerified)return <Navigate to={a.profile?'/':'/setup'} replace/>;
@@ -33,8 +34,8 @@ export function Mfa(){
 
  return <main className="auth">
   <form onSubmit={verify}>
-   <div className="auth-card-header"><span className="auth-lock"><ShieldCheck size={22}/></span><div><h2>{a.hasVerifiedFactor?'Segundo factor':'Activar autenticador'}</h2><p>{a.hasVerifiedFactor?'Valide su identidad con el código temporal.':'Proteja su cuenta antes de continuar.'}</p></div></div>
-   {!a.hasVerifiedFactor&&!enrollment&&<>
+   <div className="auth-card-header"><span className="auth-lock"><ShieldCheck size={22}/></span><div><h2>{hasFactor?'Segundo factor: verificación de seguridad':'Activar autenticador'}</h2><p>{hasFactor?'Introduce el código de 6 dígitos de tu aplicación autenticadora.':'Proteja su cuenta antes de continuar.'}</p></div></div>
+   {!hasFactor&&!enrollment&&<>
     <div className="notice"><Info size={16}/><span>Esta cuenta debe activar un código temporal antes de entrar. Use una aplicación de autenticación como Google Authenticator o Microsoft Authenticator.</span></div>
     <button type="button" onClick={begin}><ScanLine size={18}/>Generar código QR</button>
    </>}
@@ -43,9 +44,9 @@ export function Mfa(){
     <img className="qr" src={enrollment.qr} alt="Código QR de autenticación"/>
     <small className="mfa-secret">Si no puede escanear el código, escriba esta clave manual:<code>{enrollment.secret}</code></small>
    </div>}
-   {(a.hasVerifiedFactor||enrollment)&&<label><span className="mfa-label">Código de seis dígitos</span><input className="mfa-code" inputMode="numeric" autoFocus pattern="[0-9]{6}" maxLength={6} required value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,''))} placeholder="000000"/></label>}
+   {(hasFactor||enrollment)&&<label><span className="mfa-label">Código de seis dígitos</span><input className="mfa-code" inputMode="numeric" autoFocus pattern="[0-9]{6}" maxLength={6} required value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,''))} placeholder="000000"/></label>}
    {error&&<div className="error">{error}</div>}
-   {(a.hasVerifiedFactor||enrollment)&&<button className="login-action"><KeyRound size={18}/>Verificar y continuar <ArrowRight size={16}/></button>}
+   {(hasFactor||enrollment)&&<button className="login-action"><KeyRound size={18}/>Verificar y continuar <ArrowRight size={16}/></button>}
   </form>
  </main>;
 }
