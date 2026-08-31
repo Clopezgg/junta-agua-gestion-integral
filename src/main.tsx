@@ -9,6 +9,10 @@ import './portal.css';
 import './workflows.css';
 import './receipt-studio.css';
 import './responsive.css';
+import './styles/tokens.css';
+import './styles/base.css';
+import './styles/components.css';
+import './styles/layout.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);
 

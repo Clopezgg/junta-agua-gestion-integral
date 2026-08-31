@@ -1,0 +1,129 @@
+/* Sistema de diseño institucional V4 — tokens */
+:root{
+  /* Marca */
+  --brand-50:#EEF4FF;
+  --brand-100:#DCE8FD;
+  --brand-200:#B9CDF7;
+  --brand-300:#8FB0F0;
+  --brand-400:#5A8DE9;
+  --brand-500:#2E6BE0;
+  --brand-600:#1E5BD1;
+  --brand-700:#155EEF;
+  --brand-800:#104A7A;
+  --brand-900:#0B3A66;
+  --brand-950:#072A4E;
+
+  /* Acentos institucionales (dorado para sellos y recibos) */
+  --accent-200:#F2D9A4;
+  --accent-300:#EAC073;
+  --accent-400:#DCA52F;
+  --accent-500:#C88813;
+  --accent-soft:#FBF1DB;
+
+  /* Superficies */
+  --surface-app:#F7F9FC;
+  --surface:#FFFFFF;
+  --surface-subtle:#F2F4F7;
+  --surface-raised:#FFFFFF;
+
+  /* Texto */
+  --text-primary:#17212B;
+  --text-secondary:#475467;
+  --text-tertiary:#98A2B3;
+  --text-inverse:#FFFFFF;
+  --text-brand:#155EEF;
+
+  /* Bordes */
+  --border:#E4E7EC;
+  --border-strong:#D0D5DD;
+  --border-focus:#155EEF;
+
+  /* Semánticos */
+  --success-50:#ECFDF3;
+  --success-100:#D1FADF;
+  --success-200:#A6D8B8;
+  --success-400:#32D583;
+  --success-600:#039855;
+  --success-700:#027A48;
+  --success-800:#05603A;
+  --success-50b:#F0FBF4;
+
+  --danger-50:#FEF3F2;
+  --danger-100:#FEE4E2;
+  --danger-200:#FECDCA;
+  --danger-600:#D92D20;
+  --danger-700:#B42318;
+  --danger-800:#912018;
+
+  --warning-50:#FFFAEB;
+  --warning-100:#FEF0C7;
+  --warning-200:#FEDF89;
+  --warning-600:#DC6803;
+  --warning-700:#B54708;
+  --warning-800:#93370D;
+
+  /* Alias heredados del sistema anterior */
+  --teal:var(--brand-700);
+  --teal-soft:var(--brand-50);
+  --slate:var(--text-secondary);
+  --line:var(--border);
+  --success:#039855;
+  --danger:#D92D20;
+  --warning:#DC6803;
+  --preview-primary:var(--brand-900);
+  --receipt-primary:var(--brand-900);
+  --receipt-secondary:var(--accent-500);
+
+  /* Espaciado */
+  --space-1:0.25rem;
+  --space-2:0.5rem;
+  --space-3:0.75rem;
+  --space-4:1rem;
+  --space-5:1.25rem;
+  --space-6:1.5rem;
+  --space-8:2rem;
+  --space-10:2.5rem;
+  --space-12:3rem;
+
+  /* Radio */
+  --radius-sm:8px;
+  --radius-md:12px;
+  --radius-lg:16px;
+  --radius-xl:20px;
+  --radius-2xl:24px;
+  --radius-full:999px;
+
+  /* Tipografía */
+  --font-sans:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --text-xs:0.75rem;
+  --text-sm:0.8125rem;
+  --text-base:0.875rem;
+  --text-lg:1rem;
+  --text-xl:1.125rem;
+  --text-2xl:1.5rem;
+  --text-3xl:clamp(1.5rem,2.4vw,1.75rem);
+  --text-4xl:clamp(1.75rem,3vw,2.375rem);
+  --tracking-tight:-0.02em;
+
+  /* Sombras */
+  --shadow-xs:0 1px 2px rgba(23,33,43,.06);
+  --shadow-sm:0 1px 3px rgba(23,33,43,.08),0 1px 2px rgba(23,33,43,.04);
+  --shadow-md:0 4px 12px rgba(23,33,43,.08),0 2px 4px rgba(23,33,43,.04);
+  --shadow-lg:0 12px 32px rgba(23,33,43,.12),0 4px 8px rgba(23,33,43,.06);
+  --shadow-xl:0 24px 60px rgba(23,33,43,.18);
+  --focus-ring:0 0 0 4px rgba(21,94,239,.18);
+
+  /* Movimiento */
+  --ease: cubic-bezier(.2,.8,.2,1);
+  --dur-1:100ms;
+  --dur-2:150ms;
+  --dur-3:200ms;
+
+  /* Dimensiones del shell */
+  --sidebar-w:248px;
+  --sidebar-w-collapsed:68px;
+  --topbar-h:64px;
+  --mobile-nav-h:76px;
+  --touch:44px;
+}

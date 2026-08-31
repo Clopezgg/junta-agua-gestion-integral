@@ -10,7 +10,8 @@ describe('adaptación responsive multiplataforma',()=>{
     expect(layout).toContain('mobile-quick-nav');
     expect(layout).toContain('mobile-context-bar');
     expect(layout).toContain('setNavOpen(true)');
-    expect(layout).toContain('Modo móvil seguro');
+    expect(layout).toContain('topLabel');
+    expect(layout).toContain('Módulos');
   });
 
   it('define breakpoints para escritorio, tablet, móvil y pantallas pequeñas',()=>{
