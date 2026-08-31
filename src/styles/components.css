@@ -200,6 +200,15 @@ tbody tr:hover{background:var(--surface-subtle)}
 .ready-meter{background:var(--surface-subtle);border-radius:var(--radius-full);height:10px;overflow:hidden}
 .ready-meter>span{display:block;height:100%;background:linear-gradient(90deg,var(--brand-800),var(--brand-600));border-radius:inherit;transition:width .5s var(--ease)}
 
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--space-3);margin-top:var(--space-4)}
+.admin-tile{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-4);border-radius:var(--radius-md);border:1px solid var(--border);background:var(--surface);color:var(--text-primary);transition:box-shadow var(--dur-2) var(--ease),border-color var(--dur-2) var(--ease),transform var(--dur-1) var(--ease)}
+.admin-tile:hover{border-color:var(--brand-300);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.admin-tile-icon{width:42px;height:42px;border-radius:var(--radius-md);display:grid;place-items:center;background:var(--brand-50);color:var(--brand-700);flex:0 0 auto}
+.admin-tile-body{display:grid;flex:1;min-width:0}
+.admin-tile-body strong{font-size:var(--text-sm);color:var(--text-primary)}
+.admin-tile-body small{color:var(--text-tertiary);font-size:var(--text-xs);line-height:1.4}
+.admin-tile>svg{color:var(--text-tertiary);flex:0 0 auto}
+
 @media(max-width:640px){
   .module-hero{padding:var(--space-4) var(--space-4)}
   .cards,.stats,.grid,.financial-overview,.document-stats,.user-stats,.budget-cards,.operational-cards,.readiness-summary{grid-template-columns:1fr}

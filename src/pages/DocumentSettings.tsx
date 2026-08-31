@@ -6,9 +6,9 @@ import {useAuth} from '../contexts/AuthContext';
 type Row=Record<string,any>;
 const money=(value:unknown)=>new Intl.NumberFormat('es-HN',{style:'currency',currency:'HNL'}).format(Number(value??0));
 const defaultTemplate={
-  institutionTitle:'Junta Patronal de Agua Potable El Achiotal',
+  institutionTitle:'Junta de Agua',
   institutionSubtitle:'Servicio comunitario de agua potable',
-  location:'Aldea El Achiotal, Santa Cruz de Yojoa, Cortés, Honduras',
+  location:'Honduras',
   conceptLabel:'Cuota anual por prestación y sostenimiento del servicio comunitario de agua potable',
   annualUnitAmount:400,
   validFromMonthDay:'01-01',
@@ -34,7 +34,7 @@ const defaultTemplate={
   overdueStamp:'VENCIDO',
   voidStamp:'ANULADO',
   refundStamp:'DEVUELTO',
-  footer:'Documento oficial emitido por la Junta Patronal de Agua Potable El Achiotal. Su autenticidad puede verificarse mediante el código QR.',
+  footer:'Documento oficial emitido por la Junta de Agua. Su autenticidad puede verificarse mediante el código QR.',
   claimText:'Para reclamos o correcciones presente este documento ante la Secretaría de la Junta.',
   signerName:'Deisy Rivas',
   signerTitle:'Secretaria',

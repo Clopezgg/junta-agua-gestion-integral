@@ -120,11 +120,11 @@ export async function createReceiptPdfBlob(receipt:ReceiptInput){
   if(!addImageSafe(pdf,brand.logoDataUrl,margin,headerY,22,22))drawFallbackLogo(pdf,margin,headerY,primary,secondary);
   if(!addImageSafe(pdf,brand.nationalEmblemDataUrl,width-margin-21,headerY,21,22))drawFallbackEmblem(pdf,width-margin-21,headerY,primary);
   pdf.setTextColor(...primary);pdf.setFont('helvetica','bold');pdf.setFontSize(11.4);
-  const institutionLines=pdf.splitTextToSize(brand.name||'Junta Patronal de Agua Potable El Achiotal',78).slice(0,2);
+  const institutionLines=pdf.splitTextToSize(brand.name||'Junta de Agua',78).slice(0,2);
   pdf.text(institutionLines,width/2,headerY+5,{align:'center'});
   pdf.setFont('helvetica','normal');pdf.setFontSize(6.3);pdf.setTextColor(71,85,105);
   pdf.text(brand.slogan||'Servicio comunitario, transparente y responsable',width/2,headerY+13,{align:'center'});
-  const addressLines=pdf.splitTextToSize(brand.address||'Aldea El Achiotal, Santa Cruz de Yojoa, Cortés, Honduras',76).slice(0,2);
+  const addressLines=pdf.splitTextToSize(brand.address||'Honduras',76).slice(0,2);
   pdf.text(addressLines,width/2,headerY+17,{align:'center'});
 
   const bandY=headerY+26;
@@ -198,13 +198,13 @@ export async function createReceiptPdfBlob(receipt:ReceiptInput){
 
   const footerY=authY+24;
   pdf.setFillColor(...primary);pdf.rect(0,footerY,width,215.9-footerY,'F');pdf.setTextColor(255,255,255);pdf.setFont('helvetica','normal');pdf.setFontSize(4.8);
-  pdf.text(pdf.splitTextToSize(brand.footer||'Documento oficial emitido por la Junta Patronal de Agua Potable El Achiotal. Su autenticidad se verifica mediante el código QR.',86).slice(0,2),margin,footerY+5);
+  pdf.text(pdf.splitTextToSize(brand.footer||'Documento oficial emitido por la Junta de Agua. Su autenticidad se verifica mediante el código QR.',86).slice(0,2),margin,footerY+5);
   pdf.setFont('helvetica','bold');pdf.text(`RTN: ${brand.rtn||'PENDIENTE'} · Personería jurídica: ${brand.legalEntityNumber||'PENDIENTE'}`,margin,footerY+10);
   pdf.setFont('helvetica','normal');pdf.text(pdf.splitTextToSize(brand.claimText||'Para reclamos o correcciones, presente este documento ante la Secretaría de la Junta.',82).slice(0,1),margin,footerY+14);
   pdf.setFont('helvetica','bold');pdf.text(`${documentLabel(receipt)} · ${receipt.number}`,width-margin,footerY+8,{align:'right'});
 
   pdf.setTextColor(200,210,214);pdf.setFont('helvetica','bold');pdf.setFontSize(state.length>16?22:31);pdf.text(state,width/2,126,{align:'center',angle:32});
-  pdf.setProperties({title:`Recibo ${receipt.number}`,subject:'Comprobante institucional de pago anual',author:brand.name||'Junta Patronal de Agua Potable El Achiotal',keywords:'recibo,pago anual,agua,pegues,adulto mayor,QR'});
+  pdf.setProperties({title:`Recibo ${receipt.number}`,subject:'Comprobante institucional de pago anual',author:brand.name||'Junta de Agua',keywords:'recibo,pago anual,agua,pegues,adulto mayor,QR'});
   return pdf.output('blob');
 }
 

@@ -41,6 +41,7 @@ export function Layout(){
    {to:'/operaciones',label:'Activos y órdenes',icon:<Wrench size={18}/>,show:auth.has('operations.read')}
   ],
   [
+   {to:'/admin',label:'Centro administrativo',icon:<Landmark size={18}/>,show:auth.has('settings.read')},
    {to:'/usuarios',label:'Usuarios',icon:<UserCog size={18}/>,show:auth.has('users.manage')},
    {to:'/estudio-recibo',label:'Vista visual del recibo',icon:<Palette size={18}/>,show:auth.has('document_templates.read')},
    {to:'/configuracion-documental',label:'Documentos y recibos',icon:<Files size={18}/>,show:auth.has('document_templates.read')},
@@ -54,10 +55,10 @@ export function Layout(){
  const groupTitles=['Trabajo','Abonados y servicio','Finanzas','Operación','Administración'];
  const groupsData=groups.map((items,index)=>({title:groupTitles[index],items:items.filter(item=>item.show)}));
  const mobileLinks=groups.flat().filter(item=>item.show&&['/','/abonados','/pagos','/informes'].includes(item.to));
- return <ToastProvider>
+ return <ToastProvider><a className="skip-link" href="#main-content">Saltar al contenido</a>
   <div className={`shell device-shell${collapsed?' nav-collapsed':''}`}>
    <aside className={navOpen?'open sidebar':''}>
-    <div className="brand-row"><div className="brand"><span className="brand-mark"><Droplets size={22}/></span><span><strong>Junta de Agua</strong><small>El Achiotal</small></span></div><button className="mobile-nav-toggle outline" onClick={()=>setNavOpen(false)} aria-label="Cerrar navegación"><X size={18}/></button></div>
+    <div className="brand-row"><div className="brand"><span className="brand-mark"><Droplets size={22}/></span><span><strong>Junta de Agua</strong><small>Gestión integral</small></span></div><button className="mobile-nav-toggle outline" onClick={()=>setNavOpen(false)} aria-label="Cerrar navegación"><X size={18}/></button></div>
     <nav onClick={()=>setNavOpen(false)}>
      {groupsData.map(group=><div className="nav-group" key={group.title}><small>{group.title}</small>{group.items.map(item=>(
       <NavLink key={item.to} to={item.to} end={item.to==='/'} title={item.label}>{item.icon}<span>{item.label}</span></NavLink>
@@ -67,7 +68,7 @@ export function Layout(){
     <button className="outline signout" onClick={()=>void auth.signOut()}><LogOut size={18}/><span>Cerrar sesión</span></button>
    </aside>
    {navOpen&&<button className="nav-backdrop" aria-label="Cerrar navegación" onClick={()=>setNavOpen(false)}/>}
-   <div className="main">
+   <div className="main" id="main-content">
     <header>
      <button className="sidebar-toggle desktop-only" onClick={toggleCollapsed} aria-label={collapsed?'Expandir navegación':'Colapsar navegación'} title={collapsed?'Expandir':'Colapsar'}>{collapsed?<PanelLeftOpen size={18}/>:<PanelLeftClose size={18}/>}</button>
      <button className="mobile-nav-toggle" onClick={()=>setNavOpen(true)} aria-label="Abrir navegación"><Menu size={19}/></button>
@@ -84,6 +85,6 @@ export function Layout(){
 }
 
 function titleFor(path:string):string{
- const map:Record<string,string>={'/':'Centro de control','/abonados':'Abonados','/fichas-abonados':'Fichas digitales','/importaciones':'Importaciones','/mapa':'Mapa de pegues','/tarifas':'Tarifas','/medicion':'Medición','/estados-cuenta':'Estados de cuenta','/pagos':'Pagos y caja','/documentos-financieros':'Documentos','/gastos':'Gastos','/presupuesto':'Presupuesto','/informes':'Informes','/integraciones':'Integraciones','/respaldos':'Respaldos','/operaciones':'Operación','/avance':'Diagnóstico','/auditoria':'Auditoría','/estudio-recibo':'Vista del recibo','/configuracion-documental':'Documentos','/configuracion':'Configuración','/seguridad':'Seguridad','/usuarios':'Usuarios'};
- return map[path]??'Sistema';
+ const map:Record<string,string>={'/':'Centro de control','/abonados':'Abonados','/fichas-abonados':'Fichas digitales','/importaciones':'Importaciones','/mapa':'Mapa de pegues','/tarifas':'Tarifas','/medicion':'Medición','/estados-cuenta':'Estados de cuenta','/pagos':'Pagos y caja','/documentos-financieros':'Documentos','/gastos':'Gastos','/presupuesto':'Presupuesto','/informes':'Informes','/integraciones':'Integraciones','/respaldos':'Respaldos','/operaciones':'Operación','/avance':'Diagnóstico','/auditoria':'Auditoría','/estudio-recibo':'Vista del recibo','/configuracion-documental':'Documentos','/configuracion':'Configuración','/seguridad':'Seguridad','/usuarios':'Usuarios','/admin':'Centro administrativo','/admin/usuarios':'Usuarios y roles','/admin/junta':'Junta Directiva','/admin/auditoria':'Auditoría','/admin/respaldos':'Respaldos','/admin/integraciones':'Integraciones','/admin/configuracion':'Configuración','/admin/configuracion-documental':'Documentos','/admin/estudio-recibo':'Vista del recibo','/admin/seguridad':'Seguridad','/admin/readiness':'Estado de la plataforma','/admin/progreso':'Diagnóstico'};
+ return map[path]??(path.startsWith('/admin/')?'Centro administrativo':'Sistema');
 }

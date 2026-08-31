@@ -11,6 +11,8 @@
   border-bottom:1px solid var(--border)
 }
 .content{flex:1;width:100%;max-width:1680px;margin:0 auto}
+.skip-link{position:absolute;left:-999px;top:0;z-index:200;background:var(--brand-700);color:#fff;padding:.6rem 1rem;border-radius:0 0 var(--radius-md) 0;font-weight:700}
+.skip-link:focus{left:0}
 
 /* Barra lateral */
 aside{
@@ -107,7 +109,7 @@ aside nav a.active svg{color:var(--accent-300)}
 .auth-security-list small{color:var(--brand-200);font-size:.78rem}
 .auth-showcase footer{margin-top:auto;color:var(--brand-200);font-size:.8rem}
 .auth-panel{display:grid;place-items:center;padding:2rem;background:var(--surface-app)}
-.auth-card{width:min(420px,100%);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:var(--space-8) var(--space-6);box-shadow:var(--shadow-lg)}
+.auth .auth-card{width:min(420px,100%);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:var(--space-8) var(--space-6);box-shadow:var(--shadow-lg)}
 .auth-card-header{display:flex;align-items:center;gap:.9rem;margin-bottom:var(--space-6)}
 .auth-card-header>span{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:var(--brand-50);color:var(--brand-700);flex:0 0 auto}
 .auth-card-header h2{margin:0}
@@ -150,10 +152,41 @@ aside nav a.active svg{color:var(--accent-300)}
   aside.open{transform:translateX(0)}
   .mobile-context-bar{display:flex}
   .main>header{background:rgba(255,255,255,.92)}
+  .auth-premium{grid-template-columns:1fr}
+  .auth-showcase{padding:clamp(1.5rem,6vw,2.5rem);min-height:34vh}
 }
 @media(max-width:640px){
-  .main>header{padding:0 .75rem}
-  .auth-showcase{padding:2rem 1.5rem}
+  .main>header{padding:0 .75rem;gap:.5rem}
+  .mobile-context-bar{flex:0 1 auto;min-width:0;margin:0;overflow:hidden}
+  .mobile-context-bar span{min-width:0}
+  .mobile-context-bar strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mobile-context-bar button{flex:0 0 auto;white-space:nowrap}
+  .global-search-trigger{flex:1 1 42px;min-width:42px;width:auto}
+  .auth-showcase{padding:2rem 1.5rem;min-height:auto}
+  .auth-showcase .eyebrow{font-size:.68rem}
+  .auth-showcase h1{font-size:1.7rem}
+  .auth-security-list{display:none}
   .auth-panel{padding:1rem}
   .auth-card,.auth>form{padding:var(--space-6)}
 }
+
+/* Verificación pública de recibos */
+.public-verify{min-height:100dvh;display:grid;place-items:center;padding:1.25rem;background:radial-gradient(1200px 600px at 20% -10%,var(--brand-50),transparent 60%),var(--surface-app)}
+.verify-card{width:min(560px,100%);padding:var(--space-8) var(--space-6)}
+.verify-head{text-align:center;display:grid;justify-items:center;margin-bottom:var(--space-6)}
+.verify-mark{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,var(--brand-800),var(--brand-700));color:#fff;margin-bottom:.9rem;box-shadow:var(--shadow-md)}
+.verify-head h1{margin:.3rem 0}
+.verify-head p{max-width:420px;font-size:var(--text-sm)}
+.verify-loading{display:flex;align-items:center;justify-content:center;gap:.6rem;padding:var(--space-8);color:var(--text-secondary)}
+.verify-result{display:flex;align-items:center;gap:.8rem;padding:.9rem 1rem;border-radius:var(--radius-md);margin-bottom:var(--space-5)}
+.verify-result.success{background:var(--success-50);border:1px solid var(--success-100);color:var(--success-800)}
+.verify-result.error{background:var(--danger-50);border:1px solid var(--danger-100);color:var(--danger-800)}
+.verify-result>svg{flex:0 0 auto}
+.verify-result span{display:grid;line-height:1.3}
+.verify-result strong{font-size:var(--text-base)}
+.verify-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:0}
+.verify-grid>div{display:grid;gap:.15rem;padding:.8rem .9rem;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface-subtle)}
+.verify-grid dt{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-tertiary);font-weight:700}
+.verify-grid dd{margin:0;font-weight:700;color:var(--text-primary);overflow-wrap:anywhere}
+.verify-total{color:var(--brand-800)!important;font-size:var(--text-xl);font-weight:800}
+@media(max-width:520px){.verify-grid{grid-template-columns:1fr}}

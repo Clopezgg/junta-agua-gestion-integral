@@ -5,6 +5,7 @@ import {ProtectedRoute} from './components/ProtectedRoute';
 import {PortalRoute} from './components/PortalRoute';
 import {Layout} from './components/Layout';
 import {Home} from './pages/Home';
+import {Admin} from './pages/Admin';
 import {Audit} from './pages/Audit';
 import {Settings} from './pages/Settings';
 import {Users} from './pages/Users';
@@ -46,6 +47,18 @@ export default function App(){
     <Route path="/verificar-recibo/:token" element={<VerifyReceipt/>}/>
     <Route element={<ProtectedRoute><Layout/></ProtectedRoute>}>
       <Route index element={<Home/>}/>
+      <Route path="admin" element={<ProtectedRoute permission="settings.read"><Admin/></ProtectedRoute>}/>
+      <Route path="admin/usuarios" element={<ProtectedRoute permission="users.manage"><Users/></ProtectedRoute>}/>
+      <Route path="admin/junta" element={<ProtectedRoute permission="users.manage"><Users/></ProtectedRoute>}/>
+      <Route path="admin/auditoria" element={<ProtectedRoute permission="audit.read"><Audit/></ProtectedRoute>}/>
+      <Route path="admin/respaldos" element={<ProtectedRoute permission="backups.read"><Backups/></ProtectedRoute>}/>
+      <Route path="admin/integraciones" element={<ProtectedRoute permission="integrations.read"><Integrations/></ProtectedRoute>}/>
+      <Route path="admin/configuracion" element={<ProtectedRoute permission="settings.manage"><Settings/></ProtectedRoute>}/>
+      <Route path="admin/configuracion-documental" element={<ProtectedRoute permission="document_templates.read"><DocumentSettings/></ProtectedRoute>}/>
+      <Route path="admin/estudio-recibo" element={<ProtectedRoute permission="document_templates.read"><ReceiptVisualStudio/></ProtectedRoute>}/>
+      <Route path="admin/seguridad" element={<ProtectedRoute permission="settings.read"><Security/></ProtectedRoute>}/>
+      <Route path="admin/readiness" element={<ProtectedRoute permission="settings.read"><Progress/></ProtectedRoute>}/>
+      <Route path="admin/progreso" element={<ProtectedRoute permission="updates.read"><Progress/></ProtectedRoute>}/>
       <Route path="usuarios" element={<ProtectedRoute permission="users.manage"><Users/></ProtectedRoute>}/>
       <Route path="abonados" element={<ProtectedRoute permission="subscribers.read"><Subscribers/></ProtectedRoute>}/>
       <Route path="fichas-abonados" element={<ProtectedRoute permission="subscribers.read"><SubscriberCards/></ProtectedRoute>}/>
