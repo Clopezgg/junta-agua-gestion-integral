@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {Activity,BadgeDollarSign,Banknote,BarChart3,DatabaseBackup,Droplets,FileClock,FileSpreadsheet,Files,Home,IdCard,Landmark,LogOut,Map,Menu,Palette,PlugZap,ReceiptText,Search,Settings as SettingsIcon,ShieldCheck,UserCog,Users,WalletCards,Wrench,X} from 'lucide-react';
+import {Activity,BadgeDollarSign,Banknote,BarChart3,Check,DatabaseBackup,Droplets,FileClock,FileSpreadsheet,Files,Home,IdCard,Landmark,LogOut,Map,Menu,Palette,PlugZap,ReceiptText,Search,Settings as SettingsIcon,ShieldCheck,UserCog,Users,WalletCards,Wrench,X} from 'lucide-react';
 import {NavLink,Outlet} from 'react-router-dom';
 import {useAuth} from '../contexts/AuthContext';
 import {GlobalSearch} from './GlobalSearch';
@@ -61,7 +61,7 @@ export function Layout(){
    <Outlet/>
   </div>
   <nav className="mobile-quick-nav" aria-label="Navegación móvil principal">{mobileLinks.map(item=><NavLink key={item.to} to={item.to} end={item.to==='/'}>{item.icon}<span>{item.label}</span></NavLink>)}<button type="button" onClick={()=>setNavOpen(true)}><Menu size={20}/><span>Más</span></button></nav>
-  {releaseOpen&&<div className="modal"><div className="modal-card release-modal"><div className="titlebar"><div><h2>Novedades de la versión {appVersion.version}</h2><p>Compilación {appVersion.commit} · {new Date(appVersion.buildDate).toLocaleString('es-HN')}</p></div><button className="outline" onClick={()=>setReleaseOpen(false)}><X size={18}/>Cerrar</button></div><div className="release-list">{releaseHighlights.map(item=><div key={item}><span>✓</span><p>{item}</p></div>)}</div><a className="button-link" href={appVersion.releaseUrl} target="_blank" rel="noreferrer">Abrir GitHub Release</a></div></div>}
+  {releaseOpen&&<div className="modal"><div className="modal-card release-modal"><div className="titlebar"><div><h2>Novedades de la versión {appVersion.version}</h2><p>Compilación {appVersion.commit} · {new Date(appVersion.buildDate).toLocaleString('es-HN')}</p></div><button className="outline" onClick={()=>setReleaseOpen(false)}><X size={18}/>Cerrar</button></div><div className="release-list">{releaseHighlights.map(item=><div key={item}><Check size={14}/><p>{item}</p></div>)}</div><a className="button-link" href={appVersion.releaseUrl} target="_blank" rel="noreferrer">Abrir GitHub Release</a></div></div>}
  </div>;
 }
 

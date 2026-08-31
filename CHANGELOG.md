@@ -1,5 +1,33 @@
 # Historial de versiones
 
+## 3.1.1 — Núcleo de integridad financiera y endurecimiento de producción
+
+### Integridad financiera (migración 032)
+- Códigos de pegue generados por secuencia segura por abonado (sin `COUNT+1`): `subscriber_connection_sequences` y `next_connection_code`, con códigos existentes incorporados y errores explícitos de duplicado.
+- Pagos y gastos idempotentes por `idempotency_key` y bloqueo de asesoría; envíos repetidos devuelven el pago original en lugar de duplicarlo.
+- Motor único de beneficios alimentado por `benefit_definitions`: eligibilidad, captura de evidencia y descuentos de adulto mayor centralizados.
+- Los descuentos y montos de mora se congelan en el pegue generado; los documentos financieros postean desde el snapshot, eliminando el doble descuento.
+- Mora versionada (`late_fee_policies` + `obligations.late_fee_pending`): mientras no haya política, se exhibe como pendiente de configuración sin inventar importes.
+- Caja formal con `cash_movements` (apertura, ingresos, devoluciones, anulaciones y diferencias de cierre) trazados por sesión.
+- Inmutabilidad en base de datos para documentos financieros, pagos y auditoría; transiciones de estado legales únicamente.
+- `document_artifacts`: asociación de PDFs con checksum y rutas irreemplazables.
+- `verify_receipt_public` ya no expone rutas internas de almacenamiento.
+- Permisos granulares de respaldo (`backups.read_metadata/create/download/restore`).
+- El frontend deriva la clave de idempotencia por borrador de pago, sube recibos de forma inmutable (ruta única, sin sobrescritura) y confirma la cuota anual por el motor de tarifas.
+
+### Seguridad
+- Errores de contexto tipados (`NETWORK_ERROR`, `AUTH_ERROR`, `ACCOUNT_CONTEXT_NOT_FOUND`): una falla real ya no se confunde con un abonado.
+- Rutas `/avance` y `/seguridad` protegidas por permiso.
+- Webhook de Meta verifica `X-Hub-Signature-256` (HMAC SHA-256).
+- Alta de usuarios idempotente y con MFA obligatorio.
+
+### Despliegue y CI
+- `release.yml` separa validación y creación del Release; la validación nunca se omite aunque el tag exista.
+- `db-validate.yml` aplica migraciones 001–034 sobre una instancia Supabase real y verifica invariantes estructurales.
+- Encabezados de seguridad en `render.yaml` (CSP, HSTS, Permissions-Policy, COOP).
+- Service worker versionado por compilación (hash del shell) en lugar de quedar clavado a una versión.
+- Documentación operativa actualizada (README, despliegue, checklist y soporte).
+
 ## 2.2.0 — Experiencia institucional, recibos y beneficios
 
 ### Seguridad y usuarios

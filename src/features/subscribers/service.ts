@@ -6,6 +6,8 @@ export async function createSubscriber(input:SubscriberInput,homonymNote?:string
 export async function getSubscriberDetail(id:string){const db=requireDb(); const {data,error}=await db.rpc('get_subscriber_detail',{p_subscriber_id:id}); if(error) throw new Error(error.message); return data;}
 export async function getSubscriberDigitalCard(id:string){const db=requireDb();const{data,error}=await db.rpc('get_subscriber_digital_card',{p_subscriber_id:id});if(error)throw new Error(error.message);return data;}
 export async function createConnection(subscriberId:string,input:ConnectionInput){const db=requireDb(); const {data,error}=await db.rpc('create_water_connection',{p_subscriber_id:subscriberId,p_payload:input}); if(error) throw new Error(error.message); return data;}
+export async function updateSubscriber(id:string,payload:Record<string,unknown>){const db=requireDb(); const {data,error}=await db.rpc('update_subscriber',{p_subscriber_id:id,p_payload:payload}); if(error) throw new Error(error.message); return data;}
+export async function updateConnection(id:string,payload:Record<string,unknown>){const db=requireDb(); const {data,error}=await db.rpc('update_water_connection',{p_connection_id:id,p_payload:payload}); if(error) throw new Error(error.message); return data;}
 export async function uploadIdentityDocument(subscriberId:string,file:File){
  const db=requireDb();
  if(file.size>10*1024*1024)throw new Error('El archivo supera 10 MB.');

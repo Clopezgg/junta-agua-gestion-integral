@@ -13,12 +13,11 @@ Esta guía comienza cuando la rama V3 ya fue fusionada en `main`.
 
 ### 2. Aplicar migraciones
 
-Ejecute todos los archivos de `supabase/migrations` en orden ascendente. Para una instalación que ya tiene 001–025, aplique solamente:
+Ejecute todos los archivos de `supabase/migrations` en orden ascendente. Para una instalación que ya tiene 001–029, aplique solamente:
 
-1. `202607110026_annual_service_receipts_benefits_portal.sql`
-2. `202607110027_subscriber_card_secure_portal.sql`
-3. `202607110028_financial_document_posting_reversal.sql`
-4. `202607110029_secure_subscriber_portal_access.sql`
+1. `202607110030_payment_document_atomicity.sql`
+2. `202607110031_production_readiness_fixes.sql`
+3. `202607110032_erp_financial_integrity_core.sql`
 
 No cambie el orden. Cada archivo debe terminar sin error antes de continuar.
 
@@ -158,20 +157,22 @@ Use datos de prueba claramente identificados:
 
 1. Cree un abonado de menos de 60 años con 2 pegues.
 2. Cree un abonado de 60 años o más con DNI y 4 pegues.
-3. Genere la anualidad de L 400.
+3. Genere la anualidad desde el catálogo de servicios (ejemplo institucional: L 400 anual por pegue hasta confirmar su tarifa).
 4. Confirme:
    - 2 pegues = L 800 sin descuento.
    - 4 pegues = L 1,600 base.
    - Adulto mayor = L 400 de descuento.
    - Total = L 1,200.
-5. Abra caja.
-6. Registre un pago.
-7. Descargue el recibo.
-8. Escanee el QR.
-9. Reimprima el recibo.
-10. Registre una devolución de prueba.
-11. Confirme que el original no fue eliminado.
-12. Revise auditoría.
+5. Registre un segundo pago idéntico y confirme que la idempotencia por clave evita el doble cobro.
+6. Abra caja.
+7. Registre un pago.
+8. Descargue el recibo.
+9. Escanee el QR.
+10. Reimprima el recibo.
+11. Registre una devolución de prueba.
+12. Confirme que el original no fue eliminado.
+13. Intente editar el pago o el documento directamente y confirme que la inmutabilidad lo impide.
+14. Revise auditoría.
 
 ### 12. Probar portal del abonado
 
