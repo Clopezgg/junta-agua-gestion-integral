@@ -16,7 +16,7 @@ describe('production readiness hardening',()=>{
   });
 
   it('versions the service worker with the application release',()=>{
-    expect(sw).toContain("junta-agua-shell-v3.1.0");
+    expect(sw).toContain("junta-agua-shell-v3.1.1");
     expect(sw).not.toContain('v2.1.0');
   });
 

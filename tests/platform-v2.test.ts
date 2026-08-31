@@ -64,7 +64,7 @@ describe('plataforma v2 institucional',()=>{
     const pkg=JSON.parse(read('package.json')) as {version:string};
     const vite=read('vite.config.ts');
     const release=read('.github/workflows/release.yml');
-    expect(pkg.version).toBe('3.1.0');
+    expect(pkg.version).toBe('3.1.1');
     expect(vite).toContain('__APP_COMMIT_SHA__');
     expect(vite).toContain('RENDER_GIT_COMMIT');
     expect(release).toContain('branches: [main]');
