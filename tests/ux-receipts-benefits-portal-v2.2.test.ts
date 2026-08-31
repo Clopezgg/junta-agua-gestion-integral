@@ -61,10 +61,13 @@ describe('versión 2.2 experiencia institucional',()=>{
     const login=read('src/pages/Login.tsx');
     const layout=read('src/components/Layout.tsx');
     const app=read('src/App.tsx');
-    expect(login).toContain('Junta Patronal de Agua Potable El Achiotal');
+    expect(login).not.toContain('El Achiotal');
+    expect(login).toContain('Plataforma institucional segura');
     expect(login).toContain('MFA obligatorio');
+    expect(login).toContain('Continuar de forma segura');
     expect(layout).toContain('Documentos y recibos');
     expect(layout).toContain('Fichas digitales');
+    expect(layout).toContain('nav-collapsed');
     expect(app).toContain('configuracion-documental');
     expect(app).toContain('fichas-abonados');
   });
