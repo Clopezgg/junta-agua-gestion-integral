@@ -6,11 +6,9 @@ export const appVersion={
 };
 
 export const releaseHighlights=[
-  'Nuevo estudio visual del recibo anual independiente de Supabase para revisar el diseño antes de conectarlo.',
-  'Recibo institucional completo con logo provisional, espacio para escudo de Honduras, firma, sello y QR.',
-  'Datos del abonado, identidad protegida, cantidad y códigos de pegues, dirección y estado del servicio.',
-  'Periodo anual del 1 de enero al 30 de noviembre y señalización de mora desde el 1 de diciembre.',
-  'Descuento visual del 25% para adultos mayores de 60 años aplicado a todos los pegues del titular.',
-  'Tabla de conceptos, base, descuento, mora, total pagado, total en letras y forma de pago.',
-  'Estados PAGADO, PENDIENTE, VENCIDO, ANULADO, DEVUELTO y DEVOLUCIÓN PARCIAL con PDF equivalente.'
+  'Retención automática de respaldos vencidos: 90 días por defecto, ajustable en Integraciones → Respaldo externo.',
+  'Respaldo eliminado por retención queda marcado y trazado (fecha, responsable y auditoría backup.prune) en el panel de respaldos.',
+  'Validación E2E real del flujo completo: inicio de sesión con MFA TOTP, panel, navegación, búsqueda y cierre de sesión.',
+  'Base de datos validada fin a fin en Supabase local: migraciones 001–035, integridad financiera y funciones de borde tipadas.',
+  'Documentación de producción, plan de preparación y matriz de evidencia actualizados.'
 ];
