@@ -47,7 +47,7 @@ Aplicación privada para administrar abonados, pegues, identidad, cuotas anuales
 - PWA instalable: caché exclusiva del shell, versionada por compilación.
 - Backup y restauración `junta-agua-backup-v5`.
 - Validación automática de la base de datos en CI sobre una instancia Supabase
-  real (migraciones 001–044 desde cero).
+  real (migraciones 001–045 desde cero).
 - V5 · Water Utility Operating System: modelo de identidad (PERSONA ≠ ABONADO ≠
   INMUEBLE ≠ CONTRATO ≠ PEGUE), solicitudes/reclamos, morosidad/convenios, compras,
   banca/conciliación, bodega, gobierno institucional (junta, comités, reuniones,
@@ -80,12 +80,14 @@ git diff --check
 ```
 
 En CI además se valida la base de datos sobre una instancia Supabase real
-(`.github/workflows/db-validate.yml`): aplica las migraciones 001–044 desde cero
-y verifica los invariantes de integridad (`supabase/tests/db_integrity.sql`).
+(`.github/workflows/db-validate.yml`): aplica las migraciones 001–045 desde cero
+y verifica los invariantes de integridad (`supabase/tests/db_integrity.sql`) y el
+endurecimiento de seguridad P0 (`supabase/tests/p0_hardening.sql`: multi-abonado,
+aislamiento entre organizaciones y MFA/AAL2).
 
 ## Base de datos
 
-Ejecute las migraciones en orden `001` a `044` (la 032 es el núcleo de
+Ejecute las migraciones en orden `001` a `045` (la 032 es el núcleo de
 integridad financiera y la 033 fija los invariantes del modelo, la corrección
 auditada de abonados/pegues y la protección contra fuerza bruta; ambas deben
 aplicarse después de todas las anteriores):
@@ -110,12 +112,13 @@ La migración 018 debe confirmarse antes de ejecutar la 019 porque PostgreSQL de
 hacer visibles los nuevos valores de enum. La 026 y la 032 deben ejecutarse
 después de todas las anteriores.
 
-Migraciones V5 (036–044), después de la `035`:
+Migraciones V5 (036–045), después de la `035`:
 8. `036` identidad (personas y pegues), `037` solicitudes/reclamos + `communications.read`,
    `038` morosidad/convenios, `039` compras/proveedores, `040` banca/conciliación,
    `041` bodega, `042` gobierno institucional, `043` agua y ambiente,
-   `044` cumplimiento/ERSAPS. Todas con RLS, permisos de rol, RPCs `security definer`
-   y auditoría en `audit_log`.
+   `044` cumplimiento/ERSAPS, `045` endurecimiento P0 (multi-abonado por organización,
+   aislamiento cross-org, MFA/AAL2 centralizado y correlativos seguros). Todas con
+   RLS, permisos de rol, RPCs `security definer` y auditoría en `audit_log`.
 
 ## Edge Functions
 
@@ -153,7 +156,7 @@ tipos de todas las funciones edge se comprueban en CI con Deno
 
 ## Configuración inicial
 
-1. Ejecute las migraciones en orden hasta la `044`.
+1. Ejecute las migraciones en orden hasta la `045`.
 2. Despliegue las Edge Functions y configure los secretos.
 3. Abra **Documentos y recibos**.
 4. Complete RTN, personería jurídica, teléfono, correo y nombre legal de la secretaria cuando estén disponibles.
