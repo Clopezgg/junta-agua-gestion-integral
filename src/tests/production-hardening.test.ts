@@ -28,7 +28,7 @@ describe('endurecimiento de producción',()=>{
  it('la base de datos se valida en CI con una instancia real (migraciones 001..049 a 050)',()=>{
    expect(dbWorkflow).toContain('supabase/setup-cli');
    expect(dbWorkflow).toContain('supabase start');
-   expect(dbWorkflow).toContain('Iniciar pila local (Postgres) y aplicar migraciones 001..050 desde cero');
+   expect(dbWorkflow).toContain('Iniciar pila local (Postgres) y aplicar migraciones 001..051 desde cero');
    expect(dbWorkflow).toContain('Verificar integridad financiera (migraciones 032 a 045)');
    expect(fs.existsSync('supabase/tests/db_integrity.sql')).toBe(true);
    expect(dbWorkflow).toContain('p0_hardening.sql');
@@ -51,7 +51,7 @@ describe('endurecimiento de producción',()=>{
   expect(app).toContain('path="seguridad" element={<ProtectedRoute permission="settings.read"');
  });
  it('la documentación principal refleja la migración 046 y el motor de tarifas',()=>{
-   expect(readme).toContain('001` a `050');
+   expect(readme).toContain('001` a `051');
   expect(readme).toContain('erp_financial_integrity_core');
   expect(readme).not.toContain('Cuota anual predeterminada de L 400');
   expect(readme).toContain('WHATSAPP_APP_SECRET');

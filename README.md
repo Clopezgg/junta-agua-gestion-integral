@@ -47,7 +47,7 @@ Aplicación privada para administrar abonados, pegues, identidad, cuotas anuales
 - PWA instalable: caché exclusiva del shell, versionada por compilación.
 - Backup y restauración `junta-agua-backup-v5`.
 - Validación automática de la base de datos en CI sobre una instancia Supabase
-  real (migraciones 001–050 desde cero).
+  real (migraciones 001–051 desde cero).
 - V5 · Water Utility Operating System: modelo de identidad (PERSONA ≠ ABONADO ≠
   INMUEBLE ≠ CONTRATO ≠ PEGUE), solicitudes/reclamos, morosidad/convenios, compras,
   banca/conciliación, bodega, gobierno institucional (junta, comités, reuniones,
@@ -80,14 +80,14 @@ git diff --check
 ```
 
 En CI además se valida la base de datos sobre una instancia Supabase real
-(`.github/workflows/db-validate.yml`): aplica las migraciones 001–050 desde cero
+(`.github/workflows/db-validate.yml`): aplica las migraciones 001–051 desde cero
 y verifica los invariantes de integridad (`supabase/tests/db_integrity.sql`) y el
 endurecimiento de seguridad P0 (`supabase/tests/p0_hardening.sql`: multi-abonado,
 aislamiento entre organizaciones y MFA/AAL2).
 
 ## Base de datos
 
-Ejecute las migraciones en orden `001` a `050` (la 032 es el núcleo de
+Ejecute las migraciones en orden `001` a `051` (la 032 es el núcleo de
 integridad financiera y la 033 fija los invariantes del modelo, la corrección
 auditada de abonados/pegues y la protección contra fuerza bruta; ambas deben
 aplicarse después de todas las anteriores):

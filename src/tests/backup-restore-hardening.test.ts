@@ -40,6 +40,6 @@ describe('respaldo y restauración (migración 034 + backup-manager)',()=>{
     expect(dbIntegrity).toContain("to_regclass('public.backup_restore_sessions')");
     expect(dbIntegrity).toContain("to_regprocedure('public.get_backup_restore_sessions(int)')");
     expect(fs.existsSync('supabase/migrations/202607110034_backup_restore_sessions.sql')).toBe(true);
-    expect(readme).toContain('001` a `050');
+    expect(readme).toContain('001` a `051');
    });
 });
