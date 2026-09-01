@@ -4,12 +4,12 @@
 
 | Campo | Valor |
 |---|---|
-| CURRENT_PHASE | Milestone A — Skills + Forensics + Baseline + Git Cleanup Plan |
+| CURRENT_PHASE | Milestone B — Architecture + Design System + Legacy Isolation (pendiente de arranque) |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
-| CURRENT_SHA | (pendiente primer commit del milestone) |
-| LAST_GREEN_SHA | `c677335` (main, baseline) — 159 tests, lint OK, tsc OK |
-| LAST_COMPLETED_MILESTONE | — (A en curso) |
-| NEXT_ACTION | Cerrar A: publicar Draft PR + validar plan de limpieza de ramas. Luego Milestone B (Architecture + Design System + Legacy Isolation). |
+| CURRENT_SHA | `4e8aa65` |
+| LAST_GREEN_SHA | `4e8aa65` — 159 tests, lint OK, tsc OK |
+| LAST_COMPLETED_MILESTONE | A — Skills + Forensics + Baseline + Git Cleanup Plan |
+| NEXT_ACTION | Milestone B: consolidar arquitectura `src/domains/*`, design system único, aislar (no borrar aún) CSS legacy. Draft PR: #22. |
 | TEST_COUNT | 159 (vitest) |
 | E2E_COUNT | 1 spec Playwright (`tests/e2e/smoke.spec.ts`) + 1 sim (`src/tests/e2e/commercial-flow-simulation.test.ts`) |
 | MIGRATION_HEAD | `202609010008_v6_public_institution.sql` (52 archivos en `supabase/migrations`) |
@@ -42,4 +42,5 @@ No hay `.claude/` ni `skills/` dentro del repo. No hay MCP servers de dominio.
 
 | Milestone | Estado | SHA cierre | Notas |
 |---|---|---|---|
-| A — Skills + Forensics + Baseline + Git Cleanup Plan | EN CURSO | — | Baseline + tag + branch + Draft PR + docs de verdad. |
+| A — Skills + Forensics + Baseline + Git Cleanup Plan | ✅ COMPLETE | `4e8aa65` | Baseline + tag + branch + Draft PR #22 + branch protection + 4 docs de verdad. |
+| B — Architecture + Design System + Legacy Isolation | PENDIENTE | — | — |
