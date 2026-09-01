@@ -41,7 +41,7 @@ export function Layout(){
    ],
    [
     {to:'/operaciones',label:'Centro operativo',icon:<Wrench size={18}/>,show:auth.has('operations.read')},
-    {to:'/incidencias',label:'Incidencias',icon:<ClipboardList size={18}/>,show:auth.has('operations.read')},
+    {to:'/incidencias',label:'Incidencias',icon:<ClipboardList size={18}/>,show:auth.has('incidents.read')},
     {to:'/ordenes-trabajo',label:'Órdenes de trabajo',icon:<Wrench size={18}/>,show:auth.has('operations.read')},
     {to:'/activos',label:'Red y activos',icon:<Boxes size={18}/>,show:auth.has('assets.read')},
     {to:'/mantenimiento',label:'Mantenimiento',icon:<Wrench size={18}/>,show:auth.has('maintenance.manage')},

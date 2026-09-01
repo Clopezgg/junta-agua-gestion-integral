@@ -83,3 +83,18 @@ Asamblea, JuntaDirectiva, Comites, Reuniones, Resoluciones, Proyectos, Fuentes, 
   - El hash de SW difiere del local (`-1ac9fb51`) porque es dependiente del entorno de build; la verificación estable es por contenido: el bundle servido contiene los marcadores V5 solo presentes en el build merged (`calendar.manage`, `compliance.read`, `communications.read`, `governance`, rutas `/compras /bancos /solicitudes /ersaps`, RPC `create_purchase_order`).
   - Ruta y datos de sesión verificados: `/ /login /abonados /gobierno /agua /compras /bancos /solicitudes /morosidad /ersaps /comunicaciones` → HTTP 200; `/health.txt /manifest.webmanifest /index.html` → 200; cabeceras CSP/HSTS/X-Frame-Options DENY presentes.
 - **Smoke prod (HTTP/content, real)**: ✅ rutas V5 200 + marcadores V5 en bundle + cabeceras seguridad. Los flujos profundos (login, MFA TOTP, CRUD abonados/pegues, cobros caja, conciliación bancaria, etc.) requieren credenciales y **datos institucionales de prueba** contra el Supabase de producción (credencial externa ausente). No se usan datos financieros ficticios permanentes.
+
+## Continuación — Abonado 360 + Incidencias (migraciones 046-047)
+### Abonado 360 (migración 046) ✅
+- `202609010002_v5_abonado_360.sql`: RPCs `create_abonado` y `search_abonados` (security definer + auditoría) sobre el modelo identidad V5.
+- `identity/service.ts`: `createAbonado`, `searchAbonados` junto a `getAbonado360` y `registerServiceContract`.
+- Página `Abonado360.tsx` (search → ficha 360 persona/abonado/contratos/pegues/predios + registro de contrato), ruta `/abonado-360` + nav/título.
+- Commit `6681add` en main; **CI verde**: validate (118 tests) · db-validate **001-046** ✅ · release. Test `abonado-360.test.ts` (5 assertions).
+
+### Incidencias en Operación (migración 047) — cierra brecha GAP §4.1 ✅
+- `202609010003_v5_incidents.sql`: semántica de **incidencia** (antes inexistente: cero tablas). Tabla `incidents` (reporte→triaje→orden→resolución), FK a `work_orders`, RLS org-scoped, permisos `incidents.read/manage`, RPCs security definer `list_incidents/get_incident/create_incident/update_incident` + `write_audit_event`.
+- `operations/service.ts`: `listIncidents/getIncident/createIncident/updateIncident`.
+- Página `Incidents.tsx` (cola por estado + prioridades, crear/reportar, detalle, transiciones de estado, vincular o crear-y-vincular una orden de trabajo), ruta `/incidencias` repunteada a la nueva página con `incidents.read`, nav y título.
+- `lib/security.ts`: permisos `incidents.read/manage` en el union + rol `technician`.
+- Test `incidents.test.ts` (5 assertions); total **123 tests** / 22 archivos.
+
