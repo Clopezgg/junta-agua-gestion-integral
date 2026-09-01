@@ -46,7 +46,8 @@ async function login(page:Page){
 test.describe('flujo operativo real (browser) sobre Supabase local',()=>{
   test('inicio de sesión y panel principal',async({page})=>{
     await login(page);
-    await expect(page.getByRole('heading',{level:1,name:/gestión comunitaria del agua/i})).toBeVisible();
+    await expect(page.getByRole('heading',{level:1,name:/hola,/i})).toBeVisible();
+    await expect(page.getByRole('heading',{name:/requiere atención/i})).toBeVisible();
     await expect(page).not.toHaveURL(/\/login/);
   });
 

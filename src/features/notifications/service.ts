@@ -10,7 +10,7 @@ export type AppNotification={
   to:string;
 };
 
-type RoleDashboard={
+export type RoleDashboard={
   overdue_debt?:number|null;
   pending_expenses?:number|null;
   open_work_orders?:number|null;
@@ -19,6 +19,7 @@ type RoleDashboard={
   critical_assets?:number|null;
   low_stock?:number|null;
   import_errors?:number|null;
+  reading_errors?:number|null;
   active_cash_session?:boolean|null;
   budget_status?:string|null;
 };
@@ -44,6 +45,11 @@ export function deriveNotifications(d:RoleDashboard):AppNotification[]{
     id:'import-errors',severity:'danger',
     title:`${n(d.import_errors)} registro${n(d.import_errors)===1?'':'s'} con error de importación`,
     detail:'Revíselos antes de confirmar el lote.',to:'/importaciones',
+  });
+  if(n(d.reading_errors)>0)out.push({
+    id:'reading-errors',severity:'danger',
+    title:`${n(d.reading_errors)} lectura${n(d.reading_errors)===1?'':'s'} de campo con error`,
+    detail:'Corríjalas antes de facturar el consumo.',to:'/lecturas-campo',
   });
   if(n(d.overdue_debt)>0)out.push({
     id:'overdue-debt',severity:'warning',

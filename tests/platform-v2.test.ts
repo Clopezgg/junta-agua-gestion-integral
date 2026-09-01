@@ -85,7 +85,7 @@ describe('plataforma v2 institucional',()=>{
     expect(layout).toContain('<GlobalSearch/>');
     expect(layout).toContain('appVersion.version');
     expect(layout).toContain('Vista del recibo');
-    expect(home).toContain('Centro de pendientes');
+    expect(home).toContain('Requiere atención');
     expect(home).toContain('Acciones rápidas');
     expect(operations).not.toContain('window.prompt');
     expect(operations).toContain('Finalizar orden y registrar historial');
