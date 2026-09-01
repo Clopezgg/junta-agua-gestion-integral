@@ -33,8 +33,7 @@ declare
     on conflict do nothing;
   insert into public.user_roles(user_id,role_id) values(ua,ra),(ub,rb) on conflict do nothing;
   -- P0#1: múltiples abonados en la misma organización
-  perform set_config('app.uid', ua::text, true);
-  perform set_config('app.jwt', '{"aal":"aal2"}', true);
+  perform set_config('request.jwt.claims', jsonb_build_object('sub', ua::text, 'role','authenticated','aal','aal2')::text, true);
   -- dos subscribes (relación cliente) y dos personas, cada una con su abonado
   perform public.create_subscriber('{"document_type":"dni","document_number":"0801-1990-10001","issuing_country":"HND","full_name":"P0 Persona Uno","whatsapp":"11111111","address":"a1","sector":"norte"}');
   perform public.create_subscriber('{"document_type":"dni","document_number":"0801-1990-10002","issuing_country":"HND","full_name":"P0 Persona Dos","whatsapp":"22222222","address":"a2","sector":"norte"}');
@@ -52,8 +51,7 @@ declare
   end if;
   raise notice 'P0#1 OK: múltiples abonados por org';
   -- abonado en org B para pruebas cross-org
-  perform set_config('app.uid', ub::text, true);
-  perform set_config('app.jwt', '{"aal":"aal2"}', true);
+  perform set_config('request.jwt.claims', jsonb_build_object('sub', ub::text, 'role','authenticated','aal','aal2')::text, true);
   perform public.create_subscriber('{"document_type":"dni","document_number":"0801-1990-20001","issuing_country":"HND","full_name":"P0 Persona OrgB","whatsapp":"33333333","address":"b1","sector":"sur"}');
 end$$;
 
@@ -66,8 +64,7 @@ begin
     from public.subscribers s
     join public.profiles p on p.organization_id = s.organization_id
     where p.username='p0userb' order by s.created_at desc limit 1;
-  perform set_config('app.uid', ua::text, true);
-  perform set_config('app.jwt', '{"aal":"aal2"}', true);
+  perform set_config('request.jwt.claims', jsonb_build_object('sub', ua::text, 'role','authenticated','aal','aal2')::text, true);
   if sub_b is null then
     raise exception 'P0#2 SETUP: sin subscriber en org B';
   end if;
@@ -90,8 +87,7 @@ begin
   select id into sa from public.subscribers
     where organization_id=(select organization_id from public.profiles where id=ua)
     order by created_at desc limit 1;
-  perform set_config('app.uid', ua::text, true);
-  perform set_config('app.jwt', '{"aal":"aal2"}', true);
+  perform set_config('request.jwt.claims', jsonb_build_object('sub', ua::text, 'role','authenticated','aal','aal2')::text, true);
   if sa is null then raise exception 'P0#2b SETUP: sin subscriber en org A'; end if;
   cid := public.create_water_connection(sa, '{"service_type":"residential","address":"calle 1","sector":"norte"}');
   if cid is null then raise exception 'P0#2b FAIL: mismo-org no conectó'; end if;
@@ -103,8 +99,7 @@ do $$
 declare ua uuid;
 begin
   select id into ua from public.profiles where username='p0usera';
-  perform set_config('app.uid', ua::text, true);
-  perform set_config('app.jwt', '{"aal":"aal1"}', true);
+  perform set_config('request.jwt.claims', jsonb_build_object('sub', ua::text, 'role','authenticated','aal','aal1')::text, true);
   begin
     perform public.create_water_connection(
       (select id from public.subscribers where organization_id=(select organization_id from public.profiles where id=ua) order by created_at desc limit 1),
