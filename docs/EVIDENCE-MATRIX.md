@@ -28,3 +28,24 @@ Leyenda: ✅ verificado por CI/contratos locales · 🔄 pipeline activo en la r
 
 Riesgos observados, no bloqueantes para el código:
 - Despliegue real a Render/Supabase requiere credenciales externas (bloqueado externamente).
+
+---
+
+# V5 · Water Utility Operating System — Matriz de evidencia
+
+Rama `work/junta-agua-v5-operating-system` → PR #14 (base `main`). Fuente verdad `main`.
+
+| ÁREA | STATUS | EVIDENCE | COMMIT |
+|---|---|---|---|
+| Fase 0 — Auditoría + gap analysis (12 fases) | ✅ | `docs/V5-GAP-ANALYSIS.md` | `d33f63b` |
+| Fase 1 — IA 8 grupos + shell + paleta §64 | ✅ | `Layout.tsx` (8 grupos + `titleFor`), `tokens.css` (brand-600 `#1D4ED8`), `App.tsx` (rutas V5 + `ProtectedRoute`), `security.ts` (union `communications/water/governance/compliance/calendar.manage`) | `ec94b09` |
+| Fase 2-11 Backend — 9 migraciones 036-044 | ✅ | `202608310036..044_v5_*.sql` (identidad, solicitudes, morosidad, compras, banca, bodega, gobierno, agua, cumplimiento) todas con RLS + permisos + RPCs `security definer` + auditoría | `ec94b09` + fix `a36f492` |
+| Fase 2-11 UI — 22 páginas V5 | ✅ | `src/pages/{Asamblea,JuntaDirectiva,Comites,Reuniones,Resoluciones,Proyectos,Fuentes,Calidad,Cloracion,Continuidad,Microcuenca,Ersaps,Calendario,Transparencia,Bancos,Compras,Solicitudes,Morosidad,Bodega,PeguesContratos,Caja,Comunicaciones}` | `ec94b09` |
+| Validación local (tsc/eslint/build/test) | ✅ | `npx tsc -b` OK · `npx eslint src/` 0 errores · `npm run build:render` OK · `npm test` 20 files/113 pass | `ec94b09` |
+| Integridad RPCs V5 (0 fantasma) | ✅ | `comm -23` referencias vs definidos = 0 | `ec94b09` |
+| CI PR #14 — 4 checks verdes | ✅ | `gh pr checks 14`: validate=PASS, db=PASS (001-044 real), functions=PASS, browser=E2E PASS | `a36f492` |
+| Fix SQL 42P13 (firma create_purchase_order) | ✅ | `202608310039_v5_procurement.sql` param `p_lines` al inicio; frontend llama por argumentos nombrados | `a36f492` |
+| Smoke E2E H1 niveles 1 intactos | ✅ | `tests/e2e/smoke.spec.ts` (gestión comunitaria del agua, abonados, presupuesto, pagos) | `ec94b09` |
+
+Producción (al cierre): Supabase `ugbbwppcewyhlrnvqqvm`, migraciones 036-044 aplicadas,
+Edge Functions, Render deploy SHA + URL pública + smoke prod — ver `docs/V5-PROGRESS.md`.

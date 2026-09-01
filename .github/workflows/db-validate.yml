@@ -17,7 +17,7 @@ jobs:
         uses: supabase/setup-cli@v1
         with:
           version: v2.116.0
-      - name: Iniciar pila local (Postgres) y aplicar migraciones 001..034 desde cero
+      - name: Iniciar pila local (Postgres) y aplicar migraciones 001..044 desde cero
         run: supabase start
       - name: Sembrar estado post-bootstrap (organización y catálogo de permisos)
         run: |
@@ -31,7 +31,7 @@ jobs:
             --entrypoint psql postgres:16-alpine \
             -v ON_ERROR_STOP=1 \
             -f /tmp/seed_integrity.sql
-      - name: Verificar integridad financiera (migraciones 032 a 034)
+      - name: Verificar integridad financiera (migraciones 032 a 044)
         run: |
           docker run --rm --network host \
             -e PGPASSWORD=postgres \

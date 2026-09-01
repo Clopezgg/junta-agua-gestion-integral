@@ -44,9 +44,37 @@ Asamblea, JuntaDirectiva, Comites, Reuniones, Resoluciones, Proyectos, Fuentes, 
   - `ERROR: input parameters after one with a default value must also have defaults` en `create_purchase_order`, cuya firma tenía `p_lines jsonb` (sin default) después de parámetros con `DEFAULT`.
 - **Fix aplicado** en `202608310039_v5_procurement.sql`: se movió `p_lines jsonb` al inicio de la firma de `create_purchase_order` (ahora el 1er parámetro, sin default; el resto conserva DEFAULT). Seguro porque el frontend llama por argumentos **nombrados** (`db().rpc('create_purchase_order', {p_lines, p_supplier_id, ...})`), no posicionales.
 - Auditoría del resto de firmas 036-044: todas cumplen la regla de que, una vez hay un parámetro con default, los siguientes deben tener default. Sin otros errores SQL latentes detectados (referencias, casts de enums, permisos `communications.*/water.*/governance.*/compliance.*/calendar.manage` y `expenses.*/finance/bank/inventory` todos definidos).
-- Pendiente: re-correr CI del PR #14 hasta que `db` y `browser` estén verdes.
 
-## Pendiente
-- Re-validar CI del PR #14 (jobs `db` + `browser`) tras el fix de la migración 039 → verde.
-- Actualizar docs/DATABASE.md, ARCHITECTURE.md, EVIDENCE-MATRIX.md y tests estáticos de dominios V5.
-- PR maestro a main (CI verde) → migraciones aplicadas → merge → deploy Render LIVE → smoke E2E → verificación SHA final + URL final.
+## CI PR #14 — estado FINAL ✅
+- Re-corrida tras el fix (`a36f492`): **los 4 checks del PR están verdes**:
+  - `validate` → **pass** (31s)
+  - `db` (migraciones 001-044 en Supabase real) → **pass** (2m03s)
+  - `functions` (edge functions deno) → **pass** (15s)
+  - `browser` (E2E real) → **pass** (4m00s)
+- `gh pr checks 14`: browser=PASS · db=PASS · functions=PASS · validate=PASS.
+
+## Evidencia por fase (backend / UI / RLS / TEST)
+
+| FASE | Backend | UI | RLS | Test |
+|------|---------|----|-----|------|
+| 0 | V5-GAP-ANALYSIS.md | — | — | Auditoría automática |
+| 1 | security.ts union permisos | Layout 8 grupos + paleta §64 + rutas | ProtectedRoute+permiso | tsc/eslint/build |
+| 2 (identity) | migración 036 + service | Asamblea/.. /PeguesContratos/.. | RLS + permisos | CI db ✅ |
+| 3 (requests) | migración 037 + service | Solicitudes | RLS + permisos | CI db ✅ |
+| 4 (arrears) | migración 038 + service | Morosidad | RLS + permisos | CI db ✅ |
+| 5 (procurement) | migración 039 + service | Compras | RLS + permisos | CI db ✅ |
+| 6 (treasury/banks) | migración 040 + service | Bancos/Caja | RLS + permisos | CI db ✅ |
+| 7 (inventory/warehouse) | migración 041 + service | Bodega | RLS + permisos | CI db ✅ |
+| 8 (governance) | migración 042 + service | Asamblea/JuntaDirectiva/Comites/Reuniones/Resoluciones/Proyectos | RLS + permisos | CI db ✅ |
+| 9 (water/environment) | migración 043 + service | Fuentes/Calidad/Cloracion/Continuidad/Microcuenca | RLS + permisos | CI db ✅ |
+| 10 (compliance/ERSAPS) | migración 044 + service | Ersaps/Calendario/Transparencia | RLS + permisos | CI db ✅ |
+| 11 (comunicaciones) | RPC listMessages | Comunicaciones | `communications.read` | tsc/eslint ✅ |
+| 12 (shell+deploy) | — | Layout/App/tokens | — | build:render + CI ✅ |
+
+## PRODUCCIÓN (se completa al cierre)
+- Supabase project: `ugbbwppcewyhlrnvqqvm` (junta-agua-gestion-integral, East US)
+- Migraciones 036-044 aplicadas → (SHA a registrar)
+- Edge Functions → (a registrar)
+- Render deploy SHA → (a registrar)
+- URL pública → (a registrar)
+- Smoke prod → (resultados a registrar)

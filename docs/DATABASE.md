@@ -1,6 +1,6 @@
 # Base de datos del ERP "Junta de Agua"
 
-Inventario real del esquema `public` de las migraciones 001..034
+Inventario real del esquema `public` de las migraciones 001..044
 (`supabase/migrations/*.sql`). Solo se documentan tablas, enums, funciones e invariantes
 que existen; nada se inventa.
 
@@ -189,10 +189,95 @@ returns table(...)` (`034:36`); `link_subscriber_portal_account`,
 | 033 | Invariantes, anti-delete, fuerza bruta |
 | 034 | Trazabilidad de restauraciones |
 
+## 7. Migraciones V5 035..044 (resumen)
+
+| # | Foco |
+|---|------|
+| 035 | Retención de respaldos |
+| 036 | Identidad V5: `persons`, `services_contracts`, ext. pegue/ubicación |
+| 037 | Solicitudes/reclamos + `communications.read` |
+| 038 | Morosidad / convenios de pago |
+| 039 | Compras / proveedores |
+| 040 | Banca / conciliación |
+| 041 | Bodega / inventario por bodega |
+| 042 | Gobierno institucional (junta, comités, reuniones, resoluciones, proyectos) |
+| 043 | Agua y ambiente (fuentes, calidad, cloración, continuidad, microcuenca) |
+| 044 | Cumplimiento / ERSAPS / calendario / transparencia |
+
+### 7.1 Tablas V5 (036-044)
+
+**Identidad (036):** `persons`, `service_locations`, `services_contracts` (extiende el
+modelo PERSONA ≠ ABONADO ≠ INMUEBLE ≠ CONTRATO ≠ PEGUE), `pegues` (vista/catálogo).
+
+**Solicitudes (037):** `service_requests` (solicitudes y reclamos de servicio).
+
+**Morosidad (038):** `payment_arrangements` + `payment_arrangement_installments`
+(convenios de pago de deuda).
+
+**Compras (039):** `purchase_requisitions`, `purchase_requisition_lines`,
+`purchase_orders`, `purchase_order_lines`. Extiende `inventory_movements` con
+`unit_cost`, `reference_type`, `reference_id`.
+
+**Banca (040):** `bank_statements`, `bank_transactions`.
+
+**Bodega (041):** `warehouses`, `inventory_warehouse`; `inventory_movements.warehouse_id`.
+
+**Gobierno (042):** `position_terms`, `boards`, `board_members`, `committees`,
+`committee_members`, `meetings`, `meeting_attendees`, `minutes`, `resolutions`, `projects`.
+
+**Agua y ambiente (043):** `water_sources`, `watersheds`, `water_samples`,
+`water_sample_parameters`, `chlorination_logs`, `rationalization_schedules`.
+
+**Cumplimiento (044):** `calendar_events`, `compliance_obligations`, `institutional_reports`.
+
+### 7.2 Enums V5 (`create type public...`)
+
+`institutional_position`; `position_period_status`; `committee_type`; `reunion_type`;
+`reunion_status`; `acta_status`; `resolution_status`; `resolution_type`; `project_status`;
+`project_funding` (042); `source_type`; `source_status`; `sample_status`;
+`chlorination_point`; `rational_status`; `rational_type` (043); `calendar_event_kind`;
+`compliance_status`; `report_doc_kind` (044); `purchase_status` (039);
+`bank_txn_type`; `recon_status` (040); `request_status`; `request_type`; `request_channel`;
+`arrangement_status` (037/038).
+
+### 7.3 Funciones V5 (firmas clave)
+
+Identidad (036): `create_person`, `register_service_contract`, `get_abonado_360`.
+Solicitudes (037): `create_service_request`, `resolve_service_request`,
+`list_service_requests`.
+Morosidad (038): `create_payment_arrangement`, `list_payment_arrangements`,
+`get_arrangement_detail`.
+Compras (039): `create_purchase_order(p_lines jsonb, p_supplier_id uuid, ...)`,
+`receive_purchase_order`, `list_purchase_orders`.
+Banca (040): `import_bank_statement`, `link_bank_transaction`, `list_bank_transactions`.
+Bodega (041): `list_warehouses`, `create_warehouse`, `get_inventory_with_warehouses`.
+Gobierno (042): `set_institutional_position`, `get_board_members`, `create_resolution`,
+`create_meeting`, `save_minutes`, `create_committee`, `create_project`,
+`get_governance_summary`.
+Agua (043): `register_water_source`, `register_water_sample`, `register_chlorination`,
+`list_water_samples`, `list_chlorination_logs`, `list_rationalization`,
+`register_watershed`, `create_rationalization`.
+Cumplimiento (044): `register_compliance_obligation`, `upsert_compliance_status`,
+`create_calendar_event`, `list_calendar_events`, `list_compliance`,
+`get_transparency_report_v5`.
+
+Todas son `security definer set search_path=public`, validan permisos con
+`has_permission(...)`, y registran la acción en `audit_events` mediante
+`write_audit_event(...)` salvo las listas SQL de solo lectura.
+
+### 7.4 Permisos V5
+
+`governance.read/manage` (042, superadmin), `water.read/manage` (043, superadmin),
+`compliance.read/manage` + `calendar.manage` (044, superadmin), `communications.read`
+(037, superadmin). Reutilizan `expenses.*`, `finance.read`, `bank.manage`,
+`inventory.*` de migraciones previas.
+
 ## Nota de validación
 
 Ejecute `psql "$DATABASE_URL" -f supabase/tests/db_integrity.sql` (valida tablas 032,
 columnas, índices, firmas, triggers, enums y constraints) y la suite de contract tests con
 `npm test` (vitest, incluye `src/tests/migrations.test.ts`,
 `src/tests/data-model-invariants.test.ts` y `src/tests/backup-restore-hardening.test.ts`).
-Automatizado en `.github/workflows/db-validate.yml` y `e2e.yml`.
+Automatizado en `.github/workflows/db-validate.yml` y `e2e.yml`. Las migraciones
+036-044 se validan en el mismo job `db` del CI (aplicación 001-044 + `db_integrity` +
+`seed_integrity`).
