@@ -6,10 +6,10 @@
 |---|---|
 | CURRENT_PHASE | Visual Contract — Gap Review A–G + Login (§54) — luego Milestone H |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
-| CURRENT_SHA | `0046b54` |
+| CURRENT_SHA | (pendiente commit visual) |
 | LAST_GREEN_SHA | `0046b54` (4/4 CI verde: validate·db·functions·browser) — 215 tests, lint OK, tsc OK, build OK |
 | LAST_COMPLETED_MILESTONE | G — Cobro + Recibos + Caja |
-| NEXT_ACTION | Milestone H: Cartera (§49) con estados sin suspensión automática, Convenios (§50), Bancos + Conciliación (§47-48). Draft PR: #22. |
+| NEXT_ACTION | Visual Gap Review resto (Setup·Inicio·Abonados·360·NuevoServicio·Cobro·Caja) → Milestone H: Cartera (§49) con estados sin suspensión automática, Convenios (§50), Bancos + Conciliación (§47-48). Draft PR: #22. |
 | TEST_COUNT | 217 (vitest) — +regresión mfa/setup |
 | E2E_COUNT | 9 tests Playwright (smoke.spec: login/MFA, navegación, búsqueda, responsive, POS+Caja, Nuevo servicio, 360, command palette, logout) + 1 sim |
 | LEGACY_FILES_REMAINING | 12 CSS legacy (~74KB) + 48 `.tsx` en `docs/legacy-ui-allowlist.txt` (−App, −Home, −Abonado360, −Caja, −Payments) + **1** en `docs/legacy-uuid-allowlist.txt`. El gate impide que las listas crezcan. |

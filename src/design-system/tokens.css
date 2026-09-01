@@ -14,15 +14,23 @@
   --ja-text-secondary:#475467;
   --ja-text-muted:#667085;
 
-  /* Marca */
-  --ja-navy:#0B1F33;
-  --ja-navy-soft:#173A5E;
+  /* Marca — Visual Contract §2 */
+  --ja-navy-950:#071B31;
+  --ja-navy:#0B2745;
+  --ja-navy-soft:#103A63;
   --ja-primary:#2563EB;
+  --ja-primary-strong:#155EEF;
   --ja-primary-hover:#1D4ED8;
-  --ja-water:#0284C7;
+  --ja-water:#0EA5E9;
+  --ja-teal:#0891B2;            /* acento técnico, uso escaso */
+
+  /* Command Center / mapa (§2) */
+  --ja-map-950:#07111D;
+  --ja-map-900:#0A1725;
+  --ja-map-800:#112234;
 
   /* Semánticos */
-  --ja-success:#027A48;
+  --ja-success:#067647;
   --ja-warning:#B54708;
   --ja-danger:#B42318;
   --ja-info:#175CD3;

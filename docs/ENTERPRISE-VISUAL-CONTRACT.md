@@ -137,8 +137,8 @@ no destruir backend funcional. (Tabla viva en `ENTERPRISE-REBUILD-STATE.md`.)
 
 | Pantalla | Estado | Notas |
 |---|---|---|
-| Login | _pendiente review_ | añadir `☐ Recordarme`, "mostrar" contraseña, "o acceda con", zona Seguro/Confiable/Eficiente, fondo ambiental sutil |
-| MFA | _pendiente review_ | |
+| Login | **PASS** | Recordarme + ¿Olvidó su contraseña? + "o acceda con" + zona Seguro/Confiable/Eficiente + fondo agua sutil + botón navy. Screenshots 1440/390 OK. |
+| MFA | **MINOR** → hecho | + enlace "Volver". Misma familia visual que login. |
 | Setup | _pendiente review_ | |
 | Inicio | _pendiente review_ | |
 | Abonados (lista) | _pendiente review_ | añadir drawer preview al click |

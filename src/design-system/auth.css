@@ -59,3 +59,30 @@
 .ja-setup-nav{display:flex;align-items:center;gap:.6rem;margin-top:.5rem}
 .ja-setup-nav-spacer{flex:1}
 .ja-setup-skip{align-self:center;margin-top:.25rem}
+
+/* Login — Referencia A (institucional, aire, ambiente de agua muy sutil) */
+.ja-auth-login{position:relative;overflow:hidden}
+.ja-auth-login::before{content:"";position:absolute;inset:auto 0 0 0;height:42%;pointer-events:none;
+  background:
+    radial-gradient(120% 80% at 50% 120%, rgba(14,165,233,.10), transparent 70%),
+    linear-gradient(to top, rgba(11,39,69,.06), transparent);
+  mask:linear-gradient(to top, #000, transparent)}
+.ja-auth-login>*{position:relative}
+.ja-auth-brand-sub{font-size:var(--ja-text-xs);color:var(--ja-text-muted);letter-spacing:.02em}
+.ja-auth-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;font-size:var(--ja-text-xs)}
+.ja-auth-check{display:inline-flex;align-items:center;gap:.4rem;color:var(--ja-text-secondary);cursor:pointer;user-select:none}
+.ja-auth-check input{accent-color:var(--ja-primary)}
+.ja-auth-assurance{display:flex;justify-content:center;gap:1.5rem;margin-top:1.1rem;font-size:var(--ja-text-xs);color:var(--ja-text-muted)}
+.ja-auth-assurance span{display:inline-flex;align-items:center;gap:.35rem}
+.ja-auth-assurance svg{color:var(--ja-text-muted)}
+
+@media(max-width:480px){
+  .ja-auth-login::before{display:none}
+  .ja-auth-assurance{gap:1rem;flex-wrap:wrap}
+}
+
+.ja-auth-back{align-self:center;margin-top:.25rem}
+
+/* §6 — acción primaria navy profundo en pantallas de acceso */
+.ja-auth .ja-btn-primary{background:var(--ja-navy)}
+.ja-auth .ja-btn-primary:hover:not(:disabled){background:var(--ja-navy-soft)}

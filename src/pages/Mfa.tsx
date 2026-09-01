@@ -73,6 +73,7 @@ export function Mfa(){
           <small className="ja-mfa-secret">Si no puede escanear el código, escriba esta clave manualmente:<code>{enrollment.secret}</code></small>
         </div>}
         {(hasFactor||enrollment)&&codeInput}
+        <button type="button" className="ja-auth-link ja-auth-back" onClick={()=>void a.signOut()}>Volver</button>
       </form>
     </div>
     <footer className="ja-auth-footer">Acceso exclusivo para personal autorizado.</footer>
