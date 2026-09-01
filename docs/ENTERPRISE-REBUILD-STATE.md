@@ -6,8 +6,8 @@
 |---|---|
 | CURRENT_PHASE | Milestone E — Inicio (Command Center) (pendiente de arranque) |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
-| CURRENT_SHA | (pendiente commit D) |
-| LAST_GREEN_SHA | (pendiente commit D) — 187 tests, lint OK, tsc OK, build OK |
+| CURRENT_SHA | `2542a6a` |
+| LAST_GREEN_SHA | `2542a6a` — 187 tests, lint OK, tsc OK, build OK |
 | LAST_COMPLETED_MILESTONE | D — Login + MFA + Setup |
 | NEXT_ACTION | Milestone E: Inicio como command center role-aware (§26-27) sobre `get_role_dashboard` — "¿qué requiere mi atención hoy?", acciones que abren flujos reales. Draft PR: #22. |
 | TEST_COUNT | 187 (vitest) — gates: `enterprise-legacy-gate`, `router-map`, `command-palette`, `notifications`, `quick-create`, `setup-wizard` |
@@ -45,5 +45,5 @@ No hay `.claude/` ni `skills/` dentro del repo. No hay MCP servers de dominio.
 | A — Skills + Forensics + Baseline + Git Cleanup Plan | ✅ COMPLETE | `4e8aa65` | Baseline + tag + branch + Draft PR #22 + branch protection + 4 docs de verdad. |
 | B — Architecture + Design System + Legacy Isolation | ✅ COMPLETE | `62d55b0` | `ENTERPRISE-ARCHITECTURE.md`; tipos DB reales; DS barrel + README; gate estático legacy/UUID (`scripts/enterprise-gates.mjs` + test + CI). |
 | C — Shell + Router + Search + Quick Create + Notifications | ✅ COMPLETE | `254b6c4` | Router por dominio (`src/app/router/*`, App.tsx 170→6). CommandPalette real (`src/app/commands/*`, Ctrl+K, teclado, permisos, entidades vía `global_search`). NotificationsCenter con avisos reales derivados de `get_role_dashboard` (`src/features/notifications/*`). QuickCreate → rutas reales. +5 suites de test, +1 E2E. |
-| D — Login + MFA + Setup | ✅ COMPLETE | (commit D) | Login (§23) y MFA primer-admin (§24) ya sólidos desde V6 — verificados + E2E. Setup: asistente empresarial real de 5 pasos (§25) — Identidad/Ubicación/Legal/Servicio/Revisión sobre `bootstrap_organization` + nuevo `complete_setup`/`save_setup_progress`; migración `202609010009` añade el perfil institucional y corrige pérdida de datos en `update_organization_settings` (§152). Sin datos inventados. |
+| D — Login + MFA + Setup | ✅ COMPLETE | `2542a6a` | Login (§23) y MFA primer-admin (§24) ya sólidos desde V6 — verificados + E2E. Setup: asistente empresarial real de 5 pasos (§25) — Identidad/Ubicación/Legal/Servicio/Revisión sobre `bootstrap_organization` + nuevo `complete_setup`/`save_setup_progress`; migración `202609010009` añade el perfil institucional y corrige pérdida de datos en `update_organization_settings` (§152). Sin datos inventados. |
 | E — Inicio (Command Center) | PENDIENTE | — | — |
