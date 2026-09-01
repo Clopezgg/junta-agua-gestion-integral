@@ -3,7 +3,7 @@ import {Search,X} from 'lucide-react';
 import {useNavigate} from 'react-router-dom';
 import {globalSearch,type GlobalSearchResult} from '../features/search/service';
 
-export function GlobalSearch(){
+export function GlobalSearch({trigger}:{trigger?:({open}:{open:()=>void})=>React.ReactNode}){
   const navigate=useNavigate();
   const inputRef=useRef<HTMLInputElement>(null);
   const[q,setQ]=useState('');
@@ -47,9 +47,9 @@ export function GlobalSearch(){
   }
 
   return <>
-    <button className="global-search-trigger outline" onClick={()=>{setOpen(true);setTimeout(()=>inputRef.current?.focus(),0)}}>
+    {trigger?trigger({open:()=>{setOpen(true);setTimeout(()=>inputRef.current?.focus(),0)}}):<button className="global-search-trigger outline" onClick={()=>{setOpen(true);setTimeout(()=>inputRef.current?.focus(),0)}}>
       <Search size={17}/><span>Buscar en todo el sistema</span><kbd>Ctrl K</kbd>
-    </button>
+    </button>}
     {open&&<div className="modal search-modal" role="dialog" aria-modal="true" aria-label="Búsqueda universal">
       <div className="search-command">
         <div className="search-command-input">

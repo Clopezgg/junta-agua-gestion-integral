@@ -19,7 +19,7 @@ async function mfa(page:Page){
     totpSecret=(await page.locator('code').first().textContent())?.trim()??'';
     if(!totpSecret)throw new Error('No se pudo leer el secreto de enrolamiento.');
   }else{
-    await expect(page.getByRole('heading',{name:/segundo factor/i})).toBeVisible();
+    await expect(page.getByRole('heading',{name:/verificación de seguridad/i})).toBeVisible();
   }
   for(let attempt=0;attempt<3;attempt++){
     if(attempt>0)await page.waitForTimeout(authenticator.timeRemaining()+500);

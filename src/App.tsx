@@ -1,9 +1,9 @@
 import {lazy,Suspense} from 'react';
-import {BrowserRouter,Route,Routes} from 'react-router-dom';
+import {BrowserRouter,Navigate,Route,Routes} from 'react-router-dom';
 import {AuthProvider} from './contexts/AuthContext';
 import {ProtectedRoute} from './components/ProtectedRoute';
 import {PortalRoute} from './components/PortalRoute';
-import {Layout} from './components/Layout';
+import {AppShell} from './layouts/AppShell';
 import {Home} from './pages/Home';
 import {Admin} from './pages/Admin';
 import {Audit} from './pages/Audit';
@@ -14,6 +14,8 @@ import {PortalLogin} from './pages/PortalLogin';
 import {SubscriberPortal} from './pages/SubscriberPortal';
 import {Mfa} from './pages/Mfa';
 import {Setup} from './pages/Setup';
+import {RecuperarAcceso} from './pages/RecuperarAcceso';
+import {Restablecer} from './pages/Restablecer';
 import {Subscribers} from './pages/Subscribers';
 import {Security} from './pages/Security';
 import {Tariffs} from './pages/Tariffs';
@@ -65,13 +67,32 @@ const loading=<main className="content"><div className="panel">Cargando módulo 
 export default function App(){
   return <BrowserRouter><AuthProvider><Suspense fallback={loading}><Routes>
     <Route path="/login" element={<Login/>}/>
+    <Route path="/recuperar" element={<RecuperarAcceso/>}/>
+    <Route path="/restablecer" element={<Restablecer/>}/>
     <Route path="/portal" element={<PortalLogin/>}/>
     <Route path="/mi-cuenta" element={<PortalRoute><SubscriberPortal/></PortalRoute>}/>
     <Route path="/mfa" element={<Mfa/>}/>
     <Route path="/setup" element={<Setup/>}/>
     <Route path="/verificar-recibo/:token" element={<VerifyReceipt/>}/>
-    <Route element={<ProtectedRoute><Layout/></ProtectedRoute>}>
+    <Route element={<ProtectedRoute><AppShell/></ProtectedRoute>}>
       <Route index element={<Home/>}/>
+      {/* V6 — rutas maestras */}
+      <Route path="inicio" element={<Home/>}/>
+      <Route path="tesoreria" element={<Navigate to="/pagos" replace/>}/>
+      <Route path="tesoreria/cobrar" element={<Navigate to="/pagos" replace/>}/>
+      <Route path="tesoreria/caja" element={<Navigate to="/caja" replace/>}/>
+      <Route path="tesoreria/bancos" element={<Navigate to="/bancos" replace/>}/>
+      <Route path="tesoreria/gastos" element={<Navigate to="/gastos" replace/>}/>
+      <Route path="tesoreria/compras" element={<Navigate to="/compras" replace/>}/>
+      <Route path="tesoreria/presupuesto" element={<Navigate to="/presupuesto" replace/>}/>
+      <Route path="operacion" element={<Navigate to="/operaciones" replace/>}/>
+      <Route path="operacion/mapa" element={<Navigate to="/mapa" replace/>}/>
+      <Route path="operacion/bodega" element={<Navigate to="/bodega" replace/>}/>
+      <Route path="junta" element={<Navigate to="/junta-directiva" replace/>}/>
+      <Route path="cumplimiento" element={<Navigate to="/ersaps" replace/>}/>
+      <Route path="cumplimiento/ersaps" element={<Navigate to="/ersaps" replace/>}/>
+      <Route path="cumplimiento/calidad" element={<Navigate to="/calidad" replace/>}/>
+      <Route path="cumplimiento/informe-anual" element={<Navigate to="/informes" replace/>}/>
       {/* INICIO */}
       <Route path="centro-operativo" element={<ProtectedRoute permission="operations.read"><Operations/></ProtectedRoute>}/>
       {/* USUARIOS Y SERVICIO */}

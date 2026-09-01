@@ -1,0 +1,84 @@
+/* V6 — Junta de Agua Operating System · Design tokens */
+:root{
+  /* Superficies */
+  --ja-bg:#F6F8FB;
+  --ja-surface:#FFFFFF;
+  --ja-surface-muted:#F2F4F7;
+
+  /* Bordes */
+  --ja-border:#E4E7EC;
+  --ja-border-strong:#D0D5DD;
+
+  /* Tinta */
+  --ja-text:#101828;
+  --ja-text-secondary:#475467;
+  --ja-text-muted:#667085;
+
+  /* Marca */
+  --ja-navy:#0B1F33;
+  --ja-navy-soft:#173A5E;
+  --ja-primary:#2563EB;
+  --ja-primary-hover:#1D4ED8;
+  --ja-water:#0284C7;
+
+  /* Semánticos */
+  --ja-success:#027A48;
+  --ja-warning:#B54708;
+  --ja-danger:#B42318;
+  --ja-info:#175CD3;
+
+  /* Estado de color (fondo suave) */
+  --ja-success-bg:#ECFDF3;
+  --ja-warning-bg:#FFFAEB;
+  --ja-danger-bg:#FEF3F2;
+  --ja-info-bg:#EFF8FF;
+
+  /* Tipografía */
+  --ja-font:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --ja-font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* Tamaños */
+  --ja-text-xs:0.75rem;
+  --ja-text-sm:0.8125rem;
+  --ja-text-base:0.875rem;
+  --ja-text-lg:0.9375rem;
+  --ja-text-xl:1.0625rem;
+  --ja-text-2xl:1.25rem;
+  --ja-text-3xl:1.5rem;
+
+  /* Espaciado */
+  --ja-space-1:0.25rem;
+  --ja-space-2:0.5rem;
+  --ja-space-3:0.75rem;
+  --ja-space-4:1rem;
+  --ja-space-5:1.25rem;
+  --ja-space-6:1.5rem;
+  --ja-space-8:2rem;
+  --ja-space-10:2.5rem;
+  --ja-space-12:3rem;
+
+  /* Radio */
+  --ja-radius-sm:6px;
+  --ja-radius-md:8px;
+  --ja-radius-lg:12px;
+  --ja-radius-full:999px;
+
+  /* Sombras */
+  --ja-shadow-xs:0 1px 2px rgba(16,24,40,0.05);
+  --ja-shadow-sm:0 1px 3px rgba(16,24,40,0.08),0 1px 2px rgba(16,24,40,0.04);
+  --ja-shadow-md:0 4px 10px rgba(16,24,40,0.07),0 2px 4px rgba(16,24,40,0.04);
+  --ja-shadow-lg:0 12px 28px rgba(16,24,40,0.11),0 4px 8px rgba(16,24,40,0.05);
+
+  /* Movimiento */
+  --ja-ease:cubic-bezier(.2,.8,.2,1);
+  --ja-dur-1:120ms;
+  --ja-dur-2:180ms;
+  --ja-dur-3:240ms;
+
+  /* Shell */
+  --ja-sidebar-w:248px;
+  --ja-sidebar-w-collapsed:72px;
+  --ja-topbar-h:60px;
+  --ja-mobile-nav-h:62px;
+  --ja-touch:44px;
+}
