@@ -47,9 +47,8 @@ Rama `work/junta-agua-v5-operating-system` → PR #14 (base `main`). Fuente verd
 | Fix SQL 42P13 (firma create_purchase_order) | ✅ | `202608310039_v5_procurement.sql` param `p_lines` al inicio; frontend llama por argumentos nombrados | `a36f492` |
 | Smoke E2E H1 niveles 1 intactos | ✅ | `tests/e2e/smoke.spec.ts` (gestión comunitaria del agua, abonados, presupuesto, pagos) | `ec94b09` |
 
-Producción (al cierre): PR #14 MERGED → main `c1f131d02ce372a447dc1ffcad36cdfb3c5a42db`; migraciones
-036-044 aplicadas en Supabase Cloud `ugbbwppcewyhlrnvqqvm` (14 tablas V5, 8 permisos V5, RLS, RPCs);
-11 Edge Functions ACTIVE. Render LIVE (`junta-agua-gestion-integral.onrender.com` HTTP 200) pero sirve
-build pre-merge (`-98736562`, falta `-1ac9fb51` de main) → redeploy bloqueado por ausencia de `RENDER_API_KEY`
-(secreto externo documentado). Smoke prod pendiente de redeploy + credenciales institucionales de prueba.
-Ver `docs/V5-PROGRESS.md`.
+Producción (al cierre): PR #14 MERGED → main `c1f131d02ce372a447dc1ffcad36cdfb3c5a42db` (+ `196578c` docs);
+migraciones 036-044 aplicadas en Supabase Cloud `ugbbwppcewyhlrnvqqvm` (14 tablas V5, 8 permisos V5, RLS, RPCs);
+11 Edge Functions ACTIVE. Render LIVE sirviendo el build de main V5 (`junta-agua-gestion-integral.onrender.com`,
+HTTP 200, marcadores V5 en bundle + cabeceras CSP/HSTS). Smoke profundo (login/MFA/CRUD) pendiente de credenciales
+y datos institucionales de prueba. Ver `docs/V5-PROGRESS.md`.
