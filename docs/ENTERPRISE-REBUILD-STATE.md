@@ -6,8 +6,8 @@
 |---|---|
 | CURRENT_PHASE | Milestone C — Shell + Router + Search + Quick Create + Notifications (pendiente de arranque) |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
-| CURRENT_SHA | (pendiente commit B) |
-| LAST_GREEN_SHA | (pendiente commit B) — 162 tests, lint OK, tsc OK, build OK |
+| CURRENT_SHA | `62d55b0` |
+| LAST_GREEN_SHA | `62d55b0` — 162 tests, lint OK, tsc OK, build OK |
 | LAST_COMPLETED_MILESTONE | B — Architecture + Design System + Legacy Isolation |
 | NEXT_ACTION | Milestone C: `src/app/router` por dominio (romper App.tsx monolítico), shells (Auth/Portal/Field), CommandPalette real (Ctrl+K), QuickCreate real, NotificationsCenter con eventos reales. Draft PR: #22. |
 | TEST_COUNT | 162 (vitest) — incluye gate estático `enterprise-legacy-gate` |
@@ -43,5 +43,5 @@ No hay `.claude/` ni `skills/` dentro del repo. No hay MCP servers de dominio.
 | Milestone | Estado | SHA cierre | Notas |
 |---|---|---|---|
 | A — Skills + Forensics + Baseline + Git Cleanup Plan | ✅ COMPLETE | `4e8aa65` | Baseline + tag + branch + Draft PR #22 + branch protection + 4 docs de verdad. |
-| B — Architecture + Design System + Legacy Isolation | ✅ COMPLETE | (commit B) | `ENTERPRISE-ARCHITECTURE.md`; tipos DB reales; DS barrel + README; gate estático legacy/UUID (`scripts/enterprise-gates.mjs` + test + CI). |
+| B — Architecture + Design System + Legacy Isolation | ✅ COMPLETE | `62d55b0` | `ENTERPRISE-ARCHITECTURE.md`; tipos DB reales; DS barrel + README; gate estático legacy/UUID (`scripts/enterprise-gates.mjs` + test + CI). |
 | C — Shell + Router + Search + Quick Create + Notifications | PENDIENTE | — | — |
