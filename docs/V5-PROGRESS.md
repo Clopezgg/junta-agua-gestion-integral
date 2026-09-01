@@ -106,4 +106,5 @@ Asamblea, JuntaDirectiva, Comites, Reuniones, Resoluciones, Proyectos, Fuentes, 
 - `treasury/service.ts`: `discardBankTransaction/unlinkBankTransaction/getBankAccountBalance/listPayments/listExpenses`.
 - `Bancos.tsx` reescrito como workspace de conciliación: cuentas con saldo conciliable, importación de estado (form, sin `prompt`), cola filtrable por estado y conciliación contra candidatos reales (pagos o gastos). Ruta `/bancos` (finance.read) ya conectada.
 - Test `bancos.test.ts` (5 assertions); total **128 tests** / 23 archivos.
+- **PRODUCCIÓN Bancos/Conciliación** ✅: migración 048 `202609010004` aplicada en Supabase Cloud (`migration list` Local=Remote, `db push` incremental); RPCs `discard_bank_transaction/get_bank_account_balance/unlink_bank_transaction` verificadas en `pg_proc` del Cloud. PR #17 mergeado a main (`996a0a8`); CI db-validate **001-048** ✅ + browser E2E ✅ + validate ✅ + functions ✅; Render LIVE sirviendo main `996a0a8` (deploy `dep-dab5vhe8...`), ruta `/bancos` → HTTP 200.
 
