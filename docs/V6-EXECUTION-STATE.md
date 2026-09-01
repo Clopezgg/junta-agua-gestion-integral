@@ -17,6 +17,7 @@
 | NEXT_MIGRATION | 053 (solo si 052 sigue siendo HEAD) |
 | PRODUCTION_UNCHANGED | SÍ |
 | KNOWN_BLOCKERS | Branch protection de main NO está habilitado en GitHub (PR obligatorio, required checks, no force push). Documentado en V6-SECURITY / V6-PRODUCTION-ACCEPTANCE como BLOCKED_EXTERNAL. |
+| STAGING | Render PR Preview habilitado en el servicio `junta-agua-gestion-integral` (commit trigger, produce URL aislada por PR; producción congelada). URL del preview #21: (pendiente de publicación en status de GitHub) |
 | NEXT_ACTION | Milestone C — Inicio / búsqueda / Quick Create / notificaciones (AppShell ya provee search/crear/notificaciones; ahora reconstruir la Home V6 y el centro de notificaciones real) |
 
 ## Hitazos por milestone
