@@ -4,16 +4,16 @@
 
 | Campo | Valor |
 |---|---|
-| CURRENT_PHASE | Milestone B — Architecture + Design System + Legacy Isolation (pendiente de arranque) |
+| CURRENT_PHASE | Milestone C — Shell + Router + Search + Quick Create + Notifications (pendiente de arranque) |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
-| CURRENT_SHA | `4e8aa65` |
-| LAST_GREEN_SHA | `4e8aa65` — 159 tests, lint OK, tsc OK |
-| LAST_COMPLETED_MILESTONE | A — Skills + Forensics + Baseline + Git Cleanup Plan |
-| NEXT_ACTION | Milestone B: consolidar arquitectura `src/domains/*`, design system único, aislar (no borrar aún) CSS legacy. Draft PR: #22. |
-| TEST_COUNT | 159 (vitest) |
+| CURRENT_SHA | (pendiente commit B) |
+| LAST_GREEN_SHA | (pendiente commit B) — 162 tests, lint OK, tsc OK, build OK |
+| LAST_COMPLETED_MILESTONE | B — Architecture + Design System + Legacy Isolation |
+| NEXT_ACTION | Milestone C: `src/app/router` por dominio (romper App.tsx monolítico), shells (Auth/Portal/Field), CommandPalette real (Ctrl+K), QuickCreate real, NotificationsCenter con eventos reales. Draft PR: #22. |
+| TEST_COUNT | 162 (vitest) — incluye gate estático `enterprise-legacy-gate` |
 | E2E_COUNT | 1 spec Playwright (`tests/e2e/smoke.spec.ts`) + 1 sim (`src/tests/e2e/commercial-flow-simulation.test.ts`) |
-| MIGRATION_HEAD | `202609010008_v6_public_institution.sql` (52 archivos en `supabase/migrations`) |
-| LEGACY_FILES_REMAINING | 8 CSS legacy (`styles.css`, `v2.css`, `v3.css`, `v3-card.css`, `portal.css`, `workflows.css`, `receipt-studio.css`, `responsive.css`) + `src/styles/*` (4) — total ~74KB. 57 páginas en `src/pages` (mezcla V3/V5/V6). |
+| LEGACY_FILES_REMAINING | 12 CSS legacy (~74KB, aislados por gate) + 53 archivos `.tsx` en `docs/legacy-ui-allowlist.txt` + 2 en `docs/legacy-uuid-allowlist.txt`. El gate impide que las listas crezcan. |
+| MIGRATION_HEAD | `202609010008_v6_public_institution.sql`. Tipos DB generados → `src/lib/database.types.ts` (7874 líneas). |
 | OPEN_BLOCKERS | Ninguno interno. Externo: `main` sin branch protection (repo lo reporta 404 "Branch not protected") — ver ENTERPRISE-GIT-CLEANUP-PLAN.md §Main Protection. |
 | STAGING_STATE | No configurado. Plan: Render PR Preview + Supabase local/CI. Sin servicios pagados nuevos. |
 | PRODUCTION_UNCHANGED | SÍ. Prod (`junta-agua-gestion-integral.onrender.com`) sirve `main`/`c677335`. No se toca durante desarrollo. |
@@ -43,4 +43,5 @@ No hay `.claude/` ni `skills/` dentro del repo. No hay MCP servers de dominio.
 | Milestone | Estado | SHA cierre | Notas |
 |---|---|---|---|
 | A — Skills + Forensics + Baseline + Git Cleanup Plan | ✅ COMPLETE | `4e8aa65` | Baseline + tag + branch + Draft PR #22 + branch protection + 4 docs de verdad. |
-| B — Architecture + Design System + Legacy Isolation | PENDIENTE | — | — |
+| B — Architecture + Design System + Legacy Isolation | ✅ COMPLETE | (commit B) | `ENTERPRISE-ARCHITECTURE.md`; tipos DB reales; DS barrel + README; gate estático legacy/UUID (`scripts/enterprise-gates.mjs` + test + CI). |
+| C — Shell + Router + Search + Quick Create + Notifications | PENDIENTE | — | — |

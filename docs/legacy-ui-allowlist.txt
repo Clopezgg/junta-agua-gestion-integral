@@ -1,0 +1,66 @@
+# LEGACY UI ALLOWLIST — Enterprise Rebuild
+#
+# Archivos que TODAVÍA pueden usar CSS/clases legacy (module-hero, titlebar, panel,
+# cards, shell, notice) mientras esperan su milestone de reconstrucción.
+#
+# REGLA: ningún archivo NUEVO puede añadirse aquí. A medida que cada milestone
+# reconstruye una pantalla sobre `src/design-system`, se ELIMINA de esta lista.
+# El gate `src/tests/enterprise-legacy-gate.test.ts` falla si:
+#   - un archivo fuera de esta lista usa clases legacy, o
+#   - esta lista crece.
+#
+# Snapshot inicial: 2026-09-01 (Milestone B). 53 archivos.
+
+src/App.tsx
+src/components/Layout.tsx
+src/pages/Abonado360.tsx
+src/pages/Accounts.tsx
+src/pages/Admin.tsx
+src/pages/Asamblea.tsx
+src/pages/Audit.tsx
+src/pages/Backups.tsx
+src/pages/Bancos.tsx
+src/pages/Bodega.tsx
+src/pages/Budget.tsx
+src/pages/Caja.tsx
+src/pages/Calendario.tsx
+src/pages/Calidad.tsx
+src/pages/Cloracion.tsx
+src/pages/Comites.tsx
+src/pages/Compras.tsx
+src/pages/Comunicaciones.tsx
+src/pages/Continuidad.tsx
+src/pages/DocumentSettings.tsx
+src/pages/Ersaps.tsx
+src/pages/Expenses.tsx
+src/pages/FieldReadings.tsx
+src/pages/FinancialDocuments.tsx
+src/pages/Fuentes.tsx
+src/pages/Home.tsx
+src/pages/Imports.tsx
+src/pages/Incidents.tsx
+src/pages/Integrations.tsx
+src/pages/JuntaDirectiva.tsx
+src/pages/MapView.tsx
+src/pages/Metering.tsx
+src/pages/Microcuenca.tsx
+src/pages/Morosidad.tsx
+src/pages/Operations.tsx
+src/pages/Payments.tsx
+src/pages/PeguesContratos.tsx
+src/pages/Progress.tsx
+src/pages/Proyectos.tsx
+src/pages/ReceiptVisualStudio.tsx
+src/pages/Reports.tsx
+src/pages/Resoluciones.tsx
+src/pages/Reuniones.tsx
+src/pages/Security.tsx
+src/pages/Settings.tsx
+src/pages/Solicitudes.tsx
+src/pages/SubscriberCards.tsx
+src/pages/SubscriberPortal.tsx
+src/pages/Subscribers.tsx
+src/pages/Tariffs.tsx
+src/pages/Transparencia.tsx
+src/pages/Users.tsx
+src/pages/VerifyReceipt.tsx
