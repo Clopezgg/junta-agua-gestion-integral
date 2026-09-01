@@ -14,7 +14,7 @@
 | E2E_COUNT | 1 spec Playwright (`tests/e2e/smoke.spec.ts`) + 1 sim (`src/tests/e2e/commercial-flow-simulation.test.ts`) |
 | LEGACY_FILES_REMAINING | 12 CSS legacy (~74KB, aislados por gate) + 53 archivos `.tsx` en `docs/legacy-ui-allowlist.txt` + 2 en `docs/legacy-uuid-allowlist.txt`. El gate impide que las listas crezcan. |
 | MIGRATION_HEAD | `202609010008_v6_public_institution.sql`. Tipos DB generados → `src/lib/database.types.ts` (7874 líneas). |
-| OPEN_BLOCKERS | Ninguno interno. Externo: `main` sin branch protection (repo lo reporta 404 "Branch not protected") — ver ENTERPRISE-GIT-CLEANUP-PLAN.md §Main Protection. |
+| OPEN_BLOCKERS | Ninguno. Branch protection en `main` ACTIVA (checks requeridos: "Validar aplicación", "Validar base de datos (Supabase local)"; sin force-push ni delete). |
 | STAGING_STATE | No configurado. Plan: Render PR Preview + Supabase local/CI. Sin servicios pagados nuevos. |
 | PRODUCTION_UNCHANGED | SÍ. Prod (`junta-agua-gestion-integral.onrender.com`) sirve `main`/`c677335`. No se toca durante desarrollo. |
 
