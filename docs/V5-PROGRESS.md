@@ -115,3 +115,10 @@ Asamblea, JuntaDirectiva, Comites, Reuniones, Resoluciones, Proyectos, Fuentes, 
 - Test `solicitudes.test.ts`; total **133 tests** / 24 archivos.
 - **PRODUCCIÓN Service Desk** ✅: migración 049 `202609010005` aplicada en Supabase Cloud (`migration list` Local=Remote, `db push` incremental); RPCs `assign_service_request/set_service_request_status/link_service_request_work_order` verificadas en `pg_proc` del Cloud. PR #18 mergeado a main (`26c8d69`); CI db-validate **001-049** ✅ + browser E2E ✅ + validate ✅ + functions ✅; Render LIVE sirviendo main `26c8d69` (deploy `dep-dab6805g...`), ruta `/solicitudes` → HTTP 200.
 
+## Morosidad y convenios: registro de cuotas y avance del plan (migración 050) ✅
+- Base 038 + `202609010006_v5_payment_arrangements_enhance.sql`: RPC `mark_arrangement_installment_paid` (security definer + `obligations.manage` + **MFA AAL2** + auditoría); registra una cuota del plan y avanza el convenio a `cumplido` al saldarse todas; validaciones `ARRANGEMENT_CLOSED/ALREADY_PAID/AMOUNT_EXCEEDS_REMAINING`.
+- `arrears/service.ts`: expone `markArrangementInstallmentPaid`.
+- `Morosidad.tsx` reescrito: KPI (convenios activos, en recuperación, cumplidos, incumplidos), filtros por estado, creación de convenio con **candidatos reales de mora** (`listCutCandidates`) y detalle con cuotas + registro de pago por cuota. Ruta `/morosidad` ya conectada.
+- Test `morosidad.test.ts`; total **138 tests** / 25 archivos.
+- **PRODUCCIÓN Morosidad/Convenios** ✅: migración 050 `202609010006` aplicada en Supabase Cloud (`migration list` Local=Remote, `db push` incremental); RPC `mark_arrangement_installment_paid` verificada en `pg_proc` del Cloud. PR #19 mergeado a main (`75409f8`); CI db-validate **001-050** ✅ + browser E2E ✅ + validate ✅ + functions ✅; Render LIVE sirviendo main `75409f8` (deploy `dep-dab6gouq...`), ruta `/morosidad` → HTTP 200.
+
