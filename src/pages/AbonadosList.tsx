@@ -52,7 +52,7 @@ export function AbonadosList(){
   const pages=Math.max(1,Math.ceil(total/PAGE));
   const hasFilters=Boolean(status||sector||balance||benefit||debounced);
 
-  const openRow=(r:SubscriberListRow)=>navigate(`/abonados/registro?abrir=${r.subscriber_id}`);
+  const openRow=(r:SubscriberListRow)=>navigate(`/abonados/${r.subscriber_id}`);
 
   return <main className="ja-page">
     <header className="ja-page-head">

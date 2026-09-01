@@ -32,6 +32,28 @@ export async function listSubscribers(f:SubscriberListFilters={}):Promise<Subscr
 export async function checkDuplicates(input:SubscriberInput){const db=requireDb(); const {data,error}=await db.rpc('check_subscriber_duplicates',{p_full_name:input.full_name,p_document_type:input.document_type,p_document_number:input.document_number,p_issuing_country:input.issuing_country,p_whatsapp:input.whatsapp,p_sector:input.sector}); if(error) throw new Error(error.message); return data??[];}
 export async function createSubscriber(input:SubscriberInput,homonymNote?:string,matchedSubscriberId?:string){const db=requireDb(); const {data,error}=await db.rpc('create_subscriber',{p_payload:input,p_homonym_note:homonymNote??null,p_matched_subscriber_id:matchedSubscriberId??null}); if(error) throw new Error(error.message); const subscriberId=String(data); if(subscriberId&&input.birth_date){const{error:benefitError}=await db.rpc('sync_senior_benefit',{p_subscriber_id:subscriberId,p_reference_date:new Date().toISOString().slice(0,10)});if(benefitError&&!benefitError.message.includes('BENEFIT_NOT_CONFIGURED'))throw new Error(benefitError.message);} return data;}
 export async function getSubscriberDetail(id:string){const db=requireDb(); const {data,error}=await db.rpc('get_subscriber_detail',{p_subscriber_id:id}); if(error) throw new Error(error.message); return data;}
+
+export type SubscriberExpediente={
+  subscriber:Record<string,unknown>;
+  identities:Array<Record<string,unknown>>;
+  connections:Array<Record<string,unknown>>;
+  person_link:Record<string,unknown>|null;
+  contracts:Array<Record<string,unknown>>;
+  account:{total_pending:number;overdue_amount:number;overdue_count:number;oldest_due_date:string|null;solvent:boolean}|null;
+  obligations:Array<Record<string,unknown>>;
+  payments:Array<Record<string,unknown>>;
+  benefits:Array<Record<string,unknown>>;
+  requests:Array<Record<string,unknown>>;
+  work_orders:Array<Record<string,unknown>>;
+  audit:Array<Record<string,unknown>>;
+};
+
+export async function getSubscriberExpediente(id:string):Promise<SubscriberExpediente|null>{
+  const db=requireDb();
+  const {data,error}=await db.rpc('get_subscriber_expediente',{p_subscriber_id:id});
+  if(error)throw new Error(error.message);
+  return (data??null) as SubscriberExpediente|null;
+}
 export async function getSubscriberDigitalCard(id:string){const db=requireDb();const{data,error}=await db.rpc('get_subscriber_digital_card',{p_subscriber_id:id});if(error)throw new Error(error.message);return data;}
 export async function createConnection(subscriberId:string,input:ConnectionInput){const db=requireDb(); const {data,error}=await db.rpc('create_water_connection',{p_subscriber_id:subscriberId,p_payload:input}); if(error) throw new Error(error.message); return data;}
 export async function updateSubscriber(id:string,payload:Record<string,unknown>){const db=requireDb(); const {data,error}=await db.rpc('update_subscriber',{p_subscriber_id:id,p_payload:payload}); if(error) throw new Error(error.message); return data;}

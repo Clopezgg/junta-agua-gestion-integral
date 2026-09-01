@@ -122,5 +122,15 @@ begin
   if (public.list_subscribers()->'rows') is null or (public.list_subscribers()->>'total') is null
     then raise exception 'list_subscribers NO devuelve el contrato esperado'; end if;
   raise notice 'Listado de abonados (migración 010) verificado: OK';
+
+  -- 13) Expediente único del Abonado 360 (migración 202609010011)
+  if to_regprocedure('public.get_subscriber_expediente(uuid)') is null
+    then raise exception 'FALTA get_subscriber_expediente'; end if;
+  if position('has_permission' in pg_get_functiondef('public.get_subscriber_expediente(uuid)'::regprocedure))=0
+    then raise exception 'get_subscriber_expediente NO filtra por permisos'; end if;
+  -- devuelve NULL (no un objeto vacío) cuando el abonado no existe / sin permiso
+  if public.get_subscriber_expediente('00000000-0000-0000-0000-000000000000'::uuid) is not null
+    then raise exception 'get_subscriber_expediente debe devolver NULL para un abonado inexistente'; end if;
+  raise notice 'Expediente del Abonado 360 (migración 011) verificado: OK';
 end
 $$;

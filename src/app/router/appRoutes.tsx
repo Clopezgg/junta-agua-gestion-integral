@@ -21,9 +21,10 @@ export function appRoutes():ReactElement[]{
     // ABONADOS Y SERVICIO
     guarded('abonados','subscribers.read',<P.AbonadosList/>),
     guarded('abonados/registro','subscribers.read',<P.Subscribers/>),
+    guarded('abonados/:id','subscribers.read',<P.Abonado360/>),
     guarded('fichas-abonados','subscribers.read',<P.SubscriberCards/>),
     guarded('pegues-contratos','subscribers.read',<P.PeguesContratos/>),
-    guarded('abonado-360','subscribers.read',<P.Abonado360/>),
+    <Route key="abonado-360" path="abonado-360" element={<Navigate to="/abonados" replace/>}/>,
     guarded('solicitudes','subscribers.read',<P.Solicitudes/>),
     guarded('morosidad','obligations.read',<P.Morosidad/>),
     guarded('comunicaciones','communications.read',<P.Comunicaciones/>),

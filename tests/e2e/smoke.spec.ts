@@ -81,6 +81,16 @@ test.describe('flujo operativo real (browser) sobre Supabase local',()=>{
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
+  test('abrir un abonado muestra la ficha 360 con pestañas',async({page})=>{
+    await login(page);
+    await page.goto('/abonados');
+    await page.locator('tbody tr.ja-row-click').first().click();
+    await expect(page).toHaveURL(/\/abonados\/[0-9a-f-]{36}/);
+    await expect(page.getByRole('tab',{name:'Resumen'})).toBeVisible();
+    await page.getByRole('tab',{name:'Cuenta'}).click();
+    await expect(page.getByRole('tab',{name:'Cuenta'})).toHaveAttribute('aria-selected','true');
+  });
+
   test('la paleta de comandos abre con Ctrl+K y navega a una sección',async({page})=>{
     await login(page);
     await page.keyboard.press('Control+k');

@@ -18,8 +18,13 @@ describe('router map (§22)',()=>{
 
   it('toda ruta con path (salvo comodín y redirects maestros) monta un ProtectedRoute con permiso',()=>{
     const redirectPaths=new Set(LEGACY_REDIRECTS.map(([from])=>from));
+    const isNavigate=(el:unknown)=>{
+      const e=el as {props?:{to?:string};type?:{name?:string}}|undefined;
+      return Boolean(e?.props?.to)&&!('permission' in (e?.props??{}));
+    };
     const offenders=routes
       .filter(r=>r.path&&r.path!=='*'&&!redirectPaths.has(r.path))
+      .filter(r=>!isNavigate(r.element))
       .filter(r=>{
         const el=r.element as {type?:{name?:string};props?:{permission?:string}}|undefined;
         return !el||el.type?.name!=='ProtectedRoute'||!el.props?.permission;
