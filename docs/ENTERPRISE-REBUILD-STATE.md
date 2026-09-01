@@ -6,7 +6,7 @@
 |---|---|
 | CURRENT_PHASE | Visual Contract — Gap Review A–G + Login (§54) — luego Milestone H |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
-| CURRENT_SHA | (pendiente commit visual) |
+| CURRENT_SHA | `95bd9c7` |
 | LAST_GREEN_SHA | `0046b54` (4/4 CI verde: validate·db·functions·browser) — 215 tests, lint OK, tsc OK, build OK |
 | LAST_COMPLETED_MILESTONE | G — Cobro + Recibos + Caja |
 | NEXT_ACTION | Visual Gap Review resto (Setup·Inicio·Abonados·360·NuevoServicio·Cobro·Caja) → Milestone H: Cartera (§49) con estados sin suspensión automática, Convenios (§50), Bancos + Conciliación (§47-48). Draft PR: #22. |
