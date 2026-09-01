@@ -1,6 +1,7 @@
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {describe,expect,it} from 'vitest';
+import {hasRoute} from '../src/app/router/routeManifest';
 const root=process.cwd();
 const read=(path:string)=>readFileSync(join(root,path),'utf8');
 
@@ -60,7 +61,7 @@ describe('versión 2.2 experiencia institucional',()=>{
   it('mejora el login y navegación institucional',()=>{
     const login=read('src/pages/Login.tsx');
     const layout=read('src/components/Layout.tsx');
-    const app=read('src/App.tsx');
+    const router=read('src/app/router/lazyPages.ts');
     expect(login).not.toContain('El Achiotal');
     expect(login).not.toContain('Plataforma institucional segura');
     expect(login).not.toContain('Continuar de forma segura');
@@ -74,9 +75,9 @@ describe('versión 2.2 experiencia institucional',()=>{
     expect(layout).toContain('Administración');
     expect(layout).toContain('Fichas digitales');
     expect(layout).toContain('nav-collapsed');
-    expect(app).toContain('configuracion-documental');
-    expect(app).toContain('fichas-abonados');
-    expect(app).toContain('RecuperarAcceso');
-    expect(app).toContain('Restablecer');
+    expect(hasRoute('configuracion-documental')).toBe(true);
+    expect(hasRoute('fichas-abonados')).toBe(true);
+    expect(router).toContain('RecuperarAcceso');
+    expect(router).toContain('Restablecer');
   });
 });

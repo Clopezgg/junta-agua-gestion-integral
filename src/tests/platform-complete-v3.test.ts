@@ -1,17 +1,18 @@
 import {describe,expect,it} from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
+import {hasRoute} from '../app/router/routeManifest';
 
 const root=process.cwd();
 const read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 
 describe('plataforma completa V3',()=>{
   it('conecta portal, documentos financieros y rutas protegidas',()=>{
-    const app=read('src/App.tsx');
-    expect(app).toContain('path="/portal"');
-    expect(app).toContain('path="/mi-cuenta"');
-    expect(app).toContain('PortalRoute');
-    expect(app).toContain('documentos-financieros');
+    const router=read('src/app/router/AppRouter.tsx');
+    expect(router).toContain('path="/portal"');
+    expect(router).toContain('path="/mi-cuenta"');
+    expect(router).toContain('PortalRoute');
+    expect(hasRoute('documentos-financieros')).toBe(true);
   });
 
   it('implementa acceso del abonado con DNI y contraseña, no con DNI solo',()=>{

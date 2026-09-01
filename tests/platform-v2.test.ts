@@ -1,6 +1,7 @@
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {describe,expect,it} from 'vitest';
+import {hasRoute} from '../src/app/router/routeManifest';
 
 const root=process.cwd();
 const read=(path:string)=>readFileSync(join(root,path),'utf8');
@@ -75,13 +76,12 @@ describe('plataforma v2 institucional',()=>{
   });
 
   it('integra módulos y navegación orientada a tareas',()=>{
-    const app=read('src/App.tsx');
     const layout=read('src/components/Layout.tsx');
     const home=read('src/pages/Home.tsx');
     const operations=read('src/pages/Operations.tsx');
-    expect(app).toContain('path="presupuesto"');
-    expect(app).toContain('configuracion-documental');
-    expect(app).toContain('estudio-recibo');
+    expect(hasRoute('presupuesto')).toBe(true);
+    expect(hasRoute('configuracion-documental')).toBe(true);
+    expect(hasRoute('estudio-recibo')).toBe(true);
     expect(layout).toContain('<GlobalSearch/>');
     expect(layout).toContain('appVersion.version');
     expect(layout).toContain('Vista del recibo');

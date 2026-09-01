@@ -1,11 +1,10 @@
 import {describe,expect,it} from 'vitest';
 import fs from 'node:fs';
+import {routePermission} from '../app/router/routeManifest';
 
 const migration=fs.readFileSync('supabase/migrations/202609010007_v5_field_readings.sql','utf8');
 const service=fs.readFileSync('src/features/metering/fieldService.ts','utf8');
 const page=fs.readFileSync('src/pages/FieldReadings.tsx','utf8');
-const app=fs.readFileSync('src/App.tsx','utf8');
-const layout=fs.readFileSync('src/components/Layout.tsx','utf8');
 const security=fs.readFileSync('src/lib/security.ts','utf8');
 
 describe('Lecturas de campo (Field PWA, migración 051)',()=>{
@@ -44,11 +43,8 @@ describe('Lecturas de campo (Field PWA, migración 051)',()=>{
   expect(page).toContain('Lecturas de campo');
   expect(page).toContain('Cola offline');
  });
- it('la ruta y navegación usan el permiso field.read',()=>{
-  expect(app).toContain('path="lecturas-campo"');
-  expect(app).toContain('permission="field.read"');
-  expect(layout).toContain("'/lecturas-campo'");
-  expect(layout).toContain("'field.read'");
+ it('la ruta usa el permiso field.read',()=>{
+  expect(routePermission('lecturas-campo')).toBe('field.read');
   expect(security).toContain("'field.read'|'field.manage'");
  });
  it('el rango de migraciones del pipeline llega a la 051',()=>{

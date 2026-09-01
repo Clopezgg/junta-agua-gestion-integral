@@ -154,3 +154,7 @@
 .ja-table-empty{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:1.5rem;color:var(--ja-text-muted);font-size:var(--ja-text-sm)}
 .ja-row-click{cursor:pointer}
 .ja-row-selected td{background:rgba(37,99,235,.06)!important}
+/* Route fallback (Suspense) */
+.ja-route-fallback{padding:var(--ja-space-8);display:flex;flex-direction:column;gap:var(--ja-space-4)}
+.ja-skeleton-block{height:180px;border-radius:var(--ja-radius-lg);background:linear-gradient(90deg,var(--ja-surface-muted) 25%,var(--ja-border) 37%,var(--ja-surface-muted) 63%);background-size:400% 100%;animation:ja-shimmer 1.4s ease infinite}
+@keyframes ja-shimmer{0%{background-position:100% 50%}100%{background-position:0 50%}}

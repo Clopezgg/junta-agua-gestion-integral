@@ -1,6 +1,7 @@
 import {describe,expect,it} from 'vitest';
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
+import {hasRoute} from '../src/app/router/routeManifest';
 
 const root=process.cwd();
 const read=(path:string)=>readFileSync(join(root,path),'utf8');
@@ -28,9 +29,8 @@ describe('recibo visual institucional 3.1',()=>{
   });
 
   it('expone la ruta y la navegación del estudio visual',()=>{
-    const app=read('src/App.tsx');
     const layout=read('src/components/Layout.tsx');
-    expect(app).toContain('path="estudio-recibo"');
+    expect(hasRoute('estudio-recibo')).toBe(true);
     expect(layout).toContain('Vista del recibo');
   });
 
