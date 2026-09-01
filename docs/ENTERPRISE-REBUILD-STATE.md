@@ -4,16 +4,16 @@
 
 | Campo | Valor |
 |---|---|
-| CURRENT_PHASE | Milestone F — Abonados + 360 + Nuevo Servicio (pendiente de arranque) |
+| CURRENT_PHASE | Milestone F — Abonados + 360 + Nuevo Servicio (EN CURSO — lista §33 ✅; 360 §34 + Nuevo Servicio §36 pendientes) |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
-| CURRENT_SHA | `c534738` |
-| LAST_GREEN_SHA | `c534738` — 192 tests, lint OK, tsc OK, build OK |
+| CURRENT_SHA | (pendiente commit F.1) |
+| LAST_GREEN_SHA | (pendiente commit F.1) — 196 tests, lint OK, tsc OK, build OK |
 | LAST_COMPLETED_MILESTONE | E — Inicio (Command Center) |
-| NEXT_ACTION | Milestone F: tabla profesional de abonados (§33), Abonado 360 (§34, corazón del sistema), workflow Nuevo Servicio (§36) + Pegue seguro (§37). Corregir UUID de Abonado360 (allowlist). Draft PR: #22. |
-| TEST_COUNT | 192 (vitest) — gates: `enterprise-legacy-gate`, `router-map`, `command-palette`, `notifications`, `quick-create`, `setup-wizard`, `home-dashboard` |
+| NEXT_ACTION | Milestone F (resto): converger modelos PERSONA/ABONADO (§31) en un Abonado 360 único (§34, 8 pestañas) + workflow Nuevo Servicio (§36). §37 pegue seguro ya OK en backend (`next_connection_code` atómico). Corregir UUID de Abonado360. Draft PR: #22. |
+| TEST_COUNT | 196 (vitest) — gates: `enterprise-legacy-gate`, `router-map`, `command-palette`, `notifications`, `quick-create`, `setup-wizard`, `home-dashboard`, `subscriber-list` |
 | E2E_COUNT | 6 tests Playwright (`tests/e2e/smoke.spec.ts`, +command palette) + 1 sim |
 | LEGACY_FILES_REMAINING | 12 CSS legacy (~74KB, aislados por gate) + 51 `.tsx` en `docs/legacy-ui-allowlist.txt` (−App.tsx, −Home.tsx) + 2 en `docs/legacy-uuid-allowlist.txt`. El gate impide que las listas crezcan. |
-| MIGRATION_HEAD | `202609010009_v6_setup_wizard.sql` (perfil institucional + `save_setup_progress`/`complete_setup` + fix merge en `update_organization_settings`). Tipos DB: regenerar tras aplicar a cloud (post-merge, §141). |
+| MIGRATION_HEAD | `202609010010_v6_subscriber_list.sql` (`list_subscribers` — listado paginado server-side con saldo/pegues/último pago/beneficio). Tipos DB: regenerar tras aplicar a cloud (post-merge, §141). |
 | OPEN_BLOCKERS | Ninguno. Branch protection en `main` ACTIVA (checks requeridos: "Validar aplicación", "Validar base de datos (Supabase local)"; sin force-push ni delete). |
 | STAGING_STATE | No configurado. Plan: Render PR Preview + Supabase local/CI. Sin servicios pagados nuevos. |
 | PRODUCTION_UNCHANGED | SÍ. Prod (`junta-agua-gestion-integral.onrender.com`) sirve `main`/`c677335`. No se toca durante desarrollo. |
@@ -47,4 +47,5 @@ No hay `.claude/` ni `skills/` dentro del repo. No hay MCP servers de dominio.
 | C — Shell + Router + Search + Quick Create + Notifications | ✅ COMPLETE | `254b6c4` | Router por dominio (`src/app/router/*`, App.tsx 170→6). CommandPalette real (`src/app/commands/*`, Ctrl+K, teclado, permisos, entidades vía `global_search`). NotificationsCenter con avisos reales derivados de `get_role_dashboard` (`src/features/notifications/*`). QuickCreate → rutas reales. +5 suites de test, +1 E2E. |
 | D — Login + MFA + Setup | ✅ COMPLETE | `2542a6a` | Login (§23) y MFA primer-admin (§24) ya sólidos desde V6 — verificados + E2E. Setup: asistente empresarial real de 5 pasos (§25) — Identidad/Ubicación/Legal/Servicio/Revisión sobre `bootstrap_organization` + nuevo `complete_setup`/`save_setup_progress`; migración `202609010009` añade el perfil institucional y corrige pérdida de datos en `update_organization_settings` (§152). Sin datos inventados. |
 | E — Inicio (Command Center) | ✅ COMPLETE | `c534738` | `Home.tsx` reconstruido sobre `src/design-system` como command center (§26): "Requiere atención" (unificado con NotificationsCenter vía `deriveNotifications`, §133), Panorama y Acciones rápidas role-aware (§27) — lógica extraída a `src/features/dashboard/roleView.ts`. Sale de la allowlist legacy. §39: elimina "L 400" hardcodeado. +home-dashboard test. |
-| F — Abonados + 360 + Nuevo Servicio | PENDIENTE | — | — |
+| F — Abonados + 360 + Nuevo Servicio | 🔶 EN CURSO | (commit F.1) | **Lista §33 ✅**: `AbonadosList.tsx` sobre `src/design-system` (patrón LIST) + RPC `list_subscribers` (migración 010, paginado server-side §103, columnas reales: código/abonado/ubicación/pegues/saldo/estado/último pago/beneficio, filtros estado/sector/saldo/beneficio). `/abonados`→lista, `/abonados/registro`→expediente (Subscribers.tsx legacy, temporal). **Pendiente**: converger PERSONA/ABONADO en un 360 único (§34), Nuevo Servicio (§36). |
+| G — Cobro + Recibos + Caja | PENDIENTE | — | — |

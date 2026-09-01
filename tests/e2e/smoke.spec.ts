@@ -54,7 +54,7 @@ test.describe('flujo operativo real (browser) sobre Supabase local',()=>{
   test('navegación a abonados, presupuesto y pagos',async({page})=>{
     await login(page);
     for(const[route,heading]of [
-      ['/abonados','Abonados y pegues'],
+      ['/abonados','Abonados'],
       ['/presupuesto','Presupuesto y sostenibilidad financiera'],
       ['/pagos','Pagos, recibos y contabilización']
     ] as const){
@@ -66,9 +66,9 @@ test.describe('flujo operativo real (browser) sobre Supabase local',()=>{
   test('búsqueda de abonados consulta el backend',async({page})=>{
     await login(page);
     await page.goto('/abonados');
-    const search=page.getByPlaceholder(/buscar por código/i).first();
+    const search=page.getByLabel(/buscar abonados/i).first();
     await search.fill('demo');
-    await search.press('Enter');
+    await expect(page.getByRole('heading',{level:1,name:/abonados/i})).toBeVisible();
     await expect(page).not.toHaveURL(/\/login/);
   });
 

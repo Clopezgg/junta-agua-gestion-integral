@@ -114,5 +114,13 @@ begin
   if position('p_payload ? ' in pg_get_functiondef('public.update_organization_settings(jsonb)'::regprocedure))=0
     then raise exception 'update_organization_settings NO hace merge por clave (riesgo de pérdida de datos)'; end if;
   raise notice 'Asistente de configuración inicial (migración 009) verificado: OK';
+
+  -- 12) Listado profesional de abonados (migración 202609010010)
+  if to_regprocedure('public.list_subscribers(text,text,text,text,boolean,int,int)') is null
+    then raise exception 'FALTA list_subscribers'; end if;
+  -- devuelve el contrato {total, rows, sectors} sin filas de ejemplo
+  if (public.list_subscribers()->'rows') is null or (public.list_subscribers()->>'total') is null
+    then raise exception 'list_subscribers NO devuelve el contrato esperado'; end if;
+  raise notice 'Listado de abonados (migración 010) verificado: OK';
 end
 $$;

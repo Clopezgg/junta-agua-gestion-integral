@@ -19,7 +19,8 @@ export function appRoutes():ReactElement[]{
     guarded('centro-operativo','operations.read',<P.Operations/>),
 
     // ABONADOS Y SERVICIO
-    guarded('abonados','subscribers.read',<P.Subscribers/>),
+    guarded('abonados','subscribers.read',<P.AbonadosList/>),
+    guarded('abonados/registro','subscribers.read',<P.Subscribers/>),
     guarded('fichas-abonados','subscribers.read',<P.SubscriberCards/>),
     guarded('pegues-contratos','subscribers.read',<P.PeguesContratos/>),
     guarded('abonado-360','subscribers.read',<P.Abonado360/>),

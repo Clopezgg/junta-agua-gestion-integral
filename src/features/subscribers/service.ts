@@ -1,6 +1,34 @@
 import { supabase } from '../../lib/supabase'; import type { SubscriberInput,ConnectionInput } from './validation';
 function requireDb(){if(!supabase) throw new Error('La base segura aún no está configurada.'); return supabase;}
 export async function searchSubscribers(query:string){const db=requireDb(); const {data,error}=await db.rpc('search_subscribers',{p_query:query,p_limit:50}); if(error) throw new Error(error.message); return data??[];}
+
+export type SubscriberListRow={
+  subscriber_id:string;code:string;full_name:string;masked_document:string;
+  sector:string|null;address:string|null;whatsapp:string|null;status:string;
+  connections_count:number;service_types:string[];balance:number;
+  has_benefit:boolean;last_payment_date:string|null;
+};
+export type SubscriberListFilters={
+  query?:string;status?:string|null;sector?:string|null;
+  balance?:'con_saldo'|'al_dia'|null;hasBenefit?:boolean|null;limit?:number;offset?:number;
+};
+export type SubscriberListPage={total:number;rows:SubscriberListRow[];sectors:string[]};
+
+export async function listSubscribers(f:SubscriberListFilters={}):Promise<SubscriberListPage>{
+  const db=requireDb();
+  const {data,error}=await db.rpc('list_subscribers',{
+    p_query:f.query??'',
+    p_status:f.status??null,
+    p_sector:f.sector??null,
+    p_balance:f.balance??null,
+    p_has_benefit:f.hasBenefit??null,
+    p_limit:f.limit??50,
+    p_offset:f.offset??0,
+  });
+  if(error)throw new Error(error.message);
+  const page=(data??{}) as Partial<SubscriberListPage>;
+  return {total:page.total??0,rows:page.rows??[],sectors:page.sectors??[]};
+}
 export async function checkDuplicates(input:SubscriberInput){const db=requireDb(); const {data,error}=await db.rpc('check_subscriber_duplicates',{p_full_name:input.full_name,p_document_type:input.document_type,p_document_number:input.document_number,p_issuing_country:input.issuing_country,p_whatsapp:input.whatsapp,p_sector:input.sector}); if(error) throw new Error(error.message); return data??[];}
 export async function createSubscriber(input:SubscriberInput,homonymNote?:string,matchedSubscriberId?:string){const db=requireDb(); const {data,error}=await db.rpc('create_subscriber',{p_payload:input,p_homonym_note:homonymNote??null,p_matched_subscriber_id:matchedSubscriberId??null}); if(error) throw new Error(error.message); const subscriberId=String(data); if(subscriberId&&input.birth_date){const{error:benefitError}=await db.rpc('sync_senior_benefit',{p_subscriber_id:subscriberId,p_reference_date:new Date().toISOString().slice(0,10)});if(benefitError&&!benefitError.message.includes('BENEFIT_NOT_CONFIGURED'))throw new Error(benefitError.message);} return data;}
 export async function getSubscriberDetail(id:string){const db=requireDb(); const {data,error}=await db.rpc('get_subscriber_detail',{p_subscriber_id:id}); if(error) throw new Error(error.message); return data;}
