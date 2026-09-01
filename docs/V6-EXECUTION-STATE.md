@@ -6,13 +6,13 @@
 
 | Clave | Valor |
 | --- | --- |
-| CURRENT_PHASE | FASE CERO — Auditoría y fundaciones |
-| LAST_COMPLETED_TASK | Crear fuente de verdad V6 |
+| CURRENT_PHASE | MILESTONE B — Login / MFA / Setup |
+| LAST_COMPLETED_TASK | MILESTONE A completo: tokens V6, 15+ primitivas, AppShell (sidebar 6 secciones, topbar búsqueda/crear/notificaciones/usuario, bottom nav móvil), rutas maestras con redirección-paridad, tests, build verde |
 | CURRENT_BRANCH | `work/junta-os-v6-product-rebuild` |
 | CURRENT_COMMIT | (*ver git*) |
-| LAST_GREEN_COMMIT | 14ced7d (main V5 baseline, migración 051) |
-| CURRENT_TEST_COUNT | (*tras correr npm test*) |
-| LAST_CI_RUN | (*tras push inicial del Draft PR*) |
+| LAST_GREEN_COMMIT | (*ver git*) |
+| CURRENT_TEST_COUNT | 155 |
+| LAST_CI_RUN | Draft PR #21 — validate/db/functions/browser (monitorear tras push Milestone A) |
 | MIGRATION_RANGE | 001–051 (aplicadas) |
 | NEXT_MIGRATION | 052 (solo si 051 sigue siendo HEAD) |
 | PRODUCTION_UNCHANGED | SÍ |
@@ -23,7 +23,7 @@
 
 | Milestone | Estado |
 | --- | --- |
-| A · Foundation / Design System / AppShell | PENDIENTE |
+| A · Foundation / Design System / AppShell | COMPLETE (155 tests, lint, tsc, build, smoke login OK) |
 | B · Login / MFA / Setup | PENDIENTE |
 | C · Inicio / búsqueda / Quick Create / notificaciones | PENDIENTE |
 | D · Abonados / 360 / nuevo servicio | PENDIENTE |
