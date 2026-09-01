@@ -6,8 +6,8 @@
 |---|---|
 | CURRENT_PHASE | Milestone F — Abonados + 360 + Nuevo Servicio (pendiente de arranque) |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
-| CURRENT_SHA | (pendiente commit E) |
-| LAST_GREEN_SHA | (pendiente commit E) — 192 tests, lint OK, tsc OK, build OK |
+| CURRENT_SHA | `c534738` |
+| LAST_GREEN_SHA | `c534738` — 192 tests, lint OK, tsc OK, build OK |
 | LAST_COMPLETED_MILESTONE | E — Inicio (Command Center) |
 | NEXT_ACTION | Milestone F: tabla profesional de abonados (§33), Abonado 360 (§34, corazón del sistema), workflow Nuevo Servicio (§36) + Pegue seguro (§37). Corregir UUID de Abonado360 (allowlist). Draft PR: #22. |
 | TEST_COUNT | 192 (vitest) — gates: `enterprise-legacy-gate`, `router-map`, `command-palette`, `notifications`, `quick-create`, `setup-wizard`, `home-dashboard` |
@@ -46,5 +46,5 @@ No hay `.claude/` ni `skills/` dentro del repo. No hay MCP servers de dominio.
 | B — Architecture + Design System + Legacy Isolation | ✅ COMPLETE | `62d55b0` | `ENTERPRISE-ARCHITECTURE.md`; tipos DB reales; DS barrel + README; gate estático legacy/UUID (`scripts/enterprise-gates.mjs` + test + CI). |
 | C — Shell + Router + Search + Quick Create + Notifications | ✅ COMPLETE | `254b6c4` | Router por dominio (`src/app/router/*`, App.tsx 170→6). CommandPalette real (`src/app/commands/*`, Ctrl+K, teclado, permisos, entidades vía `global_search`). NotificationsCenter con avisos reales derivados de `get_role_dashboard` (`src/features/notifications/*`). QuickCreate → rutas reales. +5 suites de test, +1 E2E. |
 | D — Login + MFA + Setup | ✅ COMPLETE | `2542a6a` | Login (§23) y MFA primer-admin (§24) ya sólidos desde V6 — verificados + E2E. Setup: asistente empresarial real de 5 pasos (§25) — Identidad/Ubicación/Legal/Servicio/Revisión sobre `bootstrap_organization` + nuevo `complete_setup`/`save_setup_progress`; migración `202609010009` añade el perfil institucional y corrige pérdida de datos en `update_organization_settings` (§152). Sin datos inventados. |
-| E — Inicio (Command Center) | ✅ COMPLETE | (commit E) | `Home.tsx` reconstruido sobre `src/design-system` como command center (§26): "Requiere atención" (unificado con NotificationsCenter vía `deriveNotifications`, §133), Panorama y Acciones rápidas role-aware (§27) — lógica extraída a `src/features/dashboard/roleView.ts`. Sale de la allowlist legacy. §39: elimina "L 400" hardcodeado. +home-dashboard test. |
+| E — Inicio (Command Center) | ✅ COMPLETE | `c534738` | `Home.tsx` reconstruido sobre `src/design-system` como command center (§26): "Requiere atención" (unificado con NotificationsCenter vía `deriveNotifications`, §133), Panorama y Acciones rápidas role-aware (§27) — lógica extraída a `src/features/dashboard/roleView.ts`. Sale de la allowlist legacy. §39: elimina "L 400" hardcodeado. +home-dashboard test. |
 | F — Abonados + 360 + Nuevo Servicio | PENDIENTE | — | — |
