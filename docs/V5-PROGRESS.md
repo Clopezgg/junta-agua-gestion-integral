@@ -71,10 +71,13 @@ Asamblea, JuntaDirectiva, Comites, Reuniones, Resoluciones, Proyectos, Fuentes, 
 | 11 (comunicaciones) | RPC listMessages | Comunicaciones | `communications.read` | tsc/eslint ✅ |
 | 12 (shell+deploy) | — | Layout/App/tokens | — | build:render + CI ✅ |
 
-## PRODUCCIÓN (se completa al cierre)
-- Supabase project: `ugbbwppcewyhlrnvqqvm` (junta-agua-gestion-integral, East US)
-- Migraciones 036-044 aplicadas → (SHA a registrar)
-- Edge Functions → (a registrar)
-- Render deploy SHA → (a registrar)
-- URL pública → (a registrar)
-- Smoke prod → (resultados a registrar)
+## PRODUCCIÓN (evidencia al cierre)
+- **PR #14 MERGED** → main, merge commit `c1f131d02ce372a447dc1ffcad36cdfb3c5a42db` (merged by `Clopezgg`, 2026-09-01T02:01:35Z).
+- **main SHA final**: `c1f131d02ce372a447dc1ffcad36cdfb3c5a42db`; migraciones 036-044 confirmadas en main.
+- **CI en main (c1f131d)**: Validar aplicación = success · Validar base de datos (001-044) = success · Publicar versión = success. GitHub Release `v3.1.1` creado.
+- **Supabase project**: `ugbbwppcewyhlrnvqqvm` (junta-agua-gestion-integral, East US).
+- **Migraciones 036-044 aplicadas en Supabase Cloud** (incremental `supabase db push`, sin `db reset`): verificadas en producción — 14 tablas V5, 8 permisos V5, RLS activo en tablas V5, RPCs (`create_purchase_order`, `get_abonado_360`, `register_watershed`, `create_committee`, `register_compliance_obligation`, `get_transparency_report_v5`, etc.), superadmin con permisos V5.
+- **Edge Functions**: 11 desplegadas/ACTIVE en producción (se añadió `send-whatsapp` que faltaba).
+- **Render**: LIVE y saludable (`https://junta-agua-gestion-integral.onrender.com` → HTTP 200; `/health.txt` → 200).
+- **BLOQUEO EXTERNO — Render con build pre-merge**: Render sirve `sw.js` = `junta-agua-shell-v3.1.1-98736562` (build previo al merge), NO el build de main (`-1ac9fb51`, correspondiente a `c1f131d`). El auto-deploy por `commit` no se disparó con el merge vía API. Forzar/verificar el redeploy exige `RENDER_API_KEY` (secreto de producción documentado en `docs/OPERACION-SOPORTE-RECUPERACION.md:34`, ausente en este entorno) o un **Redeploy manual en el dashboard de Render**. Hasta entonces Render NO sirve el SHA exacto de main.
+- **Smoke prod (login/MFA/dashboard/… breaking)**: pendiente de (a) redeploy de Render y (b) credenciales/datos institucionales de prueba reales (ausentes). No se usan datos financieros ficticios permanentes.
