@@ -4,15 +4,15 @@
 
 | Campo | Valor |
 |---|---|
-| CURRENT_PHASE | Milestone G — Cobro + Recibos + Caja (EN CURSO — Caja §46 ✅; POS §43 + recibo §45 pendientes) |
+| CURRENT_PHASE | Milestone H — Cartera + Convenios + Bancos (pendiente de arranque) |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
-| CURRENT_SHA | `c4039b2` |
-| LAST_GREEN_SHA | `c4039b2` — 206 tests, lint OK, tsc OK, build OK |
-| LAST_COMPLETED_MILESTONE | F — Abonados + 360 + Nuevo Servicio |
-| NEXT_ACTION | Milestone G (resto): rebuild `Payments.tsx` como POS profesional sobre DS (§43) — quitar la consola de caja embebida (ya vive en `/caja`), añadir recibo por WhatsApp (§87). Payment integrity (§44) y recibo (§45) ya sólidos en backend — verificar y documentar lifecycle. Draft PR: #22. |
-| TEST_COUNT | 206 (vitest) — +caja |
+| CURRENT_SHA | (pendiente commit G.2) |
+| LAST_GREEN_SHA | (pendiente commit G.2) — 215 tests, lint OK, tsc OK, build OK |
+| LAST_COMPLETED_MILESTONE | G — Cobro + Recibos + Caja |
+| NEXT_ACTION | Milestone H: Cartera (§49) con estados sin suspensión automática, Convenios (§50), Bancos + Conciliación (§47-48). Draft PR: #22. |
+| TEST_COUNT | 215 (vitest) — +caja +payments-pos |
 | E2E_COUNT | 6 tests Playwright (`tests/e2e/smoke.spec.ts`, +command palette) + 1 sim |
-| LEGACY_FILES_REMAINING | 12 CSS legacy (~74KB, aislados por gate) + 49 `.tsx` en `docs/legacy-ui-allowlist.txt` (−App, −Home, −Abonado360, −Caja) + **1** en `docs/legacy-uuid-allowlist.txt`. El gate impide que las listas crezcan. |
+| LEGACY_FILES_REMAINING | 12 CSS legacy (~74KB) + 48 `.tsx` en `docs/legacy-ui-allowlist.txt` (−App, −Home, −Abonado360, −Caja, −Payments) + **1** en `docs/legacy-uuid-allowlist.txt`. El gate impide que las listas crezcan. |
 | MIGRATION_HEAD | `202609010012_v6_caja.sql` (`get_cash_session_report` + `list_cash_sessions` — arqueo, diferencias, historial). Tipos DB: regenerar tras aplicar a cloud (post-merge, §141). |
 | OPEN_BLOCKERS | Ninguno. Branch protection en `main` ACTIVA (checks requeridos: "Validar aplicación", "Validar base de datos (Supabase local)"; sin force-push ni delete). |
 | STAGING_STATE | No configurado. Plan: Render PR Preview + Supabase local/CI. Sin servicios pagados nuevos. |
@@ -48,5 +48,5 @@ No hay `.claude/` ni `skills/` dentro del repo. No hay MCP servers de dominio.
 | D — Login + MFA + Setup | ✅ COMPLETE | `2542a6a` | Login (§23) y MFA primer-admin (§24) ya sólidos desde V6 — verificados + E2E. Setup: asistente empresarial real de 5 pasos (§25) — Identidad/Ubicación/Legal/Servicio/Revisión sobre `bootstrap_organization` + nuevo `complete_setup`/`save_setup_progress`; migración `202609010009` añade el perfil institucional y corrige pérdida de datos en `update_organization_settings` (§152). Sin datos inventados. |
 | E — Inicio (Command Center) | ✅ COMPLETE | `c534738` | `Home.tsx` reconstruido sobre `src/design-system` como command center (§26): "Requiere atención" (unificado con NotificationsCenter vía `deriveNotifications`, §133), Panorama y Acciones rápidas role-aware (§27) — lógica extraída a `src/features/dashboard/roleView.ts`. Sale de la allowlist legacy. §39: elimina "L 400" hardcodeado. +home-dashboard test. |
 | F — Abonados + 360 + Nuevo Servicio | ✅ COMPLETE | `08d1420` | **§33** `AbonadosList` + RPC `list_subscribers` (mig. 010). **§34** `Abonado360.tsx` en `/abonados/:id` — 8 pestañas + barra de acciones desde 1 RPC `get_subscriber_expediente` (mig. 011). **§35** detección de duplicados en el alta. **§36** `NuevoServicio.tsx` en `/abonados/nuevo-servicio` — asistente de 4 pasos (Solicitante/Punto de servicio/Solicitud/Revisión) que orquesta abonado+pegue+solicitud con borrador local y bitácora del trámite hasta activación (`src/features/subscribers/nuevoServicio.ts`). **§32** sin UUID. **§37** ya OK (`next_connection_code` atómico). +3 suites de test, +3 E2E. |
-| G — Cobro + Recibos + Caja | 🔶 EN CURSO | `c4039b2` | **§46 Caja ✅**: `Caja.tsx` reconstruida sobre DS como espacio propio (patrón WORKSPACE) — pestañas Estado/Cobros/Arqueo/Historial; migración `202609010012` (`get_cash_session_report`: efectivo esperado = fondo + cobros cash − devoluciones, cobros por método; `list_cash_sessions`: historial con cajero y diferencia). Sin `prompt()`. Sale de la allowlist. **Pendiente**: POS §43 (`Payments.tsx`), recibo WhatsApp §87. |
+| G — Cobro + Recibos + Caja | ✅ COMPLETE | (commit G.2) | **§46** `Caja.tsx` espacio propio (WORKSPACE: Estado/Cobros/Arqueo/Historial) + mig. `202609010012`. **§43** `Payments.tsx` POS sobre DS (patrón TRANSACTION): búsqueda, selección de obligaciones, 5 métodos + mixto, resumen, contabilización. **§44** integridad conservada y verificada (idempotencia, componentes, allocations, el fallo de PDF no revierte el pago; void/refund con AAL2 sin borrar original). **§45** recibo inmutable + reimpresión con snapshot de marca histórico. **§87** entrega por wa.me manual + correo. Consola de caja fuera de Pagos. Ambas salen de la allowlist. `ENTERPRISE-ARCHITECTURE.md §5b` documenta el lifecycle. |
 | H — Cartera + Convenios + Bancos | PENDIENTE | — | — |

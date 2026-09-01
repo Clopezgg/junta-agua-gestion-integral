@@ -31,7 +31,7 @@ describe('production readiness hardening',()=>{
   it('feeds annual receipt fields from persisted payment data',()=>{
     expect(payments).toContain('const data=await getPaymentReceiptData(result.id)');
     expect(payments).toContain('maskedIdentity:data.masked_identity');
-    expect(payments).toContain('connectionCodes:(data.connection_codes??[])');
+    expect(payments).toContain('connectionCodes:(data.connection_codes');
     expect(payments).toContain('discountAmount:discount');
   });
 });

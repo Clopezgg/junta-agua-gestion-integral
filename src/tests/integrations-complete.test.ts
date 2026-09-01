@@ -11,5 +11,5 @@ describe('integraciones completas',()=>{
  it('incluye mapa y verificación pública en rutas',()=>{expect(hasRoute('/verificar-recibo/:token')).toBe(true);expect(hasRoute('mapa')).toBe(true);expect(hasRoute('respaldos')).toBe(true);});
  it('conecta OCR antes del alta y mapa en pegues',()=>{expect(subscribers).toContain('uploadTemporaryIdentityDocument');expect(subscribers).toContain('runOcr');expect(subscribers).toContain('GoogleMapPicker');});
  it('elimina prompts de secretos y prueba conectores',()=>{expect(integrations).not.toContain('prompt(');expect(integrations).toContain('testIntegration');expect(integrations).toContain('Supabase Secrets');});
- it('guarda PDF privado y permite correo sin agregar WhatsApp al recibo',()=>{expect(payments).toContain('uploadPaymentReceipt');expect(payments).toContain('sendEmail');expect(payments).not.toContain('sendWhatsApp');expect(payments).not.toContain('MessageCircle');});
+ it('guarda PDF privado y entrega el recibo por correo y WhatsApp (§43)',()=>{expect(payments).toContain('uploadPaymentReceipt');expect(payments).toContain('sendEmail');expect(payments).toContain('wa.me/');});
 });

@@ -81,6 +81,16 @@ test.describe('flujo operativo real (browser) sobre Supabase local',()=>{
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
+  test('el POS de cobro y la Caja son pantallas separadas (§43/§46)',async({page})=>{
+    await login(page);
+    await page.goto('/pagos');
+    await expect(page.getByRole('heading',{level:1,name:/cobrar/i})).toBeVisible();
+    await expect(page.getByRole('heading',{level:2,name:/documento de cobro/i})).toBeVisible();
+    await page.goto('/caja');
+    await expect(page.getByRole('heading',{level:1,name:/^caja$/i})).toBeVisible();
+    await expect(page.getByRole('tab',{name:/arqueo/i})).toBeVisible();
+  });
+
   test('el asistente de Nuevo servicio abre y avanza',async({page})=>{
     await login(page);
     await page.goto('/abonados/nuevo-servicio');

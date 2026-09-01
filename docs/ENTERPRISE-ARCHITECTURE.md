@@ -77,6 +77,23 @@ El legacy **no se borra todavía** (§124: sólo tras paridad). Se aísla:
 Cada milestone de dominio: reconstruye la pantalla sobre `src/design-system`, la elimina de
 la allowlist, y el gate confirma el progreso.
 
+## 5b. Integridad de pago (§44) — verificado Milestone G
+
+El motor de cobro **se conserva** (V5 ERP core), no se reescribe. Contrato:
+
+- `register_payment_with_document(p_payload)` — atómico: `payments` + `payment_allocations`
+  + `payment_components` + movimiento de caja + documento + `audit_events`.
+- **Idempotencia:** el cliente calcula `draftPaymentKey(...)` (hash de abonado + método +
+  monto + allocations) y lo envía como `idempotency_key`; un reintento no duplica el pago.
+- **Lifecycle del recibo:** `PAYMENT_POSTED` → el pago queda contabilizado aunque el PDF
+  falle → `RECEIPT_PENDING` → subida OK `RECEIPT_READY` / fallo `RECEIPT_RETRYABLE_ERROR`
+  (reimprimible). La UI **nunca revierte** un pago contabilizado por un fallo de PDF.
+- **Reverso:** `void_payment_with_document` / `refund_payment_with_document` — exigen AAL2,
+  no borran el documento original, generan movimiento de reverso y reabren obligaciones.
+- **Recibo (§45):** snapshot histórico inmutable; la reimpresión resuelve la marca desde
+  `brand_snapshot` guardado, marca `copy:true` y registra `recordPaymentReprint` en audit.
+- Gate: `src/tests/payments-pos.test.ts`.
+
 ## 6. TypeScript (§17)
 
 - `src/lib/database.types.ts`: tipos generados con `supabase gen types typescript --linked`.

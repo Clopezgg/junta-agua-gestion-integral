@@ -51,12 +51,11 @@ describe('plataforma completa V3',()=>{
     expect(roleView).not.toContain('L 400');
   });
 
-  it('no muestra WhatsApp en cobros ni recibos',()=>{
+  it('el recibo PDF no menciona canales de entrega; el envío por WhatsApp usa wa.me (§43, §87)',()=>{
     const payments=read('src/pages/Payments.tsx');
     const receipt=read('src/features/finance/documents.ts');
-    expect(payments).not.toContain('sendWhatsApp');
-    expect(payments).not.toContain('MessageCircle');
-    expect(receipt).not.toContain('WhatsApp');
+    expect(payments).toContain('wa.me/');           // entrega manual sin API
+    expect(receipt).not.toContain('WhatsApp');      // el documento en sí no lo menciona
   });
 
   it('conecta fotografía y pestañas funcionales del expediente',()=>{
