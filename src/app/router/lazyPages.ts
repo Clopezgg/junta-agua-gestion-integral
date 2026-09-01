@@ -15,6 +15,7 @@ export {VerifyReceipt} from '../../pages/VerifyReceipt';
 // Diferidas por dominio
 export const SubscriberPortal=lazy(()=>import('../../pages/SubscriberPortal').then(m=>({default:m.SubscriberPortal})));
 export const AbonadosList=lazy(()=>import('../../pages/AbonadosList').then(m=>({default:m.AbonadosList})));
+export const NuevoServicio=lazy(()=>import('../../pages/NuevoServicio').then(m=>({default:m.NuevoServicio})));
 export const Subscribers=lazy(()=>import('../../pages/Subscribers').then(m=>({default:m.Subscribers})));
 export const SubscriberCards=lazy(()=>import('../../pages/SubscriberCards').then(m=>({default:m.SubscriberCards})));
 export const PeguesContratos=lazy(()=>import('../../pages/PeguesContratos').then(m=>({default:m.PeguesContratos})));

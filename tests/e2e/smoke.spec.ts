@@ -81,6 +81,14 @@ test.describe('flujo operativo real (browser) sobre Supabase local',()=>{
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
+  test('el asistente de Nuevo servicio abre y avanza',async({page})=>{
+    await login(page);
+    await page.goto('/abonados/nuevo-servicio');
+    await expect(page.getByRole('heading',{level:1,name:/nuevo servicio/i})).toBeVisible();
+    await page.getByRole('button',{name:/persona nueva/i}).click();
+    await expect(page.getByText(/verificar duplicados/i)).toBeVisible();
+  });
+
   test('abrir un abonado muestra la ficha 360 con pestañas',async({page})=>{
     await login(page);
     await page.goto('/abonados');

@@ -13,7 +13,7 @@ type CreateAction={label:string;to:string;permission:Permission;icon:ReactNode};
 // Cada destino es una ruta REAL declarada en appRoutes (verificado por quick-create.test.ts).
 const actions:CreateAction[]=[
   {label:'Nuevo abonado',to:'/abonados',permission:'subscribers.create',icon:<Users size={16}/>},
-  {label:'Nuevo servicio / pegue',to:'/pegues-contratos',permission:'subscribers.create',icon:<PencilRuler size={16}/>},
+  {label:'Nuevo servicio / pegue',to:'/abonados/nuevo-servicio',permission:'subscribers.create',icon:<PencilRuler size={16}/>},
   {label:'Cobro',to:'/pagos',permission:'payments.create',icon:<ReceiptText size={16}/>},
   {label:'Solicitud',to:'/solicitudes',permission:'subscribers.create',icon:<FileText size={16}/>},
   {label:'Incidente',to:'/incidencias',permission:'incidents.manage',icon:<Wrench size={16}/>},

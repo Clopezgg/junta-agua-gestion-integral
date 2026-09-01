@@ -46,7 +46,7 @@ export function Abonado360(){
 
   const actions=useMemo(()=>[
     auth.has('payments.create')&&{label:'Cobrar',icon:<Wallet size={15}/>,to:`/pagos?abonado=${id}`},
-    auth.has('subscribers.update')&&{label:'Nuevo servicio',icon:<Droplet size={15}/>,to:`/abonados/registro?abrir=${id}`},
+    auth.has('subscribers.create')&&{label:'Nuevo servicio',icon:<Droplet size={15}/>,to:`/abonados/nuevo-servicio`},
     auth.has('subscribers.read')&&{label:'Solicitud',icon:<ClipboardList size={15}/>,to:`/solicitudes?abonado=${id}`},
     auth.has('operations.manage')&&{label:'Orden',icon:<Wrench size={15}/>,to:`/operaciones?abonado=${id}`},
     auth.has('obligations.read')&&{label:'Estado de cuenta',icon:<Receipt size={15}/>,to:`/estados-cuenta?abonado=${id}`},

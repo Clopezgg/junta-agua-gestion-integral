@@ -20,6 +20,7 @@ export function appRoutes():ReactElement[]{
 
     // ABONADOS Y SERVICIO
     guarded('abonados','subscribers.read',<P.AbonadosList/>),
+    guarded('abonados/nuevo-servicio','subscribers.create',<P.NuevoServicio/>),
     guarded('abonados/registro','subscribers.read',<P.Subscribers/>),
     guarded('abonados/:id','subscribers.read',<P.Abonado360/>),
     guarded('fichas-abonados','subscribers.read',<P.SubscriberCards/>),
