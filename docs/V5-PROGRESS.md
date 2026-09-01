@@ -122,3 +122,11 @@ Asamblea, JuntaDirectiva, Comites, Reuniones, Resoluciones, Proyectos, Fuentes, 
 - Test `morosidad.test.ts`; total **138 tests** / 25 archivos.
 - **PRODUCCIÓN Morosidad/Convenios** ✅: migración 050 `202609010006` aplicada en Supabase Cloud (`migration list` Local=Remote, `db push` incremental); RPC `mark_arrangement_installment_paid` verificada en `pg_proc` del Cloud. PR #19 mergeado a main (`75409f8`); CI db-validate **001-050** ✅ + browser E2E ✅ + validate ✅ + functions ✅; Render LIVE sirviendo main `75409f8` (deploy `dep-dab6gouq...`), ruta `/morosidad` → HTTP 200.
 
+## Lecturas de campo (Field PWA, migración 051) ✅
+- Primer dominio V5 realmente pendiente: captura de lecturas en sitio por técnicos con GPS, foto y cola offline. Cierra el loop Incidentes → Órdenes → Captura en campo → Facturación.
+- `202609010007_v5_field_readings.sql`: tabla `field_readings` (GPS lat/lng/accuracy, foto bucket/path, `offline_id` idempotente, consumo calculado `generated always`), RLS org-scoped, permisos `field.read`/`field.manage` (superadmin + technician), RPCs security definer auditadas `list/get/capture_field_reading`, `sync_field_readings` (batch dedupe por `offline_id`), `validate_field_reading` (captured/synced → validated/rejected), `upload_field_photo`.
+- `features/metering/fieldService.ts`: captura, sincronización batch idempotente, validación, cola offline en localStorage (`OFFLINE_QUEUE_KEY`), geolocalización (`getGeoLocation`), `generateOfflineId`.
+- `FieldReadings.tsx`: workspace móvil — capturar con GPS/foto, cola offline con conteo, sincronización de la cola, historial con filtro por estado y validación. Ruta `/lecturas-campo` + nav + título + permiso `field.*` para `technician`.
+- Test `field-readings.test.ts`; total **144 tests** / 26 archivos.
+- **PRODUCCIÓN Lecturas de campo** ✅: migración 051 `202609010007` aplicada en Supabase Cloud (`migration list` Local=Remote, `db push` incremental) y CI db-validate **001-051** ✅. PR #20 mergeado a main (`8fc4a48`); CI db-validate **001-051** ✅ + browser E2E ✅ + validate ✅ + functions ✅.
+
