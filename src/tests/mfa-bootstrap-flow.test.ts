@@ -28,9 +28,12 @@ describe('flujo MFA del primer administrador (pre-bootstrap)',()=>{
  it('B) sesión sin profile con TOTP verified en AAL2: redirige a /setup',()=>{
   // Mfa envía a /setup cuando hay MFA verificado pero no profile.
   expect(mfa).toContain("a.profile?'/':'/setup'");
-  // Setup muestra el formulario solo tras MFA verificado y con profile null.
+  // Setup exige MFA verificado; sin profile muestra el bootstrap, con profile el asistente (§25).
   expect(setup).toContain("if(!auth.mfaVerified)return <Navigate to=\"/mfa\" replace/>;");
-  expect(setup).toContain("if(auth.profile)return <Navigate to=\"/\" replace/>;");
+  expect(setup).toContain("if(!auth.profile)return <BootstrapStep/>;");
+  // El asistente redirige a la raíz sólo cuando la configuración ya fue completada.
+  expect(setup).toContain("if(completed)return <Navigate to=\"/\" replace/>;");
+  expect(setup).toContain("settings.setup_completed_at");
   // El estado sin profile/subscriber NO se convierte en ACCOUNT_CONTEXT_NOT_FOUND pre-bootstrap.
   expect(auth).toContain("setAccountKind('pre_bootstrap')");
   expect(auth).toContain("if(authorization?.profile)");

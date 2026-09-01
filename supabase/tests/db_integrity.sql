@@ -99,5 +99,20 @@ begin
     and column_name in ('retention_days','pruned_at','pruned_by');
   if n<>3 then raise exception 'RETENCION_RESPALDOS_INCOMPLETA: %', n; end if;
   raise notice 'Retención de respaldos (migración 035) verificada: OK';
+
+  -- 11) Asistente de configuración inicial (migración 202609010009)
+  select count(*) into n
+  from information_schema.columns
+  where table_schema='public' and table_name='organizations'
+    and column_name in ('department','municipality','community','legal_representative_name',
+      'legal_representative_title','incorporation_reference','founding_date','service_type',
+      'metering_enabled','setup_progress','setup_completed_at');
+  if n<>11 then raise exception 'PERFIL_INSTITUCIONAL_INCOMPLETO: %', n; end if;
+  if to_regprocedure('public.save_setup_progress(jsonb)') is null then raise exception 'FALTA save_setup_progress'; end if;
+  if to_regprocedure('public.complete_setup(jsonb)') is null then raise exception 'FALTA complete_setup'; end if;
+  -- update_organization_settings ya no borra claves ausentes (merge por clave)
+  if position('p_payload ? ' in pg_get_functiondef('public.update_organization_settings(jsonb)'::regprocedure))=0
+    then raise exception 'update_organization_settings NO hace merge por clave (riesgo de pérdida de datos)'; end if;
+  raise notice 'Asistente de configuración inicial (migración 009) verificado: OK';
 end
 $$;
