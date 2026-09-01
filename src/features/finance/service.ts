@@ -4,6 +4,27 @@ function fail(e:{message:string}|null){if(e)throw new Error(e.message);}
 export async function searchPayableAccounts(q:string){const {data,error}=await db().rpc('search_payable_accounts',{p_query:q,p_limit:50});fail(error);return data??[];}
 export async function openCashSession(input:{opening_amount:number;location?:string}){const {data,error}=await db().rpc('open_cash_session',{p_opening_amount:input.opening_amount,p_location:input.location??null});fail(error);return data;}
 export async function getActiveCashSession(){const {data,error}=await db().rpc('get_active_cash_session');fail(error);return data;}
+
+export type CashSessionReport={
+  session:Record<string,unknown>;
+  cashier:string|null;
+  payment_count:number;
+  totals_by_method:Record<string,number>;
+  cash_collected:number;
+  refunds:number;
+  expected_cash:number;
+  payments:Array<Record<string,unknown>>;
+};
+export async function getCashSessionReport(sessionId?:string):Promise<CashSessionReport|null>{
+  const {data,error}=await db().rpc('get_cash_session_report',{p_session_id:sessionId??null});
+  fail(error);
+  return (data??null) as CashSessionReport|null;
+}
+export async function listCashSessions(limit=40):Promise<Array<Record<string,unknown>>>{
+  const {data,error}=await db().rpc('list_cash_sessions',{p_limit:limit});
+  fail(error);
+  return (data??[]) as Array<Record<string,unknown>>;
+}
 export async function registerPayment(input:{subscriber_id:string;cash_session_id?:string;method:string;received_amount:number;reference?:string;idempotency_key?:string;components?:{method:'cash'|'transfer'|'deposit'|'check';amount:number;reference?:string}[];allocations:{obligation_id:string;amount:number}[]}){const {data,error}=await db().rpc('register_payment_with_document',{p_payload:input});fail(error);return data;}
 export function draftPaymentKey(input:{subscriber_id:string;method:string;received_amount:number;allocations:{obligation_id:string;amount:number}[]}){
  const inline=(input.allocations??[]).map(a=>`${a.obligation_id}:${Number(a.amount.toFixed(2))}`).sort().join('|');

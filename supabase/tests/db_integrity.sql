@@ -132,5 +132,14 @@ begin
   if public.get_subscriber_expediente('00000000-0000-0000-0000-000000000000'::uuid) is not null
     then raise exception 'get_subscriber_expediente debe devolver NULL para un abonado inexistente'; end if;
   raise notice 'Expediente del Abonado 360 (migración 011) verificado: OK';
+
+  -- 14) Caja como espacio propio (migración 202609010012)
+  if to_regprocedure('public.get_cash_session_report(uuid)') is null
+    then raise exception 'FALTA get_cash_session_report'; end if;
+  if to_regprocedure('public.list_cash_sessions(int)') is null
+    then raise exception 'FALTA list_cash_sessions'; end if;
+  if jsonb_typeof(public.list_cash_sessions()) is distinct from 'array'
+    then raise exception 'list_cash_sessions no devuelve un array'; end if;
+  raise notice 'Caja como espacio propio (migración 012) verificado: OK';
 end
 $$;

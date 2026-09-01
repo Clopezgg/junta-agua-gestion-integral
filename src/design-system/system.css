@@ -275,3 +275,11 @@
 .ja-ns-tl-item span{font-size:var(--ja-text-xs)}
 .ja-ns-tl-done{color:var(--ja-success);border-color:rgba(2,122,72,.3)}
 .ja-ns-nav{display:flex;gap:.6rem;justify-content:center}
+
+/* Caja */
+.ja-caja-open,.ja-caja-close{display:flex;flex-direction:column;gap:.9rem;max-width:420px}
+.ja-caja-open-form{display:flex;flex-direction:column;gap:.75rem}
+.ja-caja-diff{font-size:var(--ja-text-sm);font-weight:600;margin:0}
+.ja-caja-diff.ok{color:var(--ja-success)}
+.ja-caja-diff.short{color:var(--ja-danger)}
+.ja-caja-diff.over{color:var(--ja-warning)}

@@ -12,6 +12,7 @@
 # Snapshot inicial: 2026-09-01 (Milestone B). 53 archivos.
 # Milestone E: -src/pages/Home.tsx (command center sobre design system).
 # Milestone F: -src/pages/Abonado360.tsx (ficha 360 sobre design system, sin UUID).
+# Milestone G: -src/pages/Caja.tsx (espacio propio §46 sobre design system).
 # Milestone C: -src/App.tsx (router modularizado a src/app/router/*, sin markup legacy).
 
 src/components/Layout.tsx
@@ -23,7 +24,6 @@ src/pages/Backups.tsx
 src/pages/Bancos.tsx
 src/pages/Bodega.tsx
 src/pages/Budget.tsx
-src/pages/Caja.tsx
 src/pages/Calendario.tsx
 src/pages/Calidad.tsx
 src/pages/Cloracion.tsx
