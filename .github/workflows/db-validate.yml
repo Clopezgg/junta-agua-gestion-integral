@@ -17,7 +17,7 @@ jobs:
         uses: supabase/setup-cli@v1
         with:
           version: v2.116.0
-      - name: Iniciar pila local (Postgres) y aplicar migraciones 001..044 desde cero
+      - name: Iniciar pila local (Postgres) y aplicar migraciones 001..045 desde cero
         run: supabase start
       - name: Sembrar estado post-bootstrap (organización y catálogo de permisos)
         run: |
@@ -31,7 +31,7 @@ jobs:
             --entrypoint psql postgres:16-alpine \
             -v ON_ERROR_STOP=1 \
             -f /tmp/seed_integrity.sql
-      - name: Verificar integridad financiera (migraciones 032 a 044)
+      - name: Verificar integridad financiera (migraciones 032 a 045)
         run: |
           docker run --rm --network host \
             -e PGPASSWORD=postgres \
@@ -42,6 +42,18 @@ jobs:
             -v "$PWD/supabase/tests/db_integrity.sql:/tmp/db_integrity.sql:ro" \
             --entrypoint psql postgres:16-alpine \
             -f /tmp/db_integrity.sql
+      - name: Verificar endurecimiento P0 (migración 045): multi-abonado, cross-org y MFA/AAL2
+        run: |
+          docker run --rm --network host \
+            -e PGPASSWORD=postgres \
+            -e PGHOST=127.0.0.1 \
+            -e PGPORT=54322 \
+            -e PGUSER=postgres \
+            -e PGDATABASE=postgres \
+            -v "$PWD/supabase/tests/p0_hardening.sql:/tmp/p0_hardening.sql:ro" \
+            --entrypoint psql postgres:16-alpine \
+            -v ON_ERROR_STOP=1 \
+            -f /tmp/p0_hardening.sql
       - name: Inspeccionar plan de migraciones
         run: supabase migration list --db-url "$(supabase status -o env | sed -n 's/^DATABASE_URL=//p')" || true
       - name: Detener pila local
