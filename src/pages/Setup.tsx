@@ -10,6 +10,14 @@ import {
   type SetupDraft,
 } from '../features/settings/setupWizard';
 
+// El asistente institucional sólo se ejecuta como continuación del bootstrap del
+// primer administrador (o si se pide explícitamente). Un administrador ya
+// existente NO queda atrapado en /setup aunque su configuración esté incompleta.
+const WIZARD_FLAG='ja-setup-wizard';
+const wizardRequested=()=>{try{return sessionStorage.getItem(WIZARD_FLAG)==='1';}catch{return false;}};
+const requestWizard=()=>{try{sessionStorage.setItem(WIZARD_FLAG,'1');}catch{/* noop */}};
+const clearWizard=()=>{try{sessionStorage.removeItem(WIZARD_FLAG);}catch{/* noop */}};
+
 export function Setup(){
   const auth=useAuth();
 
@@ -33,6 +41,8 @@ export function Setup(){
   }
   if(!auth.mfaVerified)return <Navigate to="/mfa" replace/>;
   if(!auth.profile)return <BootstrapStep/>;
+  // Administrador ya inicializado: al dashboard, salvo que se haya pedido el asistente.
+  if(!wizardRequested())return <Navigate to="/" replace/>;
   return <InstitutionWizard/>;
 }
 
@@ -62,6 +72,7 @@ function BootstrapStep(){
         :rpcError.message);
       return;
     }
+    requestWizard();
     await auth.refresh();
   }
 
@@ -97,7 +108,7 @@ function InstitutionWizard(){
   useEffect(()=>{void(async()=>{
     try{
       const settings=await getOrganizationSettings() as Record<string,unknown>;
-      if(settings.setup_completed_at){setCompleted(true);return;}
+      if(settings.setup_completed_at){clearWizard();setCompleted(true);return;}
       setDraft(draftFromSettings(settings));
     }catch{/* usa borrador vacío */}
     finally{setLoading(false)}
@@ -130,6 +141,7 @@ function InstitutionWizard(){
     setBusy(true);setErrors([]);
     try{
       await completeSetup(toSettingsPayload(draft));
+      clearWizard();
       setCompleted(true);
     }catch(e){
       setErrors([(e as Error).message]);
@@ -214,7 +226,7 @@ function InstitutionWizard(){
             ?<Button type="button" onClick={()=>void next()} disabled={busy}>{busy?<LoaderCircle size={15} className="ja-spin"/>:<>Guardar y continuar<ArrowRight size={15}/></>}</Button>
             :<Button type="button" onClick={()=>void finish()} disabled={busy}>{busy?<><LoaderCircle size={15} className="ja-spin"/>Activando…</>:<><CheckCircle2 size={15}/>Activar plataforma</>}</Button>}
         </div>
-        {!isReview&&<button type="button" className="ja-auth-link ja-setup-skip" onClick={()=>navigate('/')}>Omitir por ahora y completar luego</button>}
+        {!isReview&&<button type="button" className="ja-auth-link ja-setup-skip" onClick={()=>{clearWizard();navigate('/');}}>Omitir por ahora y completar luego</button>}
       </div>
     </div>
     <footer className="ja-auth-footer">Acceso exclusivo para personal autorizado.</footer>

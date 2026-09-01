@@ -6,6 +6,18 @@ const mfa=fs.readFileSync('src/pages/Mfa.tsx','utf8');
 const setup=fs.readFileSync('src/pages/Setup.tsx','utf8');
 const route=fs.readFileSync('src/components/ProtectedRoute.tsx','utf8');
 
+describe('regresión Milestone D — no atrapar al admin en /setup',()=>{
+ it('Mfa no redirige a /setup mientras la autorización aún carga (profile transitorio null)',()=>{
+  expect(mfa).toContain('if(a.mfaVerified){');
+  expect(mfa).toMatch(/if\(a\.loading\)return .*Verificando/);
+ });
+ it('Setup manda al dashboard a un admin ya inicializado, salvo asistente explícito',()=>{
+  expect(setup).toContain("if(!wizardRequested())return <Navigate to=\"/\" replace/>;");
+  expect(setup).toContain('requestWizard()');       // sólo tras bootstrap
+  expect(setup).toContain('clearWizard()');         // al terminar/omitir
+ });
+});
+
 describe('flujo MFA del primer administrador (pre-bootstrap)',()=>{
  it('A) sesión sin profile con TOTP verified en AAL1: expone desafío MFA, sin QR',()=>{
   // La determinación del factor ocurre ANTES de depender del profile.

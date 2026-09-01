@@ -4,17 +4,17 @@
 
 | Campo | Valor |
 |---|---|
-| CURRENT_PHASE | Milestone H — Cartera + Convenios + Bancos (pendiente de arranque) |
+| CURRENT_PHASE | Fix E2E (regresión D) + Visual Contract — luego Milestone H |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
 | CURRENT_SHA | `bbc834d` |
 | LAST_GREEN_SHA | `bbc834d` — 215 tests, lint OK, tsc OK, build OK |
 | LAST_COMPLETED_MILESTONE | G — Cobro + Recibos + Caja |
 | NEXT_ACTION | Milestone H: Cartera (§49) con estados sin suspensión automática, Convenios (§50), Bancos + Conciliación (§47-48). Draft PR: #22. |
-| TEST_COUNT | 215 (vitest) — +caja +payments-pos |
+| TEST_COUNT | 217 (vitest) — +regresión mfa/setup |
 | E2E_COUNT | 6 tests Playwright (`tests/e2e/smoke.spec.ts`, +command palette) + 1 sim |
 | LEGACY_FILES_REMAINING | 12 CSS legacy (~74KB) + 48 `.tsx` en `docs/legacy-ui-allowlist.txt` (−App, −Home, −Abonado360, −Caja, −Payments) + **1** en `docs/legacy-uuid-allowlist.txt`. El gate impide que las listas crezcan. |
 | MIGRATION_HEAD | `202609010012_v6_caja.sql` (`get_cash_session_report` + `list_cash_sessions` — arqueo, diferencias, historial). Tipos DB: regenerar tras aplicar a cloud (post-merge, §141). |
-| OPEN_BLOCKERS | Ninguno. Branch protection en `main` ACTIVA (checks requeridos: "Validar aplicación", "Validar base de datos (Supabase local)"; sin force-push ni delete). |
+| OPEN_BLOCKERS | Ninguno. E2E: regresión de Milestone D **CORREGIDA** (Mfa/Setup atrapaban al admin en `/setup` durante el render transitorio `mfaVerified=true`+`profile=null`). Branch protection `main` activa. |
 | STAGING_STATE | No configurado. Plan: Render PR Preview + Supabase local/CI. Sin servicios pagados nuevos. |
 | PRODUCTION_UNCHANGED | SÍ. Prod (`junta-agua-gestion-integral.onrender.com`) sirve `main`/`c677335`. No se toca durante desarrollo. |
 
@@ -35,6 +35,8 @@ Globales `~/.claude/skills`: `emil-design-eng`, `impeccable`.
 Plugin Superpowers: `brainstorming`, `writing-plans`, `executing-plans`, `test-driven-development`, `systematic-debugging`, `verification-before-completion`, `requesting-code-review`, `receiving-code-review`, `subagent-driven-development`, `dispatching-parallel-agents`, `using-git-worktrees`, `finishing-a-development-branch`, `writing-skills`.
 Otras: `impeccable` (UX/UI), `dataviz`, `artifact-*`, `code-review`, `simplify`, `security-review`, `run`, `claude-in-chrome`.
 No hay `.claude/` ni `skills/` dentro del repo. No hay MCP servers de dominio.
+
+**Visual Contract:** `docs/ENTERPRISE-VISUAL-CONTRACT.md` (lenguajes A login / B portal / C command center). Aplicable a todo milestone de UI desde ahora.
 
 **Uso previsto por milestone:** `brainstorming` antes de cada rediseño de dominio; `impeccable` + `emil-design-eng` para design system y pantallas; `test-driven-development` para servicios/RPC/UI; `systematic-debugging` para defectos; `security-review` + `code-review` en U; `claude-in-chrome` para Visual QA en W/X.
 
