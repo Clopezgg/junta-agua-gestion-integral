@@ -63,7 +63,7 @@ create table public.purchase_order_lines(
   created_at timestamptz not null default now()
 );
 
-create or replace function public.create_purchase_order(p_supplier_id uuid,p_requisition_id uuid default null,p_expected_date date default null,p_lines jsonb) returns uuid
+create or replace function public.create_purchase_order(p_lines jsonb,p_supplier_id uuid,p_requisition_id uuid default null,p_expected_date date default null) returns uuid
 language plpgsql security definer set search_path=public as $$
 declare org uuid:=current_organization_id();oid uuid;n int;total numeric(14,2):=0;ln jsonb;
 begin

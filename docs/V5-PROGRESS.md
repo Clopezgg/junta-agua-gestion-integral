@@ -37,8 +37,16 @@ Asamblea, JuntaDirectiva, Comites, Reuniones, Resoluciones, Proyectos, Fuentes, 
 - Integridad RPCs: 0 funciones referenciadas sin definir en migraciones ✅
 - Smoke E2E (H1 `gestión comunitaria del agua`, `Abonados y pegues`, `Presupuesto y sostenibilidad financiera`, `Pagos, recibos y contabilización` + placeholder `buscar por código`) intactos tras cambios FASE 1 ✅
 
+## CI PR #14 (evidencia real)
+- PR: https://github.com/Clopezgg/junta-agua-gestion-integral/pull/14 (head `work/junta-agua-v5-operating-system`).
+- `validate` → **pass** (34s) · `functions` (edge functions deno) → **pass** (15s).
+- Primera corrida: `db` (migraciones 001-044 en Supabase real) y `browser` (E2E) **fallaron por la misma causa raíz** SQL `42P13` en la migración 039:
+  - `ERROR: input parameters after one with a default value must also have defaults` en `create_purchase_order`, cuya firma tenía `p_lines jsonb` (sin default) después de parámetros con `DEFAULT`.
+- **Fix aplicado** en `202608310039_v5_procurement.sql`: se movió `p_lines jsonb` al inicio de la firma de `create_purchase_order` (ahora el 1er parámetro, sin default; el resto conserva DEFAULT). Seguro porque el frontend llama por argumentos **nombrados** (`db().rpc('create_purchase_order', {p_lines, p_supplier_id, ...})`), no posicionales.
+- Auditoría del resto de firmas 036-044: todas cumplen la regla de que, una vez hay un parámetro con default, los siguientes deben tener default. Sin otros errores SQL latentes detectados (referencias, casts de enums, permisos `communications.*/water.*/governance.*/compliance.*/calendar.manage` y `expenses.*/finance/bank/inventory` todos definidos).
+- Pendiente: re-correr CI del PR #14 hasta que `db` y `browser` estén verdes.
+
 ## Pendiente
-- PR maestro a main → CI `validate.yml` + `db-validate.yml` (valida las 9 migraciones en Supabase real) + `e2e.yml`.
-- Ajustar migraciones 036-044 si db-validate detecta errores SQL (referencias/casts/orden).
+- Re-validar CI del PR #14 (jobs `db` + `browser`) tras el fix de la migración 039 → verde.
 - Actualizar docs/DATABASE.md, ARCHITECTURE.md, EVIDENCE-MATRIX.md y tests estáticos de dominios V5.
-- Merge → deploy Render LIVE → smoke E2E → verificación SHA final + URL final.
+- PR maestro a main (CI verde) → migraciones aplicadas → merge → deploy Render LIVE → smoke E2E → verificación SHA final + URL final.
