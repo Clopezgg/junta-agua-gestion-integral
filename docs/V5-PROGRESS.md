@@ -108,3 +108,10 @@ Asamblea, JuntaDirectiva, Comites, Reuniones, Resoluciones, Proyectos, Fuentes, 
 - Test `bancos.test.ts` (5 assertions); total **128 tests** / 23 archivos.
 - **PRODUCCIÓN Bancos/Conciliación** ✅: migración 048 `202609010004` aplicada en Supabase Cloud (`migration list` Local=Remote, `db push` incremental); RPCs `discard_bank_transaction/get_bank_account_balance/unlink_bank_transaction` verificadas en `pg_proc` del Cloud. PR #17 mergeado a main (`996a0a8`); CI db-validate **001-048** ✅ + browser E2E ✅ + validate ✅ + functions ✅; Render LIVE sirviendo main `996a0a8` (deploy `dep-dab5vhe8...`), ruta `/bancos` → HTTP 200.
 
+## Service Desk de solicitudes y reclamos (dominio H, migración 049) ✅
+- Base 037 + `202609010005_v5_service_requests_enhance.sql`: `service_requests` ampliada con `assigned_to`; RPC `assign_service_request`, `set_service_request_status`, `link_service_request_work_order` (security definer + `operations.manage` + auditoría + transiciones válidas `INVALID_STATUS`).
+- `requests/service.ts`: `assignServiceRequest/setServiceRequestStatus/linkServiceRequestWorkOrder` + list/create.
+- `Solicitudes.tsx` reescrito como service desk: KPI (recibidas, en proceso, atrasadas por SLA, urgentes), filtros por estado, registro con fecha compromiso (SLA), detalle con asignación a técnico, transición de estado, resolución y vínculo a orden de trabajo. Ruta `/solicitudes` ya conectada.
+- Test `solicitudes.test.ts`; total **133 tests** / 24 archivos.
+- **PRODUCCIÓN Service Desk** ✅: migración 049 `202609010005` aplicada en Supabase Cloud (`migration list` Local=Remote, `db push` incremental); RPCs `assign_service_request/set_service_request_status/link_service_request_work_order` verificadas en `pg_proc` del Cloud. PR #18 mergeado a main (`26c8d69`); CI db-validate **001-049** ✅ + browser E2E ✅ + validate ✅ + functions ✅; Render LIVE sirviendo main `26c8d69` (deploy `dep-dab6805g...`), ruta `/solicitudes` → HTTP 200.
+
