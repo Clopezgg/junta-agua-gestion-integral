@@ -58,6 +58,7 @@ const DocumentSettings=lazy(()=>import('./pages/DocumentSettings').then(module=>
 const ReceiptVisualStudio=lazy(()=>import('./pages/ReceiptVisualStudio').then(module=>({default:module.ReceiptVisualStudio})));
 const SubscriberCards=lazy(()=>import('./pages/SubscriberCards').then(module=>({default:module.SubscriberCards})));
 const Abonado360=lazy(()=>import('./pages/Abonado360').then(module=>({default:module.Abonado360})));
+const FieldReadings=lazy(()=>import('./pages/FieldReadings').then(module=>({default:module.FieldReadings})));
 const FinancialDocuments=lazy(()=>import('./pages/FinancialDocuments').then(module=>({default:module.FinancialDocuments})));
 const loading=<main className="content"><div className="panel">Cargando módulo seguro…</div></main>;
 
@@ -99,6 +100,7 @@ export default function App(){
       <Route path="activos" element={<ProtectedRoute permission="assets.read"><Operations/></ProtectedRoute>}/>
       <Route path="mantenimiento" element={<ProtectedRoute permission="maintenance.manage"><Operations/></ProtectedRoute>}/>
       <Route path="bodega" element={<ProtectedRoute permission="inventory.read"><Bodega/></ProtectedRoute>}/>
+      <Route path="lecturas-campo" element={<ProtectedRoute permission="field.read"><FieldReadings/></ProtectedRoute>}/>
       <Route path="mapa" element={<ProtectedRoute permission="map.read"><MapView/></ProtectedRoute>}/>
       {/* AGUA Y AMBIENTE */}
       <Route path="fuentes" element={<ProtectedRoute permission="water.read"><Fuentes/></ProtectedRoute>}/>

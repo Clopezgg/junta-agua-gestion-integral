@@ -40,7 +40,7 @@ describe('Service Desk: Solicitudes y reclamos (migración 049)',()=>{
  it('el rango de migraciones del pipeline llega a la 050',()=>{
   const dbWorkflow=fs.readFileSync('.github/workflows/db-validate.yml','utf8');
   const readme=fs.readFileSync('README.md','utf8');
-  expect(dbWorkflow).toContain('001..050');
-  expect(readme).toContain('001` a `050');
+  expect(dbWorkflow).toContain('001..051');
+  expect(readme).toContain('001` a `051');
  });
 });
