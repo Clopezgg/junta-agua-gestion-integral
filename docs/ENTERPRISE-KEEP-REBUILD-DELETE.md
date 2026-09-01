@@ -65,7 +65,7 @@ Verificado contra código actual, no contra documentación previa (§4).
 | `src/responsive.css` | DS responsive por tokens (§105). |
 | `src/styles/{base,components,layout,tokens}.css` | Generación intermedia; consolidar en `src/design-system`. |
 | `src/components/Layout.tsx` | Layout legacy sin uso runtime. |
-| `src/components/GlobalSearch.tsx` | Reemplazado por command palette (§28). |
+| `src/components/GlobalSearch.tsx` | ✅ Reemplazado (Milestone C) por `src/app/commands/CommandPalette.tsx`. Sólo lo referencia `Layout.tsx` (legacy sin runtime) — se borra junto a él en Milestone V. |
 | `src/ui/Toast.tsx` | Duplicado de `src/design-system/primitives/Toast.tsx`. |
 | `src/pages/Progress.tsx` | Página de progreso interna, no producto. |
 | Rutas/aliases legacy en `App.tsx` | §22 — no redirects a UI legacy como solución. |

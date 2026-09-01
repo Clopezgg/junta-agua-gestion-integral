@@ -80,6 +80,16 @@ test.describe('flujo operativo real (browser) sobre Supabase local',()=>{
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
+  test('la paleta de comandos abre con Ctrl+K y navega a una sección',async({page})=>{
+    await login(page);
+    await page.keyboard.press('Control+k');
+    const input=page.getByRole('combobox',{name:/buscar/i});
+    await expect(input).toBeVisible();
+    await input.fill('presupuesto');
+    await page.getByRole('option',{name:/presupuesto/i}).first().click();
+    await expect(page).toHaveURL(/\/presupuesto/);
+  });
+
   test('cierre de sesión regresa al inicio',async({page})=>{
     await login(page);
     await page.getByRole('button',{name:/salir|cerrar sesión|logout/i}).first().click();

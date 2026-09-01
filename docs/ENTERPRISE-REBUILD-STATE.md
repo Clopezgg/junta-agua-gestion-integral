@@ -4,14 +4,14 @@
 
 | Campo | Valor |
 |---|---|
-| CURRENT_PHASE | Milestone C — Shell + Router + Search + Quick Create + Notifications (pendiente de arranque) |
+| CURRENT_PHASE | Milestone D — Login + MFA + Setup (pendiente de arranque) |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
-| CURRENT_SHA | `62d55b0` |
-| LAST_GREEN_SHA | `62d55b0` — 162 tests, lint OK, tsc OK, build OK |
-| LAST_COMPLETED_MILESTONE | B — Architecture + Design System + Legacy Isolation |
-| NEXT_ACTION | Milestone C: `src/app/router` por dominio (romper App.tsx monolítico), shells (Auth/Portal/Field), CommandPalette real (Ctrl+K), QuickCreate real, NotificationsCenter con eventos reales. Draft PR: #22. |
-| TEST_COUNT | 162 (vitest) — incluye gate estático `enterprise-legacy-gate` |
-| E2E_COUNT | 1 spec Playwright (`tests/e2e/smoke.spec.ts`) + 1 sim (`src/tests/e2e/commercial-flow-simulation.test.ts`) |
+| CURRENT_SHA | (pendiente commit C) |
+| LAST_GREEN_SHA | (pendiente commit C) — 180 tests, lint OK, tsc OK, build OK |
+| LAST_COMPLETED_MILESTONE | C — Shell + Router + Search + Quick Create + Notifications |
+| NEXT_ACTION | Milestone D: rebuild total del login administrativo (§23), AuthShell, verificar flujo MFA primer admin (§24), Setup wizard empresarial (§25). Draft PR: #22. |
+| TEST_COUNT | 180 (vitest) — gates: `enterprise-legacy-gate`, `router-map`, `command-palette`, `notifications`, `quick-create` |
+| E2E_COUNT | 6 tests Playwright (`tests/e2e/smoke.spec.ts`, +command palette) + 1 sim |
 | LEGACY_FILES_REMAINING | 12 CSS legacy (~74KB, aislados por gate) + 53 archivos `.tsx` en `docs/legacy-ui-allowlist.txt` + 2 en `docs/legacy-uuid-allowlist.txt`. El gate impide que las listas crezcan. |
 | MIGRATION_HEAD | `202609010008_v6_public_institution.sql`. Tipos DB generados → `src/lib/database.types.ts` (7874 líneas). |
 | OPEN_BLOCKERS | Ninguno. Branch protection en `main` ACTIVA (checks requeridos: "Validar aplicación", "Validar base de datos (Supabase local)"; sin force-push ni delete). |
@@ -44,4 +44,5 @@ No hay `.claude/` ni `skills/` dentro del repo. No hay MCP servers de dominio.
 |---|---|---|---|
 | A — Skills + Forensics + Baseline + Git Cleanup Plan | ✅ COMPLETE | `4e8aa65` | Baseline + tag + branch + Draft PR #22 + branch protection + 4 docs de verdad. |
 | B — Architecture + Design System + Legacy Isolation | ✅ COMPLETE | `62d55b0` | `ENTERPRISE-ARCHITECTURE.md`; tipos DB reales; DS barrel + README; gate estático legacy/UUID (`scripts/enterprise-gates.mjs` + test + CI). |
-| C — Shell + Router + Search + Quick Create + Notifications | PENDIENTE | — | — |
+| C — Shell + Router + Search + Quick Create + Notifications | ✅ COMPLETE | (commit C) | Router por dominio (`src/app/router/*`, App.tsx 170→6). CommandPalette real (`src/app/commands/*`, Ctrl+K, teclado, permisos, entidades vía `global_search`). NotificationsCenter con avisos reales derivados de `get_role_dashboard` (`src/features/notifications/*`). QuickCreate → rutas reales. +5 suites de test, +1 E2E. |
+| D — Login + MFA + Setup | PENDIENTE | — | — |
