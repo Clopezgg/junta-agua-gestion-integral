@@ -1,19 +1,36 @@
-/* Sistema de diseño institucional V4 — tokens */
+/* Sistema de diseño institucional V5 — Water Utility Operating System (§64) */
 :root{
-  /* Marca */
-  --brand-50:#EEF4FF;
-  --brand-100:#DCE8FD;
-  --brand-200:#B9CDF7;
-  --brand-300:#8FB0F0;
-  --brand-400:#5A8DE9;
-  --brand-500:#2E6BE0;
-  --brand-600:#1E5BD1;
-  --brand-700:#155EEF;
-  --brand-800:#104A7A;
-  --brand-900:#0B3A66;
-  --brand-950:#072A4E;
+  /* Marca / primario — PRIMARY #1D4ED8 */
+  --brand-50:#EFF3FF;
+  --brand-100:#DCE4FF;
+  --brand-200:#B9C9FF;
+  --brand-300:#8FA7F8;
+  --brand-400:#5B7FF0;
+  --brand-500:#3B5FE0;
+  --brand-600:#1D4ED8; /* PRIMARY */
+  --brand-700:#1A44B5;
+  --brand-800:#173A96;
+  --brand-900:#102A43; /* MIDNIGHT */
+  --brand-950:#0A1B2E;
 
-  /* Acentos institucionales (dorado para sellos y recibos) */
+  /* Agua — WATER #0284C7 */
+  --water-50:#F0F9FF;
+  --water-100:#E0F2FE;
+  --water-200:#BAE6FD;
+  --water-300:#7DD3FC;
+  --water-400:#38BDF8;
+  --water-500:#0EA5E9;
+  --water-600:#0284C7; /* WATER */
+  --water-700:#0369A1;
+  --water-800:#075985;
+  --water-900:#0C4A6E;
+
+  /* Tinta — INK #111827 (texto primario) */
+  --ink:#111827;
+  --ink-soft:#374151;
+  --ink-mute:#4B5563;
+
+  /* Acentos institucionales (dorado SOLO para sellos y recibos impresos) */
   --accent-200:#F2D9A4;
   --accent-300:#EAC073;
   --accent-400:#DCA52F;
@@ -22,54 +39,54 @@
 
   /* Superficies */
   --surface-app:#F7F9FC;
-  --surface:#FFFFFF;
-  --surface-subtle:#F2F4F7;
+  --surface:#FFFFFF;           /* CARD */
+  --surface-subtle:#F3F4F6;
   --surface-raised:#FFFFFF;
 
   /* Texto */
-  --text-primary:#17212B;
-  --text-secondary:#475467;
+  --text-primary:#111827;      /* INK / TEXT */
+  --text-secondary:#667085;    /* SECONDARY TEXT */
   --text-tertiary:#98A2B3;
   --text-inverse:#FFFFFF;
-  --text-brand:#155EEF;
+  --text-brand:#1D4ED8;
 
   /* Bordes */
-  --border:#E4E7EC;
-  --border-strong:#D0D5DD;
-  --border-focus:#155EEF;
+  --border:#E5E7EB;            /* BORDER */
+  --border-strong:#D1D5DB;
+  --border-focus:#1D4ED8;
 
   /* Semánticos */
   --success-50:#ECFDF3;
   --success-100:#D1FADF;
   --success-200:#A6D8B8;
   --success-400:#32D583;
-  --success-600:#039855;
-  --success-700:#027A48;
+  --success-600:#16A34A;
+  --success-700:#15803D;       /* SUCCESS */
   --success-800:#05603A;
   --success-50b:#F0FBF4;
 
-  --danger-50:#FEF3F2;
-  --danger-100:#FEE4E2;
-  --danger-200:#FECDCA;
-  --danger-600:#D92D20;
-  --danger-700:#B42318;
+  --danger-50:#FEF2F2;
+  --danger-100:#FEE2E2;
+  --danger-200:#FECACA;
+  --danger-600:#DC2626;
+  --danger-700:#B42318;        /* DANGER */
   --danger-800:#912018;
 
   --warning-50:#FFFAEB;
   --warning-100:#FEF0C7;
   --warning-200:#FEDF89;
-  --warning-600:#DC6803;
+  --warning-600:#B45309;       /* WARNING */
   --warning-700:#B54708;
   --warning-800:#93370D;
 
-  /* Alias heredados del sistema anterior */
-  --teal:var(--brand-700);
+  /* Alias heredados del sistema anterior (mantener compatibilidad) */
+  --teal:var(--brand-600);
   --teal-soft:var(--brand-50);
   --slate:var(--text-secondary);
   --line:var(--border);
-  --success:#039855;
-  --danger:#D92D20;
-  --warning:#DC6803;
+  --success:var(--success-700);
+  --danger:var(--danger-700);
+  --warning:var(--warning-600);
   --preview-primary:var(--brand-900);
   --receipt-primary:var(--brand-900);
   --receipt-secondary:var(--accent-500);

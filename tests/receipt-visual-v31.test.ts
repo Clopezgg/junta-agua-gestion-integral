@@ -31,7 +31,7 @@ describe('recibo visual institucional 3.1',()=>{
     const app=read('src/App.tsx');
     const layout=read('src/components/Layout.tsx');
     expect(app).toContain('path="estudio-recibo"');
-    expect(layout).toContain('Vista visual del recibo');
+    expect(layout).toContain('Vista del recibo');
   });
 
   it('mantiene el recibo sin WhatsApp ni sitio web',()=>{

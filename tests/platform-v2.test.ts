@@ -84,7 +84,7 @@ describe('plataforma v2 institucional',()=>{
     expect(app).toContain('estudio-recibo');
     expect(layout).toContain('<GlobalSearch/>');
     expect(layout).toContain('appVersion.version');
-    expect(layout).toContain('Vista visual del recibo');
+    expect(layout).toContain('Vista del recibo');
     expect(home).toContain('Centro de pendientes');
     expect(home).toContain('Acciones rápidas');
     expect(operations).not.toContain('window.prompt');
