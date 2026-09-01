@@ -97,4 +97,13 @@ Asamblea, JuntaDirectiva, Comites, Reuniones, Resoluciones, Proyectos, Fuentes, 
 - Página `Incidents.tsx` (cola por estado + prioridades, crear/reportar, detalle, transiciones de estado, vincular o crear-y-vincular una orden de trabajo), ruta `/incidencias` repunteada a la nueva página con `incidents.read`, nav y título.
 - `lib/security.ts`: permisos `incidents.read/manage` en el union + rol `technician`.
 - Test `incidents.test.ts` (5 assertions); total **123 tests** / 22 archivos.
+- **PRODUCCIÓN Incidencias** ✅: migración 047 `202609010003` aplicada en Supabase Cloud (`migration list` Local=Remote); RPCs `list_incidents/get_incident/create_incident/update_incident` verificadas en `pg_proc` del Cloud + políticas RLS `incidents_read/incidents_manage` en `incidents`. PR #16 mergeado a main (`81b6cf5`); CI db-validate **001-047** ✅ + browser E2E ✅ + validate ✅ + functions ✅; Render LIVE sirviendo main `81b6cf5` (chunk `Incidents-BEILxhoM.js`), rutas `/` `/login` `/incidencias` → HTTP 200.
+
+### Continuación — siguiente dominio V5
+
+## Bancos y conciliación reforzada (dominio E, migración 048) ✅
+- Base 040 (estados/movimientos) + `202609010004_v5_bank_reconciliation_enhance.sql`: `discard_bank_transaction`, `unlink_bank_transaction`, `get_bank_account_balance` (security definer + `bank.manage` + auditoría).
+- `treasury/service.ts`: `discardBankTransaction/unlinkBankTransaction/getBankAccountBalance/listPayments/listExpenses`.
+- `Bancos.tsx` reescrito como workspace de conciliación: cuentas con saldo conciliable, importación de estado (form, sin `prompt`), cola filtrable por estado y conciliación contra candidatos reales (pagos o gastos). Ruta `/bancos` (finance.read) ya conectada.
+- Test `bancos.test.ts` (5 assertions); total **128 tests** / 23 archivos.
 
