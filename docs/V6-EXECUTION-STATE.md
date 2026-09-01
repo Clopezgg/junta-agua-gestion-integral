@@ -6,25 +6,25 @@
 
 | Clave | Valor |
 | --- | --- |
-| CURRENT_PHASE | MILESTONE B — Login / MFA / Setup |
-| LAST_COMPLETED_TASK | MILESTONE A completo: tokens V6, 15+ primitivas, AppShell (sidebar 6 secciones, topbar búsqueda/crear/notificaciones/usuario, bottom nav móvil), rutas maestras con redirección-paridad, tests, build verde |
+| CURRENT_PHASE | MILESTONE C — Inicio / búsqueda / Quick Create / notificaciones |
+| LAST_COMPLETED_TASK | MILESTONE B completo: Login REBUILD TOTAL (card 400px, nombre dinámico vía migración 052, cooldown conservado), MFA mínimo (enrolamiento intacto), Setup conservado, Recuperar acceso + Restablecer (reset real Supabase), PasswordField primitiva, auth.css |
 | CURRENT_BRANCH | `work/junta-os-v6-product-rebuild` |
 | CURRENT_COMMIT | (*ver git*) |
 | LAST_GREEN_COMMIT | (*ver git*) |
-| CURRENT_TEST_COUNT | 155 |
-| LAST_CI_RUN | Draft PR #21 — validate/db/functions/browser (monitorear tras push Milestone A) |
-| MIGRATION_RANGE | 001–051 (aplicadas) |
-| NEXT_MIGRATION | 052 (solo si 051 sigue siendo HEAD) |
+| CURRENT_TEST_COUNT | 159 |
+| LAST_CI_RUN | Draft PR #21 — validate/db/functions/browser (monitorear tras push Milestone B) |
+| MIGRATION_RANGE | 001–052 (052 = identidad pública solo-lectura para login) |
+| NEXT_MIGRATION | 053 (solo si 052 sigue siendo HEAD) |
 | PRODUCTION_UNCHANGED | SÍ |
 | KNOWN_BLOCKERS | Branch protection de main NO está habilitado en GitHub (PR obligatorio, required checks, no force push). Documentado en V6-SECURITY / V6-PRODUCTION-ACCEPTANCE como BLOCKED_EXTERNAL. |
-| NEXT_ACTION | Crear documentos fuente de verdad V6 → Milestone A (Foundation / Design System / AppShell) |
+| NEXT_ACTION | Milestone C — Inicio / búsqueda / Quick Create / notificaciones (AppShell ya provee search/crear/notificaciones; ahora reconstruir la Home V6 y el centro de notificaciones real) |
 
 ## Hitazos por milestone
 
 | Milestone | Estado |
 | --- | --- |
 | A · Foundation / Design System / AppShell | COMPLETE (155 tests, lint, tsc, build, smoke login OK) |
-| B · Login / MFA / Setup | PENDIENTE |
+| B · Login / MFA / Setup | COMPLETE (159 tests, lint, tsc, build, smoke /login /recuperar /restablecer OK) |
 | C · Inicio / búsqueda / Quick Create / notificaciones | PENDIENTE |
 | D · Abonados / 360 / nuevo servicio | PENDIENTE |
 | E · Cobro / caja / recibos / cartera | PENDIENTE |

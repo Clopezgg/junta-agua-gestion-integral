@@ -7,9 +7,9 @@ Leyenda de estados: — no aplica / PENDIENTE / EN CURSO / COMPLETE (con evidenc
 
 | FEATURE | DATOS | EXPERIENCE | DOMAIN | DB | RLS | SERVICE | UI | UX | TEST | E2E | RESPONSIVE | PROD | EVIDENCE |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Login | setup | PENDIENTE | PENDIENTE | — | — | — | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | — |
-| MFA | setup | PENDIENTE | PENDIENTE | — | — | — | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | — |
-| Setup | setup | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | — |
+| Login | setup | COMPLETE | COMPLETE | v052 (identidad pública) | — | COMPLETE | COMPLETE | COMPLETE | ✔ | ✔ | ✔ | PENDIENTE | v052 + src/pages/Login.tsx + tests |
+| MFA | setup | COMPLETE | COMPLETE | — | — | COMPLETE | COMPLETE | COMPLETE | ✔ | ✔ | PENDIENTE | PENDIENTE | src/pages/Mfa.tsx + mfa-bootstrap-flow + e2e |
+| Setup | setup | COMPLETE | COMPLETE | — | — | COMPLETE | COMPLETE | COMPLETE | ✔ | — | ✔ | PENDIENTE | src/pages/Setup.tsx + mfa-bootstrap-flow |
 | Inicio | home | PENDIENTE | — | — | — | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | — |
 | Search | home | PENDIENTE | — | — | — | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | — |
 | Quick Create | home | PENDIENTE | — | — | — | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | PENDIENTE | — |

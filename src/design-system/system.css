@@ -47,6 +47,9 @@
 .ja-control-trailing .ja-input{padding-right:2.2rem}
 .ja-control-icon{position:absolute;left:.65rem;display:grid;place-items:center;pointer-events:none;color:var(--ja-text-muted)}
 .ja-control-trailing>.ja-control-icon{left:auto;right:.65rem}
+.ja-control-toggle{position:absolute;right:.4rem;display:grid;place-items:center;width:28px;height:28px;padding:0;background:none;border:none;border-radius:var(--ja-radius-sm);color:var(--ja-text-muted);cursor:pointer}
+.ja-control-toggle:hover{color:var(--ja-text)}
+.ja-control-toggle:focus-visible{outline:2px solid var(--ja-primary);outline-offset:1px}
 .ja-input{height:36px}
 .ja-textarea{min-height:88px;resize:vertical}
 .ja-search-input{position:relative;display:flex;align-items:center}

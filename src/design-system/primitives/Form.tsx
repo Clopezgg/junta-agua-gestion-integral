@@ -1,5 +1,5 @@
-import {forwardRef,useId,type InputHTMLAttributes,type ReactNode,type SelectHTMLAttributes,type TextareaHTMLAttributes} from 'react';
-import {Search} from 'lucide-react';
+import {forwardRef,useId,useState,type InputHTMLAttributes,type ReactNode,type SelectHTMLAttributes,type TextareaHTMLAttributes} from 'react';
+import {Eye,EyeOff,Search} from 'lucide-react';
 import {cn} from '../utils';
 
 const controlBase='ja-control';
@@ -34,6 +34,22 @@ export function SearchInput({className,placeholder='Buscar…',onKeyDown,onSearc
     <input className={controlBase} type="search" placeholder={placeholder} onKeyDown={e=>{if(e.key==='Enter')onSearch?.();onKeyDown?.(e)}} {...rest}/>
     {label&&<label className="ja-visually-hidden">{label}</label>}
   </div>;
+}
+
+type PasswordProps=Omit<InputHTMLAttributes<HTMLInputElement>,'type'>&{label?:ReactNode;error?:string;leading?:ReactNode};
+export function PasswordField({label,error,required,id,className,leading,...rest}:PasswordProps){
+  const auto=useId();
+  const inputId=id??auto;
+  const[show,setShow]=useState(false);
+  return <FieldLabel id={inputId} label={label} required={required} error={error}>
+    <div className={cn('ja-control-wrap',!!leading&&'ja-control-leading','ja-control-trailing')}>
+      {leading&&<span className="ja-control-icon">{leading}</span>}
+      <input id={inputId} className={cn(controlBase,'ja-input',!!error&&'ja-control-error',className)} type={show?'text':'password'} autoComplete="current-password" required={required} aria-invalid={error?true:undefined} {...rest}/>
+      <button type="button" className="ja-control-toggle" onClick={()=>setShow(value=>!value)} aria-label={show?'Ocultar contraseña':'Mostrar contraseña'} aria-pressed={show} tabIndex={-1}>
+        {show?<EyeOff size={16}/>:<Eye size={16}/>}
+      </button>
+    </div>
+  </FieldLabel>;
 }
 
 type TextareaProps=TextareaHTMLAttributes<HTMLTextAreaElement>&{label?:ReactNode;error?:string};

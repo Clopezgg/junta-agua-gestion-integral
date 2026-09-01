@@ -14,6 +14,8 @@ import {PortalLogin} from './pages/PortalLogin';
 import {SubscriberPortal} from './pages/SubscriberPortal';
 import {Mfa} from './pages/Mfa';
 import {Setup} from './pages/Setup';
+import {RecuperarAcceso} from './pages/RecuperarAcceso';
+import {Restablecer} from './pages/Restablecer';
 import {Subscribers} from './pages/Subscribers';
 import {Security} from './pages/Security';
 import {Tariffs} from './pages/Tariffs';
@@ -65,6 +67,8 @@ const loading=<main className="content"><div className="panel">Cargando módulo 
 export default function App(){
   return <BrowserRouter><AuthProvider><Suspense fallback={loading}><Routes>
     <Route path="/login" element={<Login/>}/>
+    <Route path="/recuperar" element={<RecuperarAcceso/>}/>
+    <Route path="/restablecer" element={<Restablecer/>}/>
     <Route path="/portal" element={<PortalLogin/>}/>
     <Route path="/mi-cuenta" element={<PortalRoute><SubscriberPortal/></PortalRoute>}/>
     <Route path="/mfa" element={<Mfa/>}/>

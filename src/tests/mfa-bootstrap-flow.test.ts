@@ -21,7 +21,7 @@ describe('flujo MFA del primer administrador (pre-bootstrap)',()=>{
   // En /mfa, si existe factor (verified o pendiente) se muestra la verificación y NO el QR.
   expect(mfa).toContain('hasVerifiedFactor||a.hasTotpFactor');
   expect(mfa).toMatch(/Generar código QR/);
-  expect(mfa).toContain('Segundo factor: verificación de seguridad');
+  expect(mfa).toContain('Verificación de seguridad');
   expect(mfa).toContain('Introduce el código de 6 dígitos de tu aplicación autenticadora');
  });
 
@@ -46,7 +46,7 @@ describe('flujo MFA del primer administrador (pre-bootstrap)',()=>{
  });
 
  it('D) usuario sin factor: muestra enrolamiento con QR',()=>{
-  expect(mfa).toContain("hasFactor?'Segundo factor: verificación de seguridad':'Activar autenticador'");
+  expect(mfa).toContain("hasFactor?'Verificación de seguridad':'Activar autenticador'");
   expect(mfa).toContain('Generar código QR');
   expect(mfa).toContain('onClick={begin}');
   // enrollMfa crea el factor cuando no existe ninguno y expone el secret.

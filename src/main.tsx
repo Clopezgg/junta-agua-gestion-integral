@@ -16,6 +16,7 @@ import './styles/layout.css';
 import './design-system/tokens.css';
 import './design-system/system.css';
 import './design-system/shell.css';
+import './design-system/auth.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);
 
