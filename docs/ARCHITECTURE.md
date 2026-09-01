@@ -171,10 +171,10 @@ Workflows en `.github/workflows`:
 - **validate.yml**: `vitest` (`npm test`), lint y `build:render` (que ejecuta
   `scripts/bake-sw.mjs`), con verificación de artefactos publicables
   (`index.html`, `health.txt`, `_redirects`, `manifest.webmanifest`, `sw.js`).
-- **db-validate.yml**: `supabase start` aplica las migraciones 001..034 desde
+- **db-validate.yml**: `supabase start` aplica las migraciones 001..044 desde
   cero y ejecuta `supabase/tests/db_integrity.sql` (integridad financiera de
-  032-034); valida con `deno check` cada Edge Function y la configuración
-  (`verify_jwt = false` para `whatsapp-webhook`).
+  032-034 e invariantes); valida con `deno check` cada Edge Function y la
+  configuración (`verify_jwt = false` para `whatsapp-webhook`).
 - **e2e.yml**: Playwright en Chromium contra Supabase local con seed
   (`supabase/tests/e2e_seed.sql`), exportando anon key al entorno.
 - **release.yml**: sobre push a `main`/manual; resuelve la versión desde
@@ -185,3 +185,26 @@ Workflows en `.github/workflows`:
 La versión se inyecta en el build (`__APP_VERSION__`) y el service worker se
 versiona por build (`bake-sw.mjs`), de modo que cada release genera una caché
 del shell nueva e invalidable.
+
+## 7. V5 · Water Utility Operating System
+
+Convierte la plataforma en un ERP/OS real de JAA de Honduras (Orden Maestra V5).
+
+**Shell e IA (Fase 1):** 8 grupos objetivo en `Layout.tsx` (INICIO, Usuarios y
+servicio, Tesorería, Operación, Agua y ambiente, Gobierno, Cumplimiento,
+Administración) con `titleFor()` para todas las rutas, paleta `tokens.css` §64
+(brand-600 `#1D4ED8`, water-600 `#0284C7`), y rutas en `App.tsx` protegidas con
+`ProtectedRoute` + permiso. `src/lib/security.ts` amplía el union de permisos con
+`communications.read`, `water.*`, `governance.*`, `compliance.*`, `calendar.manage`.
+
+**Dominios nuevos (migraciones 036-044):** identidad (PERSONA ≠ ABONADO ≠
+INMUEBLE ≠ CONTRATO ≠ PEGUE), solicitudes/reclamos, morosidad/convenios, compras,
+banca/conciliación, bodega, gobierno institucional, agua y ambiente,
+cumplimiento/ERSAPS. Cada dominio es un feature service en
+`src/features/{identity,requests,arrears,procurement,treasury,inventory,governance,water,compliance}/service.ts`
+con páginas en `src/pages/*`. Backend `security definer` + RLS + permisos de rol +
+auditoría, sin escrituras directas desde el cliente.
+
+**CI actualizado:** `db-validate.yml` aplica las migraciones 001..044 desde cero
+(ahora incluye las 9 V5) + `db_integrity.sql` + `seed_integrity.sql`. `validate` y
+`e2e` cubren build y navegador.

@@ -65,7 +65,7 @@ describe('versión 2.2 experiencia institucional',()=>{
     expect(login).toContain('Plataforma institucional segura');
     expect(login).toContain('MFA obligatorio');
     expect(login).toContain('Continuar de forma segura');
-    expect(layout).toContain('Documentos y recibos');
+    expect(layout).toContain('Administración');
     expect(layout).toContain('Fichas digitales');
     expect(layout).toContain('nav-collapsed');
     expect(app).toContain('configuracion-documental');
