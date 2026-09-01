@@ -1,38 +1,42 @@
+import {existsSync,readFileSync,writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import {expect,test,type Page} from '@playwright/test';
 import {authenticator} from 'otplib';
 
 const EMAIL='e2e-demo@junta.test';
 const PASSWORD='E2e-Demo-2026!';
+// El secreto TOTP se enrola UNA vez y se persiste en disco para sobrevivir a
+// reintentos/reinicios de worker (un solo factor por usuario en Supabase).
+const SECRET_FILE=join(tmpdir(),'junta-e2e-totp-secret');
+const readSecret=()=>existsSync(SECRET_FILE)?readFileSync(SECRET_FILE,'utf8').trim():'';
 
-let totpSecret:string|undefined;
+async function passOtp(page:Page,secret:string){
+  for(let attempt=0;attempt<3;attempt++){
+    if(attempt>0)await page.waitForTimeout(authenticator.timeRemaining()*1000+800);
+    await page.getByLabel(/código de seis dígitos/i).fill(authenticator.generate(secret));
+    await page.getByRole('button',{name:/verificar y continuar/i}).first().click();
+    try{await expect(page).toHaveURL(/\/$/,{timeout:25_000});return;}catch{/* reintenta */}
+  }
+  throw new Error('No se pudo completar la verificación MFA.');
+}
 
 async function mfa(page:Page){
   await expect(page).toHaveURL(/\/mfa/,{timeout:20_000});
-  if(!totpSecret){
-    await expect(page.getByRole('heading',{name:/activar autenticador/i})).toBeVisible();
+  await expect(page.getByRole('heading',{name:/activar autenticador|verificación de seguridad/i})).toBeVisible({timeout:15_000});
+  let secret=readSecret();
+  const enrolling=await page.getByRole('heading',{name:/activar autenticador/i}).isVisible().catch(()=>false);
+  if(enrolling&&!secret){
     await page.getByRole('button',{name:/generar código qr/i}).first().click();
-    try{
-      await expect(page.locator('code').first()).toBeVisible({timeout:15_000});
-    }catch{
-      throw new Error(`No se pudo enrolar MFA: ${(await page.locator('.error').first().textContent()).trim()}`);
-    }
-    totpSecret=(await page.locator('code').first().textContent())?.trim()??'';
-    if(!totpSecret)throw new Error('No se pudo leer el secreto de enrolamiento.');
+    const code=page.locator('.ja-mfa-secret code');
+    await expect(code).toBeVisible({timeout:15_000});
+    secret=(await code.textContent())?.trim()??'';
+    if(!secret)throw new Error('No se pudo leer el secreto de enrolamiento.');
+    writeFileSync(SECRET_FILE,secret);
   }else{
     await expect(page.getByRole('heading',{name:/verificación de seguridad/i})).toBeVisible();
   }
-  for(let attempt=0;attempt<3;attempt++){
-    if(attempt>0)await page.waitForTimeout(authenticator.timeRemaining()+500);
-    await page.getByLabel(/código de seis dígitos/i).fill(authenticator.generate(totpSecret));
-    await page.getByRole('button',{name:/verificar y continuar/i}).first().click();
-    try{
-      await expect(page).toHaveURL(/\/$/,{timeout:25_000});
-      return;
-    }catch{
-      continue;
-    }
-  }
-  throw new Error('No se pudo completar la verificación MFA.');
+  await passOtp(page,secret||readSecret());
 }
 
 async function login(page:Page){
@@ -54,9 +58,9 @@ test.describe('flujo operativo real (browser) sobre Supabase local',()=>{
   test('navegación a abonados, presupuesto y pagos',async({page})=>{
     await login(page);
     for(const[route,heading]of [
-      ['/abonados','Abonados'],
-      ['/presupuesto','Presupuesto y sostenibilidad financiera'],
-      ['/pagos','Pagos, recibos y contabilización']
+      ['/abonados','^Abonados$'],
+      ['/presupuesto','Presupuesto'],
+      ['/pagos','^Cobrar$']
     ] as const){
       await page.goto(route);
       await expect(page.getByRole('heading',{level:1,name:new RegExp(heading,'i')})).toBeVisible();
