@@ -36,10 +36,10 @@ describe('respaldo y restauración (migración 034 + backup-manager)',()=>{
   expect(backupsPage).toContain('restored_rows');
   expect(backupsPage).toContain('requieren MFA');
  });
-   it('la validación en CI comprueba la traza y la documentación llega a la 045',()=>{
+   it('la validación en CI comprueba la traza y la documentación llega a la 046',()=>{
     expect(dbIntegrity).toContain("to_regclass('public.backup_restore_sessions')");
     expect(dbIntegrity).toContain("to_regprocedure('public.get_backup_restore_sessions(int)')");
     expect(fs.existsSync('supabase/migrations/202607110034_backup_restore_sessions.sql')).toBe(true);
-    expect(readme).toContain('001` a `045');
+    expect(readme).toContain('001` a `046');
    });
 });

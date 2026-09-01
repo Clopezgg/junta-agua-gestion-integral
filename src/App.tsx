@@ -56,6 +56,7 @@ const Imports=lazy(()=>import('./pages/Imports').then(module=>({default:module.I
 const DocumentSettings=lazy(()=>import('./pages/DocumentSettings').then(module=>({default:module.DocumentSettings})));
 const ReceiptVisualStudio=lazy(()=>import('./pages/ReceiptVisualStudio').then(module=>({default:module.ReceiptVisualStudio})));
 const SubscriberCards=lazy(()=>import('./pages/SubscriberCards').then(module=>({default:module.SubscriberCards})));
+const Abonado360=lazy(()=>import('./pages/Abonado360').then(module=>({default:module.Abonado360})));
 const FinancialDocuments=lazy(()=>import('./pages/FinancialDocuments').then(module=>({default:module.FinancialDocuments})));
 const loading=<main className="content"><div className="panel">Cargando módulo seguro…</div></main>;
 
@@ -75,6 +76,7 @@ export default function App(){
       <Route path="abonados" element={<ProtectedRoute permission="subscribers.read"><Subscribers/></ProtectedRoute>}/>
       <Route path="fichas-abonados" element={<ProtectedRoute permission="subscribers.read"><SubscriberCards/></ProtectedRoute>}/>
       <Route path="pegues-contratos" element={<ProtectedRoute permission="subscribers.read"><PeguesContratos/></ProtectedRoute>}/>
+      <Route path="abonado-360" element={<ProtectedRoute permission="subscribers.read"><Abonado360/></ProtectedRoute>}/>
       <Route path="solicitudes" element={<ProtectedRoute permission="subscribers.read"><Solicitudes/></ProtectedRoute>}/>
       <Route path="morosidad" element={<ProtectedRoute permission="obligations.read"><Morosidad/></ProtectedRoute>}/>
       <Route path="comunicaciones" element={<ProtectedRoute permission="communications.read"><Comunicaciones/></ProtectedRoute>}/>
