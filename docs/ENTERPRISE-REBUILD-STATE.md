@@ -6,8 +6,8 @@
 |---|---|
 | CURRENT_PHASE | Milestone F — Abonados + 360 + Nuevo Servicio (EN CURSO — lista §33 ✅ + Abonado 360 §34 ✅; Nuevo Servicio §36 pendiente) |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
-| CURRENT_SHA | (pendiente commit F.2) |
-| LAST_GREEN_SHA | (pendiente commit F.2) — 195 tests, lint OK, tsc OK, build OK |
+| CURRENT_SHA | `cda307e` |
+| LAST_GREEN_SHA | `cda307e` — 195 tests, lint OK, tsc OK, build OK |
 | LAST_COMPLETED_MILESTONE | E — Inicio (Command Center) |
 | NEXT_ACTION | Milestone F (resto): workflow Nuevo Servicio (§36) — Persona→Abonado→Ubicación→Solicitud→Inspección→Aprobación→Contrato→Cobro→Orden→Materiales→Instalación→Activación con borrador y timeline. Luego Milestone G. Draft PR: #22. |
 | TEST_COUNT | 195 (vitest) — gates: legacy · router-map · command-palette · notifications · quick-create · setup-wizard · home-dashboard · subscriber-list · abonado-360 |
@@ -47,5 +47,5 @@ No hay `.claude/` ni `skills/` dentro del repo. No hay MCP servers de dominio.
 | C — Shell + Router + Search + Quick Create + Notifications | ✅ COMPLETE | `254b6c4` | Router por dominio (`src/app/router/*`, App.tsx 170→6). CommandPalette real (`src/app/commands/*`, Ctrl+K, teclado, permisos, entidades vía `global_search`). NotificationsCenter con avisos reales derivados de `get_role_dashboard` (`src/features/notifications/*`). QuickCreate → rutas reales. +5 suites de test, +1 E2E. |
 | D — Login + MFA + Setup | ✅ COMPLETE | `2542a6a` | Login (§23) y MFA primer-admin (§24) ya sólidos desde V6 — verificados + E2E. Setup: asistente empresarial real de 5 pasos (§25) — Identidad/Ubicación/Legal/Servicio/Revisión sobre `bootstrap_organization` + nuevo `complete_setup`/`save_setup_progress`; migración `202609010009` añade el perfil institucional y corrige pérdida de datos en `update_organization_settings` (§152). Sin datos inventados. |
 | E — Inicio (Command Center) | ✅ COMPLETE | `c534738` | `Home.tsx` reconstruido sobre `src/design-system` como command center (§26): "Requiere atención" (unificado con NotificationsCenter vía `deriveNotifications`, §133), Panorama y Acciones rápidas role-aware (§27) — lógica extraída a `src/features/dashboard/roleView.ts`. Sale de la allowlist legacy. §39: elimina "L 400" hardcodeado. +home-dashboard test. |
-| F — Abonados + 360 + Nuevo Servicio | 🔶 EN CURSO | (commit F.2) | **Lista §33 ✅** (`AbonadosList` + RPC `list_subscribers`, mig. 010). **Abonado 360 §34 ✅**: `Abonado360.tsx` sobre DS en `/abonados/:id` — 8 pestañas (Resumen·Servicio·Cuenta·Pagos·Atención·Trabajo·Documentos·Historial) + barra de acciones (Cobrar/Nuevo servicio/Solicitud/Orden/Estado de cuenta/Comunicar), todo desde 1 RPC `get_subscriber_expediente` (mig. 011), permisos por sección. **§32 corregido** (sin UUID). §37 ya OK. **Pendiente**: workflow Nuevo Servicio (§36). |
+| F — Abonados + 360 + Nuevo Servicio | 🔶 EN CURSO | `cda307e` | **Lista §33 ✅** (`AbonadosList` + RPC `list_subscribers`, mig. 010). **Abonado 360 §34 ✅**: `Abonado360.tsx` sobre DS en `/abonados/:id` — 8 pestañas (Resumen·Servicio·Cuenta·Pagos·Atención·Trabajo·Documentos·Historial) + barra de acciones (Cobrar/Nuevo servicio/Solicitud/Orden/Estado de cuenta/Comunicar), todo desde 1 RPC `get_subscriber_expediente` (mig. 011), permisos por sección. **§32 corregido** (sin UUID). §37 ya OK. **Pendiente**: workflow Nuevo Servicio (§36). |
 | G — Cobro + Recibos + Caja | PENDIENTE | — | — |
