@@ -42,7 +42,7 @@ jobs:
             -v "$PWD/supabase/tests/db_integrity.sql:/tmp/db_integrity.sql:ro" \
             --entrypoint psql postgres:16-alpine \
             -f /tmp/db_integrity.sql
-      - name: Verificar endurecimiento P0 (migración 045): multi-abonado, cross-org y MFA/AAL2
+      - name: "Verificar endurecimiento P0 (migración 045): multi-abonado, cross-org y MFA/AAL2"
         run: |
           docker run --rm --network host \
             -e PGPASSWORD=postgres \
