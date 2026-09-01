@@ -47,6 +47,7 @@ const Expenses=lazy(()=>import('./pages/Expenses').then(module=>({default:module
 const Reports=lazy(()=>import('./pages/Reports').then(module=>({default:module.Reports})));
 const Integrations=lazy(()=>import('./pages/Integrations').then(module=>({default:module.Integrations})));
 const Operations=lazy(()=>import('./pages/Operations').then(module=>({default:module.Operations})));
+const Incidents=lazy(()=>import('./pages/Incidents').then(module=>({default:module.Incidents})));
 const Progress=lazy(()=>import('./pages/Progress').then(module=>({default:module.Progress})));
 const MapView=lazy(()=>import('./pages/MapView').then(module=>({default:module.MapView})));
 const Backups=lazy(()=>import('./pages/Backups').then(module=>({default:module.Backups})));
@@ -93,7 +94,7 @@ export default function App(){
       <Route path="tarifas" element={<ProtectedRoute permission="tariffs.read"><Tariffs/></ProtectedRoute>}/>
       {/* OPERACIÓN */}
       <Route path="operaciones" element={<ProtectedRoute permission="operations.read"><Operations/></ProtectedRoute>}/>
-      <Route path="incidencias" element={<ProtectedRoute permission="operations.read"><Operations/></ProtectedRoute>}/>
+      <Route path="incidencias" element={<ProtectedRoute permission="incidents.read"><Incidents/></ProtectedRoute>}/>
       <Route path="ordenes-trabajo" element={<ProtectedRoute permission="operations.read"><Operations/></ProtectedRoute>}/>
       <Route path="activos" element={<ProtectedRoute permission="assets.read"><Operations/></ProtectedRoute>}/>
       <Route path="mantenimiento" element={<ProtectedRoute permission="maintenance.manage"><Operations/></ProtectedRoute>}/>

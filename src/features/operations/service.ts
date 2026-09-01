@@ -13,3 +13,7 @@ export async function createAsset(payload:Record<string,unknown>){const{data,err
 export async function listMaintenancePlans(){const{data,error}=await db().rpc('list_maintenance_plans');check(error);return data??[];}
 export async function createMaintenancePlan(payload:Record<string,unknown>){const{data,error}=await db().rpc('create_maintenance_plan',{p_payload:payload});check(error);return data;}
 export async function generatePreventiveWorkOrders(throughDate:string){const{data,error}=await db().rpc('generate_preventive_work_orders',{p_through_date:throughDate});check(error);return data;}
+export async function listIncidents(status:string|null=null,category:string|null=null){const{data,error}=await db().rpc('list_incidents',{p_status:status,p_category:category});check(error);return data??[];}
+export async function getIncident(id:string){const{data,error}=await db().rpc('get_incident',{p_id:id});check(error);return data;}
+export async function createIncident(payload:Record<string,unknown>){const{data,error}=await db().rpc('create_incident',{p_payload:payload});check(error);return data;}
+export async function updateIncident(id:string,payload:Record<string,unknown>){const{data,error}=await db().rpc('update_incident',{p_id:id,p_payload:payload});check(error);return data;}
