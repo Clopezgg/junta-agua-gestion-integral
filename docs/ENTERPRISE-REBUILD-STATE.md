@@ -4,17 +4,17 @@
 
 | Campo | Valor |
 |---|---|
-| CURRENT_PHASE | Fix E2E (regresión D) + Visual Contract — luego Milestone H |
+| CURRENT_PHASE | Visual Contract — Gap Review A–G + Login (§54) — luego Milestone H |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
-| CURRENT_SHA | `bbc834d` |
-| LAST_GREEN_SHA | `bbc834d` — 215 tests, lint OK, tsc OK, build OK |
+| CURRENT_SHA | `0046b54` |
+| LAST_GREEN_SHA | `0046b54` (4/4 CI verde: validate·db·functions·browser) — 215 tests, lint OK, tsc OK, build OK |
 | LAST_COMPLETED_MILESTONE | G — Cobro + Recibos + Caja |
 | NEXT_ACTION | Milestone H: Cartera (§49) con estados sin suspensión automática, Convenios (§50), Bancos + Conciliación (§47-48). Draft PR: #22. |
 | TEST_COUNT | 217 (vitest) — +regresión mfa/setup |
-| E2E_COUNT | 6 tests Playwright (`tests/e2e/smoke.spec.ts`, +command palette) + 1 sim |
+| E2E_COUNT | 9 tests Playwright (smoke.spec: login/MFA, navegación, búsqueda, responsive, POS+Caja, Nuevo servicio, 360, command palette, logout) + 1 sim |
 | LEGACY_FILES_REMAINING | 12 CSS legacy (~74KB) + 48 `.tsx` en `docs/legacy-ui-allowlist.txt` (−App, −Home, −Abonado360, −Caja, −Payments) + **1** en `docs/legacy-uuid-allowlist.txt`. El gate impide que las listas crezcan. |
 | MIGRATION_HEAD | `202609010012_v6_caja.sql` (`get_cash_session_report` + `list_cash_sessions` — arqueo, diferencias, historial). Tipos DB: regenerar tras aplicar a cloud (post-merge, §141). |
-| OPEN_BLOCKERS | Ninguno. E2E: regresión de Milestone D **CORREGIDA** (Mfa/Setup atrapaban al admin en `/setup` durante el render transitorio `mfaVerified=true`+`profile=null`). Branch protection `main` activa. |
+| OPEN_BLOCKERS | Ninguno. E2E **VERDE** de nuevo (fix `17e99d9` producto + `0046b54` helper). A–G re-certificados end-to-end. Branch protection `main` activa. |
 | STAGING_STATE | No configurado. Plan: Render PR Preview + Supabase local/CI. Sin servicios pagados nuevos. |
 | PRODUCTION_UNCHANGED | SÍ. Prod (`junta-agua-gestion-integral.onrender.com`) sirve `main`/`c677335`. No se toca durante desarrollo. |
 
