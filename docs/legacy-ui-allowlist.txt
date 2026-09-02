@@ -16,6 +16,7 @@
 # Milestone H: -src/pages/Bancos.tsx (conciliación §38) -src/pages/Morosidad.tsx (convenios §36) +src/pages/Cartera.tsx (§34 nace sobre design system).
 # Milestone I: -src/pages/Expenses.tsx (§40) -src/pages/Compras.tsx (§41) -src/pages/Budget.tsx (§42) sobre design system.
 # Milestone J: -src/pages/Operations.tsx (§46) -src/pages/Incidents.tsx (§47) workspace operativo sobre design system.
+# Milestone M: -src/pages/{Calidad,Cloracion,Fuentes,Continuidad,Microcuenca}.tsx (§54-58) sobre design system, sin window.prompt.
 # Milestone C: -src/App.tsx (router modularizado a src/app/router/*, sin markup legacy).
 
 src/components/Layout.tsx
@@ -26,22 +27,17 @@ src/pages/Audit.tsx
 src/pages/Backups.tsx
 src/pages/Bodega.tsx
 src/pages/Calendario.tsx
-src/pages/Calidad.tsx
-src/pages/Cloracion.tsx
 src/pages/Comites.tsx
 src/pages/Comunicaciones.tsx
-src/pages/Continuidad.tsx
 src/pages/DocumentSettings.tsx
 src/pages/Ersaps.tsx
 src/pages/FieldReadings.tsx
 src/pages/FinancialDocuments.tsx
-src/pages/Fuentes.tsx
 src/pages/Imports.tsx
 src/pages/Integrations.tsx
 src/pages/JuntaDirectiva.tsx
 src/pages/MapView.tsx
 src/pages/Metering.tsx
-src/pages/Microcuenca.tsx
 src/pages/PeguesContratos.tsx
 src/pages/Progress.tsx
 src/pages/Proyectos.tsx

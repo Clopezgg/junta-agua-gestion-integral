@@ -9,3 +9,5 @@ export async function listChlorinationLogs(){const {data,error}=await db().rpc('
 export async function listWaterSources(){const {data,error}=await db().from('water_sources').select('id,code,name,source_type,status,location,estimated_flow').order('name');if(error)throw new Error(error.message);return data??[];}
 export async function listWatersheds(){const {data,error}=await db().from('watersheds').select('id,name,code,protection_status').order('name');if(error)throw new Error(error.message);return data??[];}
 export async function listRationalizations(){const {data,error}=await db().rpc('list_rationalization');check(error);return data??[];}
+export async function createRationalization(payload:Record<string,unknown>){const {data,error}=await db().rpc('create_rationalization',payload);check(error);return data;}
+export async function registerWatershed(payload:Record<string,unknown>){const {data,error}=await db().rpc('register_watershed',payload);check(error);return data;}

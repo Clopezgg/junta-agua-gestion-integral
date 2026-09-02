@@ -1,27 +1,73 @@
-import {useEffect,useState} from 'react';
-import {Sparkles,Plus} from 'lucide-react';
-import {listWatersheds} from '../features/water/service';
+import {useCallback,useEffect,useState} from 'react';
+import {Plus,RefreshCw,Trees} from 'lucide-react';
+import {listWatersheds,registerWatershed} from '../features/water/service';
 import {useAuth} from '../contexts/AuthContext';
-import {supabase} from '../lib/supabase';
+import {Badge,Button,Dialog,EmptyState,ErrorState,Skeleton} from '../design-system/primitives';
 
 type Watershed={id:string;name:string;code:string|null;protection_status:string|null;description:string|null};
+const PROTECTION=['declarada','en_tramite','sin_declarar','privada'];
 
 export function Microcuenca(){
- const auth=useAuth();
- const [items,setItems]=useState<Watershed[]>([]);
- const [error,setError]=useState('');
- const load=()=>{void listWatersheds().then(w=>setItems((w as Watershed[])??[])).catch(()=>setError('No se pudo cargar la microcuenca.'));};
- useEffect(load,[]);
- const create=async()=>{const name=prompt('Nombre de la microcuenca');if(!name)return;
-  const {error}=await supabase!.rpc('register_watershed',{p_name:name,p_code:null,p_protection_status:null,p_description:null});
-  if(error)setError(error.message);else load();};
- return <main className="content">
-  <div className="titlebar module-hero"><div><span className="eyebrow">Agua y ambiente</span><h1>Microcuenca</h1><p>Cuencas de recarga, protección y monitoreo del recurso hídrico.</p></div></div>
-  {error&&<div className="notice">{error}</div>}
-  {auth.has('water.manage')&&<button className="primary" onClick={create}><Plus size={16}/> Nueva microcuenca</button>}
-  <div className="cards" style={{marginTop:'1rem'}}>
-   {items.length===0&&<div className="panel"><div className="empty empty-state"><Sparkles size={22}/><p>Sin microcuencas registradas.</p></div></div>}
-   {items.map(w=><article key={w.id} className="panel"><strong>{w.name}</strong><span>{w.code||'sin código'}</span><small>{w.protection_status||'Sin estado de protección'}</small>{w.description&&<small>{w.description}</small>}</article>)}
-  </div>
- </main>;
+  const auth=useAuth();
+  const [items,setItems]=useState<Watershed[]>([]);
+  const [loading,setLoading]=useState(true);
+  const [error,setError]=useState('');
+  const [notice,setNotice]=useState('');
+  const [open,setOpen]=useState(false);
+  const [form,setForm]=useState({name:'',code:'',protection_status:'sin_declarar',description:''});
+
+  const load=useCallback(()=>{
+    setLoading(true);
+    void listWatersheds()
+      .then(w=>{setItems((w as Watershed[])??[]);setError('');})
+      .catch(e=>setError((e as Error).message))
+      .finally(()=>setLoading(false));
+  },[]);
+  useEffect(load,[load]);
+
+  async function submit(e:React.FormEvent){
+    e.preventDefault();
+    try{
+      await registerWatershed({p_name:form.name.trim(),p_code:form.code||null,
+        p_protection_status:form.protection_status,p_description:form.description||null});
+      setForm({name:'',code:'',protection_status:'sin_declarar',description:''});
+      setOpen(false);setNotice('Microcuenca registrada.');load();
+    }catch(err){setError((err as Error).message);}
+  }
+
+  return <main className="ja-page">
+    <header className="ja-page-head">
+      <div><h1>Microcuenca</h1><p>Cuencas de recarga, estado de protección y monitoreo del recurso hídrico.</p></div>
+      {auth.has('water.manage')&&<Button icon={<Plus size={15}/>} onClick={()=>setOpen(true)}>Nueva microcuenca</Button>}
+      <button type="button" className="ja-tab" onClick={load}><RefreshCw size={14}/> Actualizar</button>
+    </header>
+
+    {notice&&<div className="ja-banner ja-banner-info">{notice}</div>}
+    {error&&<ErrorState error={error} onRetry={load}/>}
+    {loading&&items.length===0&&<Skeleton className="ja-360-skel"/>}
+
+    {!loading&&<section className="ja-list">
+      {items.length===0
+        ?<EmptyState icon={<Trees size={22}/>} title="Sin microcuencas" description="Registre las microcuencas que recargan las fuentes."/>
+        :items.map(w=><article key={w.id} className="ja-list-row">
+          <div>
+            <strong>{w.name}</strong>
+            <span className="ja-cell-sub">{w.code||'sin código'}{w.description?` · ${w.description}`:''}</span>
+          </div>
+          <Badge tone={w.protection_status==='declarada'?'success':'neutral'}>{w.protection_status||'sin estado'}</Badge>
+        </article>)}
+    </section>}
+
+    <Dialog open={open} onClose={()=>setOpen(false)} title="Nueva microcuenca">
+      <form className="ja-pos-fields" onSubmit={submit}>
+        <div className="ja-pos-grid">
+          <label className="ja-field"><span className="ja-field-label">Nombre</span><input className="ja-control" required minLength={3} value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/></label>
+          <label className="ja-field"><span className="ja-field-label">Código</span><input className="ja-control" value={form.code} onChange={e=>setForm({...form,code:e.target.value})}/></label>
+          <label className="ja-field"><span className="ja-field-label">Estado de protección</span><select className="ja-control" value={form.protection_status} onChange={e=>setForm({...form,protection_status:e.target.value})}>{PROTECTION.map(p=><option key={p} value={p}>{p}</option>)}</select></label>
+        </div>
+        <label className="ja-field"><span className="ja-field-label">Descripción</span><textarea className="ja-control" rows={2} value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/></label>
+        <Button type="submit" icon={<Plus size={15}/>}>Registrar</Button>
+      </form>
+    </Dialog>
+  </main>;
 }
