@@ -34,7 +34,11 @@ describe('Incidencias (semántica de incidencia en Operación)',()=>{
   expect(page).toContain('createIncident');
   expect(page).toContain('updateIncident');
   expect(page).toContain('createWorkOrder');
-  expect(page).toContain('Incidencia y reportes');
+  expect(page).toContain('Incidencias y reportes');
+  // Milestone J: workspace operativo sobre design system, sin CSS legacy
+  expect(page).toContain("from '../design-system/primitives'");
+  expect(page).not.toContain('className="content"');
+  expect(page).not.toContain('className="modal"');
  });
  it('la ruta y navegación usan el permiso incidents.read',()=>{
   expect(routePermission('incidencias')).toBe('incidents.read');
