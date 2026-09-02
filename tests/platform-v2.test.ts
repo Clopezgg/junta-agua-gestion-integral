@@ -39,12 +39,12 @@ describe('plataforma v2 institucional',()=>{
     const documents=read('src/features/finance/documents.ts');
     const finance=read('src/features/finance/service.ts');
     const settings=read('src/features/settings/service.ts');
-    expect(documents).toContain('format:[139.7,215.9]');
+    // G.3 — recibo oficial en Carta (§13) con estados documentales
+    expect(documents).toContain('W=215.9,H=279.4');
     expect(documents).toContain("receipt.copy?'REIMPRESIÓN':'ORIGINAL'");
     expect(documents).toContain("return'PAGADO'");
     expect(documents).toContain('signatureDataUrl');
     expect(documents).toContain('stampDataUrl');
-    expect(documents).toContain('nationalEmblemDataUrl');
     expect(documents).toContain('discountPercentage');
     expect(documents).toContain('connectionCodes');
     expect(finance).toContain('attach_payment_receipt_v2');

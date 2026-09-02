@@ -106,17 +106,25 @@ export function Payments(){
       const data=await getPaymentReceiptData(result.id) as Row;
       const verification=`${window.location.origin}${result.verification_url}`;
       const base=N(data.base_amount??total),discount=N(data.discount_amount),late=N(data.late_fee_amount);
+      const created=new Date((data.created_at as string)??Date.now());
       const receipt:ReceiptInput={
         number:result.receipt_number,subscriber:(data.subscriber_name as string)??String(selected.full_name),subscriberCode:(data.subscriber_code as string)??String(selected.code),
-        maskedIdentity:data.masked_identity as string,date:new Date((data.created_at as string)??Date.now()).toLocaleString('es-HN'),
+        maskedIdentity:data.masked_identity as string,
+        date:created.toLocaleDateString('es-HN',{day:'2-digit',month:'short',year:'numeric'}),
+        time:created.toLocaleTimeString('es-HN',{hour:'2-digit',minute:'2-digit'}),
+        cashBox:(data.cash_box as string)??undefined,
+        concept:data.concept as string|undefined,reference:data.reference as string|undefined,
         annualYear:data.annual_year as number|undefined,
         connectionCount:N(data.connection_count),connectionCodes:(data.connection_codes as string[])??[],
         address:data.subscriber_address as string,sector:data.subscriber_sector as string,serviceStatus:'ACTIVO',
         baseAmount:base,discountPercentage:base>0?Math.round((discount/base)*100):0,discountAmount:discount,lateFeeAmount:late,
+        previousBalance:data.previous_balance!=null?N(data.previous_balance):undefined,
+        appliedAmount:N(data.total??total),
+        newBalance:data.new_balance!=null?N(data.new_balance):undefined,
         otherCharges:Math.max(0,total-base+discount-late),total:N(data.total??total),received:N(data.received_amount??effectiveReceived),
         change:N(data.change_amount??Math.max(0,effectiveReceived-total)),method:(data.method as string)??method,
         items:((data.items as Row[])??[]).map(i=>({code:i.code as string,description:i.description as string,quantity:N(i.quantity??1),unitPrice:N(i.unitPrice??i.amount),amount:N(i.amount)})),
-        verification,brand,status:(data.status as string)??'confirmed',cashier:auth.profile?.full_name,
+        verification,brand,status:(data.status as string)??'confirmed',cashier:(data.cashier as string)??auth.profile?.full_name,
       };
       const blob=await createReceiptPdfBlob(receipt);
       try{
@@ -137,11 +145,20 @@ export function Payments(){
       const data=await getPaymentReceiptData(String(payment.id)) as Row;
       const historicalBrand=await resolveBrand((data.brand_snapshot??null) as ReceiptBrand|null);
       const verification=`${window.location.origin}/verificar-recibo/${data.verification_token}`;
+      const created=new Date(data.created_at as string);
       const receipt:ReceiptInput={
         number:data.receipt_number as string,subscriber:data.subscriber_name as string,subscriberCode:data.subscriber_code as string,
-        date:new Date(data.created_at as string).toLocaleString('es-HN'),total:N(data.total),received:N(data.received_amount),change:N(data.change_amount),
+        maskedIdentity:data.masked_identity as string,
+        date:created.toLocaleDateString('es-HN',{day:'2-digit',month:'short',year:'numeric'}),
+        time:created.toLocaleTimeString('es-HN',{hour:'2-digit',minute:'2-digit'}),
+        cashBox:(data.cash_box as string)??undefined,concept:data.concept as string|undefined,reference:data.reference as string|undefined,
+        sector:data.subscriber_sector as string,connectionCodes:(data.connection_codes as string[])??[],
+        discountAmount:N(data.discount_amount),lateFeeAmount:N(data.late_fee_amount),
+        previousBalance:data.previous_balance!=null?N(data.previous_balance):undefined,
+        appliedAmount:N(data.total),newBalance:data.new_balance!=null?N(data.new_balance):undefined,
+        total:N(data.total),received:N(data.received_amount),change:N(data.change_amount),
         method:data.method as string,items:((data.items as Row[])??[]).map(i=>({description:i.description as string,amount:N(i.amount)})),
-        verification,brand:historicalBrand,copy:true,status:data.status as string,cashier:auth.profile?.full_name,
+        verification,brand:historicalBrand,copy:true,status:data.status as string,cashier:(data.cashier as string)??auth.profile?.full_name,
       };
       await recordPaymentReprint(String(payment.id));
       await downloadReceiptPdf(receipt);

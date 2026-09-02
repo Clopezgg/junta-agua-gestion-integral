@@ -11,11 +11,12 @@ export type ReceiptBrand={
 export type ReceiptItem={code?:string;description:string;quantity?:number;unitPrice?:number;amount:number};
 
 export type ReceiptInput={
-  number:string;subscriber:string;subscriberCode?:string;maskedIdentity?:string;date:string;
-  annualYear?:number;periodFrom?:string;periodTo?:string;dueDate?:string;lateFrom?:string;
+  number:string;subscriber:string;subscriberCode?:string;maskedIdentity?:string;date:string;time?:string;cashBox?:string;
+  annualYear?:number;periodFrom?:string;periodTo?:string;dueDate?:string;lateFrom?:string;concept?:string;reference?:string;
   connectionCount?:number;connectionCodes?:string[];address?:string;sector?:string;serviceStatus?:string;
   baseAmount?:number;discountPercentage?:number;discountAmount?:number;lateFeeAmount?:number;otherCharges?:number;
-  total:number;received:number;change:number;method:string;items:ReceiptItem[];verification?:string;brand?:ReceiptBrand;copy?:boolean;
+  previousBalance?:number;appliedAmount?:number;newBalance?:number;
+  total:number;received:number;change:number;method:string;items:ReceiptItem[];verification?:string;verificationCode?:string;brand?:ReceiptBrand;copy?:boolean;
   status?:string;cashier?:string;totalWords?:string;sample?:boolean;
 };
 
@@ -36,11 +37,6 @@ function addImageSafe(pdf:jsPDF,data:string|undefined,x:number,y:number,w:number
     pdf.addImage(data,format,x,y,w,h,undefined,'FAST');
     return true;
   }catch{return false;}
-}
-
-function hexToRgb(value:string|undefined,fallback:[number,number,number]):[number,number,number]{
-  const match=value?.trim().match(/^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
-  return match?[Number.parseInt(match[1],16),Number.parseInt(match[2],16),Number.parseInt(match[3],16)]:fallback;
 }
 
 function methodLabel(value:string){
@@ -85,126 +81,191 @@ function numberWords(value:number){
 }
 function totalInWords(value:number){const cents=Math.round((Math.abs(value)-Math.floor(Math.abs(value)))*100);return`${numberWords(value)} LEMPIRAS CON ${String(cents).padStart(2,'0')}/100`;}
 
-function drawFallbackLogo(pdf:jsPDF,x:number,y:number,primary:[number,number,number],secondary:[number,number,number]){
-  pdf.setFillColor(...primary);pdf.roundedRect(x,y,22,22,4,4,'F');
-  pdf.setFillColor(...secondary);pdf.circle(x+11,y+7,3.4,'F');pdf.triangle(x+7.6,y+8.2,x+14.4,y+8.2,x+11,y+15.3,'F');
-  pdf.setTextColor(255,255,255);pdf.setFont('helvetica','bold');pdf.setFontSize(5.8);pdf.text('JAPA',x+11,y+20,{align:'center'});
+// Placeholder institucional del logo (§11): marca sobria, NO una identidad nueva
+// permanente. Óvalo con gota — se usa sólo si la Junta aún no cargó su logo oficial.
+function drawLogoPlaceholder(pdf:jsPDF,x:number,y:number,w:number,h:number){
+  pdf.setFillColor(255,255,255);pdf.ellipse(x+w/2,y+h/2,w/2,h/2,'F');
+  pdf.setDrawColor(11,39,69);pdf.setLineWidth(.5);pdf.ellipse(x+w/2,y+h/2,w/2,h/2,'S');
+  pdf.setFillColor(8,145,178);pdf.circle(x+w/2,y+h/2-1.6,2.1,'F');
+  pdf.triangle(x+w/2-2.1,y+h/2-0.6,x+w/2+2.1,y+h/2-0.6,x+w/2,y+h/2+3.2,'F');
 }
-function drawFallbackEmblem(pdf:jsPDF,x:number,y:number,primary:[number,number,number]){
-  pdf.setDrawColor(...primary);pdf.setLineWidth(.45);pdf.roundedRect(x,y,21,22,3,3,'S');
-  pdf.setFont('helvetica','bold');pdf.setTextColor(...primary);pdf.setFontSize(5.4);pdf.text('HONDURAS',x+10.5,y+5,{align:'center'});
-  pdf.setFontSize(14);pdf.text('H',x+10.5,y+14,{align:'center'});pdf.setFontSize(4.5);pdf.text('ESCUDO OFICIAL',x+10.5,y+19.5,{align:'center'});
+// Placeholder del sello circular (§12): SIN nombres de persona ni "FIRMA".
+function drawStampPlaceholder(pdf:jsPDF,cx:number,cy:number,r:number){
+  pdf.setDrawColor(11,39,69);pdf.setLineWidth(.55);pdf.circle(cx,cy,r,'S');pdf.circle(cx,cy,r-1.6,'S');
+  pdf.setFillColor(8,145,178);pdf.circle(cx,cy-0.6,1.6,'F');pdf.triangle(cx-1.6,cy,cx+1.6,cy,cx,cy+2.6,'F');
+  pdf.setTextColor(11,39,69);pdf.setFont('helvetica','bold');pdf.setFontSize(3.4);
+  pdf.text('JUNTA ADMINISTRADORA DE AGUA POTABLE',cx,cy-r+2.4,{align:'center'});
+  pdf.text('EL ACHIOTAL',cx,cy+r-1.6,{align:'center'});
 }
 
+/**
+ * Recibo oficial — Visual Contract §10–31, §129.
+ * Composición: header navy (logo óvalo · institución · RECIBO OFICIAL DE PAGO No.) →
+ * fila FECHA/HORA/CAJA/ESTADO → cuerpo 65/35 (RECIBÍ DE / LA SUMA DE / POR CONCEPTO DE
+ * · panel MONTO PAGADO) → fila Abonado/Pegue/Sector → SITUACIÓN DE LA CUENTA (sólo
+ * hechos reales, sin filas L0) → footer autenticidad (QR · FIRMA · SELLO) → footer navy.
+ */
 export async function createReceiptPdfBlob(receipt:ReceiptInput){
-  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:[139.7,215.9],compress:true});
+  const W=215.9,H=279.4,M=14;
+  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:[W,H],compress:true});
   const brand=receipt.brand??{};
-  const width=139.7,margin=6.5;
-  const primary=hexToRgb(brand.primaryColor,[11,79,108]);
-  const secondary=hexToRgb(brand.secondaryColor,[217,168,33]);
+  const NAVY:[number,number,number]=[11,39,69];
+  const TEAL:[number,number,number]=[8,145,178];
+  const INK:[number,number,number]=[16,24,40];
+  const SEC:[number,number,number]=[71,84,103];
+  const MUT:[number,number,number]=[102,112,133];
+  const GREEN:[number,number,number]=[6,118,71];
   const state=paymentStatusLabel(receipt);
-  const negative=['ANULADO','DEVUELTO','DEVOLUCIÓN PARCIAL','VENCIDO'].includes(state);
-  const stateColor:[number,number,number]=negative?[153,27,27]:state==='PENDIENTE'?[180,83,9]:[21,128,61];
-  const year=receipt.annualYear??new Date(receipt.date).getFullYear();
-  const baseAmount=Number(receipt.baseAmount??receipt.items.reduce((sum,item)=>sum+Number(item.amount),0));
-  const discountAmount=Number(receipt.discountAmount??0);
-  const lateFeeAmount=Number(receipt.lateFeeAmount??0);
-  const otherCharges=Number(receipt.otherCharges??0);
-  const connectionCodes=receipt.connectionCodes??[];
+  const voided=receipt.status==='voided';
+  const reversed=receipt.status==='refunded'||receipt.status==='partially_refunded';
+  const inst=brand.name||'Junta Administradora de Agua Potable El Achiotal';
+  const place=brand.address||'Santa Cruz de Yojoa, Cortés';
+  const discount=Number(receipt.discountAmount??0);
+  const late=Number(receipt.lateFeeAmount??0);
+  const applied=Number(receipt.appliedAmount??receipt.total);
+  const prev=receipt.previousBalance;
+  const next=receipt.newBalance;
+  const [datePart,timePart]=receipt.date.includes(',')?receipt.date.split(',').map(s=>s.trim()):[receipt.date,receipt.time??''];
+  const time=receipt.time??timePart??'';
 
-  pdf.setFillColor(...primary);pdf.rect(0,0,width,3,'F');
-  pdf.setFillColor(...secondary);pdf.rect(0,3,width,1.2,'F');
-  if(receipt.sample){pdf.setFillColor(254,243,199);pdf.rect(0,4.2,width,5.5,'F');pdf.setTextColor(146,64,14);pdf.setFont('helvetica','bold');pdf.setFontSize(6.2);pdf.text('VISTA PREVIA VISUAL · DATOS DEMOSTRATIVOS · NO REPRESENTA UN PAGO REAL',width/2,7.8,{align:'center'});}
+  const qr=receipt.verification?await QRCode.toDataURL(receipt.verification,{margin:0,width:260,errorCorrectionLevel:'M'}):'';
 
-  const headerY=receipt.sample?11.5:7;
-  if(!addImageSafe(pdf,brand.logoDataUrl,margin,headerY,22,22))drawFallbackLogo(pdf,margin,headerY,primary,secondary);
-  if(!addImageSafe(pdf,brand.nationalEmblemDataUrl,width-margin-21,headerY,21,22))drawFallbackEmblem(pdf,width-margin-21,headerY,primary);
-  pdf.setTextColor(...primary);pdf.setFont('helvetica','bold');pdf.setFontSize(11.4);
-  const institutionLines=pdf.splitTextToSize(brand.name||'Junta de Agua',78).slice(0,2);
-  pdf.text(institutionLines,width/2,headerY+5,{align:'center'});
-  pdf.setFont('helvetica','normal');pdf.setFontSize(6.3);pdf.setTextColor(71,85,105);
-  pdf.text(brand.slogan||'Servicio comunitario, transparente y responsable',width/2,headerY+13,{align:'center'});
-  const addressLines=pdf.splitTextToSize(brand.address||'Honduras',76).slice(0,2);
-  pdf.text(addressLines,width/2,headerY+17,{align:'center'});
+  // ── HEADER NAVY ────────────────────────────────────────────────────────────
+  const HD=34;
+  pdf.setFillColor(...NAVY);pdf.rect(0,0,W,HD,'F');
+  if(!addImageSafe(pdf,brand.logoDataUrl,M,7,28,20))drawLogoPlaceholder(pdf,M,7,28,20);
+  pdf.setTextColor(255,255,255);pdf.setFont('helvetica','bold');pdf.setFontSize(11.5);
+  pdf.text(pdf.splitTextToSize(inst.toUpperCase(),105).slice(0,3),M+34,13);
+  pdf.setFont('helvetica','normal');pdf.setFontSize(7.5);pdf.setTextColor(200,214,228);
+  pdf.text(place,M+34,HD-6);
+  pdf.setFont('helvetica','bold');pdf.setFontSize(10.5);pdf.setTextColor(255,255,255);
+  pdf.text('RECIBO OFICIAL DE PAGO',W-M,10.5,{align:'right'});
+  pdf.setFont('helvetica','normal');pdf.setFontSize(6.5);pdf.setTextColor(200,214,228);
+  pdf.text('N.º DE COMPROBANTE',W-M,17,{align:'right'});
+  pdf.setFont('helvetica','bold');pdf.setFontSize(15);pdf.setTextColor(...[125,211,252]);
+  pdf.text(receipt.number,W-M,25.5,{align:'right'});
+  pdf.setFillColor(...TEAL);pdf.rect(0,HD,W,1,'F');
 
-  const bandY=headerY+26;
-  pdf.setFillColor(244,248,250);pdf.roundedRect(margin,bandY,width-margin*2,29,2.5,2.5,'F');
-  let qrData='';if(receipt.verification)qrData=await QRCode.toDataURL(receipt.verification,{margin:1,width:240,errorCorrectionLevel:'M'});
-  if(qrData)pdf.addImage(qrData,'PNG',margin+2,bandY+2,23,23,undefined,'FAST');
-  pdf.setFontSize(4.8);pdf.setTextColor(71,85,105);pdf.setFont('helvetica','bold');pdf.text('VERIFICACIÓN DIGITAL',margin+13.5,bandY+27,{align:'center'});
-
-  pdf.setTextColor(...primary);pdf.setFontSize(8.8);pdf.text('RECIBO OFICIAL DE PAGO',margin+30,bandY+5.5);
-  pdf.setFontSize(5.5);pdf.setTextColor(100,116,139);pdf.text('NÚMERO DE DOCUMENTO',margin+30,bandY+10.5);
-  pdf.setFont('helvetica','bold');pdf.setTextColor(15,23,42);pdf.setFontSize(8);pdf.text(receipt.number,margin+30,bandY+14.5);
-  pdf.setFont('helvetica','normal');pdf.setFontSize(5.6);pdf.setTextColor(71,85,105);
-  pdf.text(`Fecha y hora: ${receipt.date}`,margin+30,bandY+20);
-  pdf.text(`Emisión: ${documentLabel(receipt)} · Plantilla: v${brand.templateVersion||'3.1'}`,margin+30,bandY+24);
-
-  pdf.setDrawColor(...stateColor);pdf.setTextColor(...stateColor);pdf.setLineWidth(.8);pdf.roundedRect(width-margin-35,bandY+4,31,18,3,3,'S');
-  pdf.setFont('helvetica','bold');pdf.setFontSize(state.length>16?6.3:10);pdf.text(state,width-margin-19.5,bandY+12,{align:'center'});
-  pdf.setFontSize(5.2);pdf.text(state==='PAGADO'?'CONTABILIZADO':'ESTADO DOCUMENTAL',width-margin-19.5,bandY+17,{align:'center'});
-
-  const cardsY=bandY+32;
-  const cardW=(width-margin*2-3)/2;
-  pdf.setFillColor(255,255,255);pdf.setDrawColor(219,231,234);pdf.roundedRect(margin,cardsY,cardW,27,2,2,'FD');pdf.roundedRect(margin+cardW+3,cardsY,cardW,27,2,2,'FD');
-  pdf.setTextColor(...primary);pdf.setFont('helvetica','bold');pdf.setFontSize(6.5);pdf.text('DATOS DEL ABONADO',margin+3,cardsY+5);pdf.text('DATOS DEL SERVICIO',margin+cardW+6,cardsY+5);
-  pdf.setTextColor(51,65,85);pdf.setFont('helvetica','normal');pdf.setFontSize(5.8);
-  const leftRows=[['Nombre',receipt.subscriber],['Identidad',receipt.maskedIdentity||'NO REGISTRADA'],['Código',receipt.subscriberCode||'NO ASIGNADO'],['Dirección',receipt.address||receipt.sector||'NO REGISTRADA']];
-  leftRows.forEach(([label,value],index)=>{const y=cardsY+9+index*4.3;pdf.setFont('helvetica','bold');pdf.text(`${label}:`,margin+3,y);pdf.setFont('helvetica','normal');pdf.text(pdf.splitTextToSize(String(value),cardW-20).slice(0,1),margin+18,y)});
-  const rightRows=[['Tipo','COMUNITARIO DOMICILIARIO'],['Estado',receipt.serviceStatus||'ACTIVO'],['Pegues',String(receipt.connectionCount??connectionCodes.length??0)],['Códigos',connectionCodes.length?connectionCodes.join(' · '):'NO REGISTRADOS']];
-  rightRows.forEach(([label,value],index)=>{const y=cardsY+9+index*4.3;pdf.setFont('helvetica','bold');pdf.text(`${label}:`,margin+cardW+6,y);pdf.setFont('helvetica','normal');pdf.text(pdf.splitTextToSize(String(value),cardW-20).slice(0,1),margin+cardW+21,y)});
-
-  const periodY=cardsY+30;
-  pdf.setFillColor(...primary);pdf.roundedRect(margin,periodY,width-margin*2,13,2,2,'F');pdf.setTextColor(255,255,255);pdf.setFont('helvetica','bold');pdf.setFontSize(6.4);
-  pdf.text(`PERIODO ANUAL ${year}`,margin+4,periodY+4.6);pdf.setFontSize(7.2);pdf.text(`Del ${receipt.periodFrom||`01/01/${year}`} al ${receipt.periodTo||`30/11/${year}`}`,margin+4,periodY+9.2);
-  pdf.setFontSize(5.3);pdf.text('FECHA LÍMITE',width-57,periodY+4.2);pdf.text(receipt.dueDate||`30/11/${year}`,width-57,periodY+8.6);pdf.text('MORA DESDE',width-30,periodY+4.2);pdf.text(receipt.lateFrom||`01/12/${year}`,width-30,periodY+8.6);
-
-  let tableY=periodY+16;
-  const columns=[margin,margin+15,margin+83,margin+98,width-margin];
-  pdf.setFillColor(226,235,238);pdf.rect(margin,tableY,width-margin*2,7,'F');pdf.setTextColor(51,65,85);pdf.setFont('helvetica','bold');pdf.setFontSize(5.4);
-  pdf.text('CÓDIGO',columns[0]+2,tableY+4.5);pdf.text('DESCRIPCIÓN',columns[1]+2,tableY+4.5);pdf.text('CANT.',columns[2]+2,tableY+4.5);pdf.text('VALOR UNIT.',columns[3]+2,tableY+4.5);pdf.text('TOTAL',columns[4]-2,tableY+4.5,{align:'right'});
-  tableY+=8;
-  const visibleItems=receipt.items.slice(0,4);
-  visibleItems.forEach(item=>{
-    const lines=pdf.splitTextToSize(item.description,62).slice(0,2);const rowH=Math.max(8,lines.length*3.6+2);
-    pdf.setDrawColor(226,232,240);pdf.line(margin,tableY+rowH,width-margin,tableY+rowH);
-    pdf.setTextColor(15,23,42);pdf.setFont('helvetica','normal');pdf.setFontSize(5.7);
-    pdf.text(item.code||'SRV',columns[0]+2,tableY+4);pdf.text(lines,columns[1]+2,tableY+3.8);pdf.text(String(item.quantity??1),columns[2]+6,tableY+4,{align:'center'});
-    pdf.text(amount(item.unitPrice??item.amount),columns[3]+16,tableY+4,{align:'right'});pdf.setFont('helvetica','bold');pdf.text(amount(item.amount),columns[4]-2,tableY+4,{align:'right'});
-    tableY+=rowH;
+  // ── FILA METADATA ─────────────────────────────────────────────────────────
+  let y=HD+9;
+  const meta:[string,string,[number,number,number]][]=[
+    ['FECHA',datePart,INK],['HORA',time||'—',INK],['CAJA',receipt.cashBox||receipt.cashier?.replace(/.*Caja\s*/i,'')||'01',INK],
+    ['ESTADO',state,voided||reversed?[180,35,24]:state==='PAGADO'?GREEN:SEC],
+  ];
+  meta.forEach((m,i)=>{
+    const x=M+i*((W-M*2)/4);
+    pdf.setFont('helvetica','bold');pdf.setFontSize(5.6);pdf.setTextColor(...MUT);pdf.text(m[0],x,y);
+    pdf.setFont('helvetica','bold');pdf.setFontSize(9);pdf.setTextColor(...m[2]);pdf.text(m[1],x,y+5.5);
   });
+  y+=11;pdf.setDrawColor(228,231,236);pdf.line(M,y,W-M,y);
 
-  const summaryY=Math.max(tableY+3,154);
-  pdf.setFillColor(239,248,246);pdf.roundedRect(margin,summaryY,62,21,2,2,'F');pdf.setTextColor(21,128,61);pdf.setFont('helvetica','bold');pdf.setFontSize(6.2);pdf.text('BENEFICIO APLICADO',margin+4,summaryY+5);
-  pdf.setTextColor(15,23,42);pdf.setFontSize(7.2);pdf.text(discountAmount>0?'DESCUENTO DE ADULTO MAYOR':'SIN DESCUENTO ESPECIAL',margin+4,summaryY+10);
-  pdf.setFont('helvetica','normal');pdf.setTextColor(71,85,105);pdf.setFontSize(5.4);pdf.text(pdf.splitTextToSize(discountAmount>0?`${receipt.discountPercentage??25}% sobre la cuota anual de todos los pegues del titular.`:'La cuota se calcula al valor ordinario.',54),margin+4,summaryY+14);
+  // ── CUERPO 65 / 35 ────────────────────────────────────────────────────────
+  y+=8;const splitX=M+(W-M*2)*0.62;
+  const field=(label:string,value:string, y0:number,maxW:number)=>{
+    pdf.setFont('helvetica','bold');pdf.setFontSize(6);pdf.setTextColor(...MUT);pdf.text(label,M,y0);
+    pdf.setFont('helvetica','normal');pdf.setFontSize(9);pdf.setTextColor(...INK);
+    const lines=pdf.splitTextToSize(value||'—',maxW);pdf.text(lines,M,y0+5);
+    return y0+5+lines.length*4.4+4;
+  };
+  let ly=y;
+  ly=field('RECIBÍ DE:',receipt.subscriber,ly,splitX-M-6);
+  ly=field('LA SUMA DE:',receipt.totalWords||totalInWords(receipt.total),ly,splitX-M-6);
+  ly=field('POR CONCEPTO DE:',receipt.concept||'Pago del servicio de agua potable.',ly,splitX-M-6);
 
-  const totalsX=75;
-  const totals=[['Base antes del descuento',baseAmount], [`Descuento adulto mayor ${receipt.discountPercentage??0}%`,-discountAmount],['Mora y otros cargos',lateFeeAmount+otherCharges]] as const;
-  pdf.setFontSize(5.8);totals.forEach(([label,value],index)=>{const y=summaryY+4+index*5;pdf.setFont('helvetica','normal');pdf.setTextColor(71,85,105);pdf.text(label,totalsX,y);pdf.setFont('helvetica','bold');pdf.setTextColor(value<0?21:15,value<0?128:23,value<0?61:42);pdf.text(`${value<0?'-':''}${amount(Math.abs(value))}`,width-margin,y,{align:'right'})});
-  pdf.setFillColor(...primary);pdf.roundedRect(totalsX,summaryY+15,width-margin-totalsX,8,2,2,'F');pdf.setTextColor(255,255,255);pdf.setFont('helvetica','bold');pdf.setFontSize(7);pdf.text('TOTAL PAGADO',totalsX+3,summaryY+20.2);pdf.setFontSize(9);pdf.text(amount(receipt.total),width-margin-2,summaryY+20.2,{align:'right'});
+  // panel monto (derecha)
+  const pX=splitX+4,pW=W-M-pX,pH=44;
+  pdf.setFillColor(247,249,252);pdf.setDrawColor(228,231,236);pdf.roundedRect(pX,y-3,pW,pH,2,2,'FD');
+  pdf.setFont('helvetica','bold');pdf.setFontSize(6);pdf.setTextColor(...MUT);pdf.text('MONTO PAGADO',pX+4,y+3);
+  pdf.setFont('helvetica','bold');pdf.setFontSize(17);pdf.setTextColor(...NAVY);pdf.text(amount(receipt.total),pX+4,y+13);
+  const pr=(label:string,value:string,yy:number)=>{
+    pdf.setFont('helvetica','bold');pdf.setFontSize(5.4);pdf.setTextColor(...MUT);pdf.text(label,pX+4,yy);
+    pdf.setFont('helvetica','normal');pdf.setFontSize(7.4);pdf.setTextColor(...INK);pdf.text(value||'—',pX+4,yy+4);
+  };
+  pr('FORMA DE PAGO',methodLabel(receipt.method),y+20);
+  pr('REFERENCIA',receipt.reference||'—',y+28);
+  pr('RECIBIDO POR',`${receipt.cashier||'—'}${receipt.cashBox?`  ·  Caja ${receipt.cashBox}`:''}`,y+36);
 
-  const wordsY=summaryY+26;
-  pdf.setFillColor(248,250,252);pdf.roundedRect(margin,wordsY,width-margin*2,12,2,2,'F');pdf.setTextColor(100,116,139);pdf.setFont('helvetica','bold');pdf.setFontSize(5);pdf.text('TOTAL EN LETRAS',margin+3,wordsY+4);pdf.setTextColor(15,23,42);pdf.setFontSize(6.2);pdf.text(pdf.splitTextToSize(receipt.totalWords||totalInWords(receipt.total),78).slice(0,2),margin+3,wordsY+8);
-  pdf.setTextColor(100,116,139);pdf.setFontSize(5);pdf.text('FORMA DE PAGO',width-42,wordsY+4);pdf.setTextColor(15,23,42);pdf.setFontSize(6.2);pdf.text(methodLabel(receipt.method),width-42,wordsY+8);pdf.setFont('helvetica','normal');pdf.setFontSize(5);pdf.text(`Recibido por: ${receipt.cashier||'Usuario autorizado'}`,width-42,wordsY+11);
+  y=Math.max(ly,y+pH)+2;
 
-  const authY=wordsY+15;
-  pdf.setDrawColor(203,213,225);pdf.line(margin,authY,width-margin,authY);
-  if(qrData)pdf.addImage(qrData,'PNG',margin,authY+3,18,18,undefined,'FAST');
-  pdf.setTextColor(...primary);pdf.setFont('helvetica','bold');pdf.setFontSize(5.8);pdf.text('DOCUMENTO VERIFICABLE',margin+22,authY+7);pdf.setFont('helvetica','normal');pdf.setTextColor(71,85,105);pdf.setFontSize(5.1);pdf.text(pdf.splitTextToSize('El QR abrirá este mismo recibo en formato digital y mostrará su estado vigente.',40),margin+22,authY+11);
-  addImageSafe(pdf,brand.signatureDataUrl,76,authY+2,24,10);addImageSafe(pdf,brand.stampDataUrl,106,authY+1,18,18);
-  pdf.setDrawColor(100,116,139);pdf.line(72,authY+15,103,authY+15);pdf.setTextColor(15,23,42);pdf.setFont('helvetica','bold');pdf.setFontSize(5.5);pdf.text(brand.signatoryName||'Deisy Rivas',87.5,authY+18,{align:'center'});pdf.setFont('helvetica','normal');pdf.setTextColor(71,85,105);pdf.text(brand.signatoryTitle||'Secretaria',87.5,authY+21,{align:'center'});
-  if(!brand.stampDataUrl){pdf.setDrawColor(...primary);pdf.circle(115,authY+10,8);pdf.setTextColor(...primary);pdf.setFont('helvetica','bold');pdf.setFontSize(5.2);pdf.text('SELLO',115,authY+9,{align:'center'});pdf.setFontSize(4.2);pdf.text('INSTITUCIONAL',115,authY+12,{align:'center'});}
+  // ── FILA ABONADO / PEGUE / SECTOR ─────────────────────────────────────────
+  pdf.setDrawColor(228,231,236);pdf.setFillColor(250,251,253);pdf.roundedRect(M,y,W-M*2,10,1.5,1.5,'FD');
+  const svc:[string,string][]=[
+    ['Abonado',receipt.subscriberCode||'—'],
+    ['Pegue',(receipt.connectionCodes??[]).join(' · ')||'—'],
+    ['Sector',receipt.sector||'—'],
+  ];
+  svc.forEach((s,i)=>{
+    const x=M+4+i*((W-M*2-8)/3);
+    pdf.setFont('helvetica','bold');pdf.setFontSize(6.4);pdf.setTextColor(...SEC);pdf.text(`${s[0]}: `,x,y+6.4);
+    const lw=pdf.getTextWidth(`${s[0]}: `);
+    pdf.setFont('helvetica','normal');pdf.setTextColor(...INK);pdf.text(s[1],x+lw,y+6.4);
+  });
+  y+=16;
 
-  const footerY=authY+24;
-  pdf.setFillColor(...primary);pdf.rect(0,footerY,width,215.9-footerY,'F');pdf.setTextColor(255,255,255);pdf.setFont('helvetica','normal');pdf.setFontSize(4.8);
-  pdf.text(pdf.splitTextToSize(brand.footer||'Documento oficial emitido por la Junta de Agua. Su autenticidad se verifica mediante el código QR.',86).slice(0,2),margin,footerY+5);
-  pdf.setFont('helvetica','bold');pdf.text(`RTN: ${brand.rtn||'PENDIENTE'} · Personería jurídica: ${brand.legalEntityNumber||'PENDIENTE'}`,margin,footerY+10);
-  pdf.setFont('helvetica','normal');pdf.text(pdf.splitTextToSize(brand.claimText||'Para reclamos o correcciones, presente este documento ante la Secretaría de la Junta.',82).slice(0,1),margin,footerY+14);
-  pdf.setFont('helvetica','bold');pdf.text(`${documentLabel(receipt)} · ${receipt.number}`,width-margin,footerY+8,{align:'right'});
+  // ── SITUACIÓN DE LA CUENTA ───────────────────────────────────────────────
+  pdf.setFillColor(...NAVY);pdf.rect(M,y,W-M*2,8,'F');
+  pdf.setFont('helvetica','bold');pdf.setFontSize(7.5);pdf.setTextColor(255,255,255);pdf.text('SITUACIÓN DE LA CUENTA',M+4,y+5.4);
+  pdf.text('VALOR (L)',W-M-4,y+5.4,{align:'right'});
+  y+=8;
+  const rows:[string,number,[number,number,number],boolean][]=[];
+  if(prev!=null)rows.push(['Saldo anterior',prev,INK,false]);
+  if(discount>0)rows.push(['Beneficio adulto mayor',-discount,GREEN,false]);
+  if(late>0)rows.push(['Mora',late,[180,71,8],false]);
+  rows.push(['Pago aplicado',-applied,GREEN,false]);
+  if(next!=null)rows.push(['SALDO ACTUAL',next,NAVY,true]);
+  rows.forEach(([label,value,color,strong])=>{
+    if(strong){pdf.setFillColor(238,244,250);pdf.rect(M,y,W-M*2,8,'F');}
+    pdf.setDrawColor(233,236,240);pdf.line(M,y+8,W-M,y+8);
+    pdf.setFont('helvetica',strong?'bold':'normal');pdf.setFontSize(strong?8.5:7.6);pdf.setTextColor(...(strong?NAVY:SEC));
+    pdf.text(label,M+4,y+5.4);
+    pdf.setFont('helvetica','bold');pdf.setTextColor(...color);
+    pdf.text(`${value<0?'-':''}${amount(Math.abs(value))}`,W-M-4,y+5.4,{align:'right'});
+    if(strong){pdf.setDrawColor(...TEAL);pdf.setLineWidth(.9);pdf.line(M,y,W-M,y);pdf.setLineWidth(.2);}
+    y+=8;
+  });
+  y+=6;
 
-  pdf.setTextColor(200,210,214);pdf.setFont('helvetica','bold');pdf.setFontSize(state.length>16?22:31);pdf.text(state,width/2,126,{align:'center',angle:32});
-  pdf.setProperties({title:`Recibo ${receipt.number}`,subject:'Comprobante institucional de pago anual',author:brand.name||'Junta de Agua',keywords:'recibo,pago anual,agua,pegues,adulto mayor,QR'});
+  // ── FOOTER AUTENTICIDAD ──────────────────────────────────────────────────
+  pdf.setDrawColor(228,231,236);pdf.line(M,y,W-M,y);y+=6;
+  const col=(W-M*2)/3;
+  if(qr)pdf.addImage(qr,'PNG',M,y,22,22,undefined,'FAST');
+  pdf.setFont('helvetica','bold');pdf.setFontSize(6);pdf.setTextColor(...NAVY);pdf.text('VERIFIQUE SU RECIBO',M+25,y+4);
+  pdf.setFont('helvetica','normal');pdf.setFontSize(5.4);pdf.setTextColor(...SEC);
+  pdf.text(pdf.splitTextToSize('Escanee el código QR para verificar número, fecha, monto y estado de este comprobante.',col-25),M+25,y+8);
+  if(receipt.verificationCode){pdf.setFont('helvetica','bold');pdf.setFontSize(5.8);pdf.setTextColor(...INK);pdf.text(receipt.verificationCode,M+25,y+20);}
+
+  const sigX=M+col;
+  pdf.setFont('helvetica','bold');pdf.setFontSize(6);pdf.setTextColor(...NAVY);pdf.text('FIRMA AUTORIZADA',sigX+col/2,y+2,{align:'center'});
+  if(brand.signatureDataUrl)addImageSafe(pdf,brand.signatureDataUrl,sigX+col/2-16,y+4,32,14);
+  pdf.setDrawColor(...MUT);pdf.line(sigX+8,y+18,sigX+col-8,y+18);
+  if(brand.signatoryName){pdf.setFont('helvetica','bold');pdf.setFontSize(5.6);pdf.setTextColor(...INK);pdf.text(brand.signatoryName,sigX+col/2,y+21.5,{align:'center'});
+    if(brand.signatoryTitle){pdf.setFont('helvetica','normal');pdf.setTextColor(...SEC);pdf.text(brand.signatoryTitle,sigX+col/2,y+24.5,{align:'center'});}}
+
+  const stX=M+col*2+col/2;
+  if(!addImageSafe(pdf,brand.stampDataUrl,stX-11,y+1,22,22))drawStampPlaceholder(pdf,stX,y+11,11);
+
+  // ── FOOTER NAVY ──────────────────────────────────────────────────────────
+  const fY=H-16;
+  pdf.setFillColor(...NAVY);pdf.rect(0,fY,W,16,'F');
+  drawLogoPlaceholder(pdf,M,fY+3,10,10);
+  pdf.setFont('helvetica','bold');pdf.setFontSize(6.6);pdf.setTextColor(255,255,255);pdf.text(inst,M+14,fY+7);
+  pdf.setFont('helvetica','normal');pdf.setFontSize(5.8);pdf.setTextColor(200,214,228);pdf.text(`${place}.`,M+14,fY+11.5);
+  pdf.setFont('helvetica','bold');pdf.setFontSize(5.6);pdf.setTextColor(200,214,228);
+  pdf.text(`${documentLabel(receipt)} · ${receipt.number}`,W-M,fY+9,{align:'right'});
+
+  // ── MARCA DE ESTADO NO-PAGADO ───────────────────────────────────────────
+  if(voided||reversed){
+    pdf.setTextColor(190,60,50);pdf.setFont('helvetica','bold');pdf.setFontSize(46);
+    pdf.text(voided?'ANULADO':'REVERSADO',W/2,H/2,{align:'center',angle:28});
+  }else if(receipt.copy){
+    pdf.setTextColor(210,216,224);pdf.setFont('helvetica','bold');pdf.setFontSize(30);
+    pdf.text('REIMPRESIÓN',W/2,H/2,{align:'center',angle:28});
+  }else if(receipt.sample){
+    pdf.setTextColor(214,220,228);pdf.setFont('helvetica','bold');pdf.setFontSize(28);
+    pdf.text('VISTA PREVIA',W/2,H/2,{align:'center',angle:28});
+  }
+
+  pdf.setProperties({title:`Recibo ${receipt.number}`,subject:'Recibo oficial de pago',author:inst,keywords:'recibo,pago,agua,junta,El Achiotal'});
   return pdf.output('blob');
 }
 

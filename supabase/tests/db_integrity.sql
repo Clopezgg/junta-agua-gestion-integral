@@ -141,5 +141,16 @@ begin
   if jsonb_typeof(public.list_cash_sessions()) is distinct from 'array'
     then raise exception 'list_cash_sessions no devuelve un array'; end if;
   raise notice 'Caja como espacio propio (migración 012) verificado: OK';
+
+  -- 15) Recibo oficial: snapshot de saldo congelado en el pago (migración 202609010013, §24)
+  select count(*) into n from information_schema.columns
+  where table_schema='public' and table_name='payments'
+    and column_name in ('balance_before','balance_after');
+  if n<>2 then raise exception 'FALTA payments.balance_before/balance_after (snapshot del recibo)'; end if;
+  if position('previous_balance' in pg_get_functiondef('public.get_payment_receipt_data(uuid)'::regprocedure))=0
+    then raise exception 'get_payment_receipt_data NO expone previous_balance/new_balance'; end if;
+  if position('balance_after is null' in pg_get_functiondef('public.register_payment_with_document(jsonb)'::regprocedure))=0
+    then raise exception 'register_payment_with_document NO congela el snapshot de saldo una sola vez'; end if;
+  raise notice 'Recibo oficial — snapshot de saldo (migración 013) verificado: OK';
 end
 $$;
