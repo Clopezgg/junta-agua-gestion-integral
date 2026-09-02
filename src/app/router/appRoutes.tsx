@@ -51,6 +51,7 @@ export function appRoutes():ReactElement[]{
     guarded('activos','assets.read',<P.Operations/>),
     guarded('mantenimiento','maintenance.manage',<P.Operations/>),
     guarded('bodega','inventory.read',<P.Bodega/>),
+    guarded('campo','field.read',<P.Campo/>),
     guarded('lecturas-campo','field.read',<P.FieldReadings/>),
     guarded('mapa','map.read',<P.MapView/>),
 

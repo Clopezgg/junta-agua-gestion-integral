@@ -4,13 +4,13 @@
 
 | Campo | Valor |
 |---|---|
-| CURRENT_PHASE | Milestone L — Field PWA (K cerrado: command center) |
+| CURRENT_PHASE | Milestone M — Agua y Ambiente (L cerrado: Campo PWA) |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
 | CURRENT_SHA | `pending-push` (Milestone H) |
 | LAST_GREEN_SHA | `3a2183e` (5/5 CI verde) — 215 tests, lint OK, tsc OK, build OK |
-| LAST_COMPLETED_MILESTONE | K — Centro Operativo / GIS command center (§49-50) |
+| LAST_COMPLETED_MILESTONE | L — Campo / PWA técnico de órdenes (§53) |
 | NEXT_ACTION | Milestone H bajo Visual Contract (Tesorería = banking backoffice §12): Cartera (§49) con estados sin suspensión automática, Convenios (§50), Bancos + Conciliación (§47-48). Draft PR: #22. |
-| TEST_COUNT | 243 (vitest) — +centro operativo (§49-50) |
+| TEST_COUNT | 246 (vitest) — +campo PWA (§53) |
 | E2E_COUNT | 9 tests Playwright (smoke.spec: login/MFA, navegación, búsqueda, responsive, POS+Caja, Nuevo servicio, 360, command palette, logout) + 1 sim |
 | LEGACY_FILES_REMAINING | 12 CSS legacy (~74KB) + 48 `.tsx` en `docs/legacy-ui-allowlist.txt` (−App, −Home, −Abonado360, −Caja, −Payments, −Bancos, −Morosidad, −Expenses, −Compras, −Budget, −Operations, −Incidents) + **1** en `docs/legacy-uuid-allowlist.txt`. El gate impide que las listas crezcan. |
 | MIGRATION_HEAD | `202609010014_v6_portfolio.sql` (get_portfolio_overview: aging/sector/mayores saldos; list_arrangements_workspace: estado derivado, sólo lectura). Prev: `202609010013_v6_receipt_snapshot.sql` (snapshot balance_before/after §24; get_payment_receipt_data + previous_balance/new_balance/concept). Prev: `202609010012_v6_caja.sql` (`get_cash_session_report` + `list_cash_sessions` — arqueo, diferencias, historial). Tipos DB: regenerar tras aplicar a cloud (post-merge, §141). |

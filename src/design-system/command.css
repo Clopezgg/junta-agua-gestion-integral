@@ -54,3 +54,21 @@
 .ja-cc-feed li span{color:var(--cc-mut);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ja-cc-sectors{display:flex;flex-wrap:wrap;gap:.3rem}
 .ja-cc-sector{padding:.25rem .6rem;border-radius:var(--ja-radius-full);border:1px solid var(--cc-line);font-size:var(--ja-text-xs);color:var(--cc-mut)}
+
+/* Campo — PWA técnico mobile-first (Milestone L, §53) */
+.ja-fw{max-width:760px}
+.ja-fw-list{display:flex;flex-direction:column;gap:.6rem}
+.ja-fw-card{display:flex;flex-direction:column;gap:.3rem;width:100%;text-align:left;padding:.9rem 1rem;
+  border:1px solid var(--ja-border);border-radius:var(--ja-radius-lg);background:var(--ja-surface);cursor:pointer}
+.ja-fw-card:hover{border-color:var(--ja-primary)}
+.ja-fw-card-top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+.ja-fw-card strong{font-size:var(--ja-text-sm);font-weight:700}
+.ja-fw-card p{margin:0;font-size:var(--ja-text-sm);color:var(--ja-text-secondary)}
+.ja-fw-detail{display:flex;flex-direction:column;gap:.9rem}
+.ja-fw-detail-head{display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem}
+.ja-fw-detail-head strong{display:block;font-size:var(--ja-text-base);font-weight:700}
+.ja-fw-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem}
+.ja-fw-steps .ja-btn{width:100%}
+.ja-fw-block{display:flex;flex-direction:column;gap:.55rem;padding:.9rem;border:1px solid var(--ja-border);border-radius:var(--ja-radius-lg);background:var(--ja-surface)}
+.ja-fw-block h3{margin:0;display:flex;align-items:center;gap:.4rem;font-size:var(--ja-text-xs);text-transform:uppercase;letter-spacing:.05em;color:var(--ja-text-muted)}
+@media(max-width:520px){.ja-fw-steps{grid-template-columns:1fr}}

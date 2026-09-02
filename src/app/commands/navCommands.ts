@@ -40,6 +40,7 @@ export const navCommands:ReadonlyArray<NavCommand>=[
   {id:'incidencias',label:'Incidencias',group:'Operación',to:'/incidencias',keywords:'fuga rotura bomba emergencia',permission:'incidents.read'},
   {id:'bodega',label:'Bodega',group:'Operación',to:'/bodega',keywords:'inventario material kardex stock',permission:'inventory.read'},
   {id:'mapa',label:'Mapa',group:'Operación',to:'/mapa',keywords:'gis capas ubicacion sector',permission:'map.read'},
+  {id:'campo',label:'Campo · mis órdenes',group:'Operación',to:'/campo',keywords:'tecnico orden trabajo llegue finalizar gps materiales pwa',permission:'field.read'},
   {id:'lecturas-campo',label:'Lecturas de campo',group:'Operación',to:'/lecturas-campo',keywords:'medidor consumo pwa gps',permission:'field.read'},
 
   {id:'calidad',label:'Calidad del agua',group:'Agua y ambiente',to:'/calidad',keywords:'muestra laboratorio parametro norma',permission:'water.read'},
