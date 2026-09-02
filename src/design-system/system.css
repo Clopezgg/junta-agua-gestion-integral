@@ -249,6 +249,18 @@
 .ja-link:hover{text-decoration:underline}
 .ja-hint{font-size:var(--ja-text-xs);color:var(--ja-text-muted);margin:.5rem 0 0}
 
+/* Cartera — barra de antigüedad de saldo (Milestone H, §34) */
+.ja-cartera-bar{flex:1;height:.55rem;background:var(--ja-surface-2,var(--ja-border));border-radius:999px;overflow:hidden}
+.ja-cartera-bar-fill{display:block;height:100%;border-radius:999px;background:var(--ja-primary)}
+.ja-cartera-bar-fill.is-warning{background:var(--ja-warning)}
+.ja-cartera-bar-fill.is-danger{background:var(--ja-danger)}
+.ja-cartera-bar-fill.is-neutral{background:var(--ja-text-muted)}
+/* Conciliación bancaria — dos columnas BANCO vs SISTEMA (§38) */
+.ja-recon-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media (max-width:820px){.ja-recon-grid{grid-template-columns:1fr}}
+.ja-recon-col{display:flex;flex-direction:column;gap:.5rem;min-width:0}
+.ja-recon-col>h3{font-size:var(--ja-text-xs);text-transform:uppercase;letter-spacing:.05em;color:var(--ja-text-muted);margin:0}
+
 /* Nuevo servicio (workflow §36) */
 .ja-ns{max-width:680px}
 .ja-ns-body{display:flex;flex-direction:column;gap:1rem;margin-top:1rem}

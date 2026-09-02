@@ -152,5 +152,19 @@ begin
   if position('balance_after is null' in pg_get_functiondef('public.register_payment_with_document(jsonb)'::regprocedure))=0
     then raise exception 'register_payment_with_document NO congela el snapshot de saldo una sola vez'; end if;
   raise notice 'Recibo oficial — snapshot de saldo (migración 013) verificado: OK';
+
+  -- 16) Cartera y convenios (migración 202609010014, §34-36)
+  if to_regprocedure('public.get_portfolio_overview(date)') is null
+    then raise exception 'FALTA get_portfolio_overview'; end if;
+  if to_regprocedure('public.list_arrangements_workspace(text)') is null
+    then raise exception 'FALTA list_arrangements_workspace'; end if;
+  if jsonb_typeof(public.get_portfolio_overview()->'aging') is distinct from 'array'
+    then raise exception 'get_portfolio_overview.aging no es un array'; end if;
+  if jsonb_typeof(public.list_arrangements_workspace()) is distinct from 'array'
+    then raise exception 'list_arrangements_workspace no devuelve un array'; end if;
+  -- no debe existir automatismo de corte por antigüedad de saldo
+  if position('display_status' in pg_get_functiondef('public.list_arrangements_workspace(text)'::regprocedure))=0
+    then raise exception 'list_arrangements_workspace NO deriva display_status'; end if;
+  raise notice 'Cartera y convenios (migración 014) verificado: OK';
 end
 $$;

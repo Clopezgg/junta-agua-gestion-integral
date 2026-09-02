@@ -35,6 +35,8 @@ export function appRoutes():ReactElement[]{
     guarded('pagos','payments.read',<P.Payments/>),
     guarded('caja','payments.read',<P.Caja/>),
     guarded('estados-cuenta','obligations.read',<P.Accounts/>),
+    guarded('cartera','obligations.read',<P.Cartera/>),
+    <Route key="convenios" path="convenios" element={<Navigate to="/morosidad" replace/>}/>,
     guarded('bancos','finance.read',<P.Bancos/>),
     guarded('gastos','expenses.read',<P.Expenses/>),
     guarded('presupuesto','budget.read',<P.Budget/>),

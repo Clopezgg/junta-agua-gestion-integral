@@ -26,6 +26,8 @@ export const navCommands:ReadonlyArray<NavCommand>=[
 
   {id:'cobrar',label:'Cobrar / Pagos',group:'Tesorería',to:'/pagos',keywords:'pago recibo pos caja cobro',permission:'payments.read'},
   {id:'caja',label:'Caja',group:'Tesorería',to:'/caja',keywords:'arqueo apertura cierre efectivo',permission:'payments.read'},
+  {id:'cartera',label:'Cartera',group:'Tesorería',to:'/cartera',keywords:'deuda cobrar antiguedad aging saldo sector moroso',permission:'obligations.read'},
+  {id:'convenios',label:'Convenios de pago',group:'Tesorería',to:'/morosidad',keywords:'plan cuotas arreglo morosidad regularizar',permission:'obligations.read'},
   {id:'bancos',label:'Bancos y conciliación',group:'Tesorería',to:'/bancos',keywords:'cuenta transferencia conciliacion extracto',permission:'finance.read'},
   {id:'gastos',label:'Gastos',group:'Tesorería',to:'/gastos',keywords:'egreso factura proveedor pago',permission:'expenses.read'},
   {id:'compras',label:'Compras',group:'Tesorería',to:'/compras',keywords:'orden requisicion cotizacion proveedor',permission:'expenses.read'},
