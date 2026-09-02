@@ -16,7 +16,7 @@ export function appRoutes():ReactElement[]{
     <Route key="index" index element={<P.Home/>}/>,
     <Route key="inicio" path="inicio" element={<P.Home/>}/>,
     ...legacyRedirectRoutes(),
-    guarded('centro-operativo','operations.read',<P.Operations/>),
+    guarded('centro-operativo','operations.read',<P.CentroOperativo/>),
 
     // ABONADOS Y SERVICIO
     guarded('abonados','subscribers.read',<P.AbonadosList/>),

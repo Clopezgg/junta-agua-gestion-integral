@@ -35,6 +35,7 @@ export const navCommands:ReadonlyArray<NavCommand>=[
   {id:'tarifas',label:'Tarifas',group:'Tesorería',to:'/tarifas',keywords:'cuota precio version beneficio',permission:'tariffs.read'},
   {id:'estados-cuenta',label:'Estados de cuenta',group:'Tesorería',to:'/estados-cuenta',keywords:'saldo obligacion abonado',permission:'obligations.read'},
 
+  {id:'centro-operativo',label:'Centro operativo',group:'Operación',to:'/centro-operativo',keywords:'mapa command center gis terreno sectores',permission:'operations.read'},
   {id:'operaciones',label:'Operación',group:'Operación',to:'/operaciones',keywords:'ordenes trabajo activos mantenimiento',permission:'operations.read'},
   {id:'incidencias',label:'Incidencias',group:'Operación',to:'/incidencias',keywords:'fuga rotura bomba emergencia',permission:'incidents.read'},
   {id:'bodega',label:'Bodega',group:'Operación',to:'/bodega',keywords:'inventario material kardex stock',permission:'inventory.read'},

@@ -28,6 +28,7 @@ export const Metering=lazy(()=>import('../../pages/Metering').then(m=>({default:
 export const Payments=lazy(()=>import('../../pages/Payments').then(m=>({default:m.Payments})));
 export const Caja=lazy(()=>import('../../pages/Caja').then(m=>({default:m.Caja})));
 export const Cartera=lazy(()=>import('../../pages/Cartera').then(m=>({default:m.Cartera})));
+export const CentroOperativo=lazy(()=>import('../../pages/CentroOperativo').then(m=>({default:m.CentroOperativo})));
 export const Accounts=lazy(()=>import('../../pages/Accounts').then(m=>({default:m.Accounts})));
 export const Bancos=lazy(()=>import('../../pages/Bancos').then(m=>({default:m.Bancos})));
 export const Expenses=lazy(()=>import('../../pages/Expenses').then(m=>({default:m.Expenses})));
