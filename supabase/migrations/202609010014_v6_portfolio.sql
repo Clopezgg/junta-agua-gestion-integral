@@ -20,6 +20,7 @@ as $$
       public.obligation_balance(o.original_amount,o.adjustment_amount,o.paid_amount) as bal
     from public.obligations o
     where o.organization_id=public.current_organization_id()
+      and public.has_permission('obligations.read')
       and o.cancelled_at is null
       and public.obligation_balance(o.original_amount,o.adjustment_amount,o.paid_amount)>0
   ),
@@ -36,7 +37,7 @@ as $$
     from open_ob ob
     join public.water_connections w on w.id=ob.connection_id
   )
-  select case when not public.has_permission('obligations.read') then null else jsonb_build_object(
+  select jsonb_build_object(
     'as_of',p_as_of,
     'totals',jsonb_build_object(
       'subscribers_with_debt',(select count(distinct subscriber_id) from tagged),
@@ -46,12 +47,12 @@ as $$
       'overdue',(select coalesce(sum(bal) filter(where bucket<>'por_vencer'),0) from tagged)
     ),
     'aging',(
-      select coalesce(jsonb_agg(row order by ord),'[]'::jsonb) from (
+      select coalesce(jsonb_agg(jrow order by ord),'[]'::jsonb) from (
         select jsonb_build_object(
           'bucket',b.bucket,'label',b.label,
           'subscribers',coalesce(count(distinct t.subscriber_id),0),
           'amount',coalesce(sum(t.bal),0)
-        ) as row,b.ord
+        ) as jrow,b.ord
         from (values
           ('por_vencer','Por vencer',1),('d1_30','1–30 días',2),
           ('d31_60','31–60 días',3),('d61_90','61–90 días',4),
@@ -85,7 +86,7 @@ as $$
       ) d
       join public.subscribers s on s.id=d.subscriber_id
     )
-  ) end
+  )
 $$;
 
 grant execute on function public.get_portfolio_overview(date) to authenticated;
@@ -102,7 +103,7 @@ stable
 security definer
 set search_path=public
 as $$
-  select case when not public.has_permission('obligations.read') then '[]'::jsonb else coalesce(jsonb_agg(row order by created_at desc),'[]'::jsonb) end
+  select case when not public.has_permission('obligations.read') then '[]'::jsonb else coalesce(jsonb_agg(jrow order by created_at desc),'[]'::jsonb) end
   from (
     select a.created_at,jsonb_build_object(
       'id',a.id,'code',a.code,'status',a.status,'frequency',a.frequency,
@@ -121,7 +122,7 @@ as $$
         when exists(select 1 from arrangement_installments ai where ai.arrangement_id=a.id and ai.status<>'pagada' and ai.due_date<current_date) then 'vencido'
         else 'al_dia'
       end
-    ) as row
+    ) as jrow
     from payment_arrangements a
     join subscribers s on s.id=a.subscriber_id
     where a.organization_id=current_organization_id()
