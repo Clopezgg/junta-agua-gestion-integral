@@ -32,7 +32,7 @@ describe('Abonado 360 — expediente único (§34)',()=>{
  it('la ficha 360 consume el expediente y muestra las 8 pestañas y la barra de acciones',()=>{
   expect(svc).toContain('getSubscriberExpediente');
   expect(page).toContain('getSubscriberExpediente');
-  for(const label of ['Resumen','Servicio','Cuenta','Pagos','Atención','Trabajo','Documentos','Historial']){
+  for(const label of ['Resumen','Servicio','Cuenta','Pagos','Solicitudes','Trabajo','Documentos','Historial']){
     expect(page).toContain(label);
   }
   for(const action of ['Cobrar','Nuevo servicio','Solicitud','Estado de cuenta','Comunicar']){

@@ -11,7 +11,7 @@ import {cn,formatDate,formatDateTime,formatMoney,initials} from '../design-syste
 
 const TABS=['resumen','servicio','cuenta','pagos','atencion','trabajo','documentos','historial'] as const;
 type Tab=typeof TABS[number];
-const TAB_LABEL:Record<Tab,string>={resumen:'Resumen',servicio:'Servicio',cuenta:'Cuenta',pagos:'Pagos',atencion:'Atención',trabajo:'Trabajo',documentos:'Documentos',historial:'Historial'};
+const TAB_LABEL:Record<Tab,string>={resumen:'Resumen',servicio:'Servicio',cuenta:'Cuenta',pagos:'Pagos',atencion:'Solicitudes',trabajo:'Trabajo',documentos:'Documentos',historial:'Historial'};
 
 const S=(v:unknown)=>v==null||v===''?'—':String(v);
 const M=(v:unknown)=>formatMoney(typeof v==='number'||typeof v==='string'?v:0);

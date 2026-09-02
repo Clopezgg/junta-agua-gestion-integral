@@ -139,10 +139,10 @@ no destruir backend funcional. (Tabla viva en `ENTERPRISE-REBUILD-STATE.md`.)
 |---|---|---|
 | Login | **PASS** | Recordarme + ¿Olvidó su contraseña? + "o acceda con" + zona Seguro/Confiable/Eficiente + fondo agua sutil + botón navy. Screenshots 1440/390 OK. |
 | MFA | **MINOR** → hecho | + enlace "Volver". Misma familia visual que login. |
-| Setup | _pendiente review_ | |
-| Inicio | _pendiente review_ | |
-| Abonados (lista) | _pendiente review_ | añadir drawer preview al click |
-| Abonado 360 | _pendiente review_ | separar pestaña "Solicitudes" de "Atención" |
-| Nuevo Servicio | _pendiente review_ | |
-| Cobro (POS) | _pendiente review_ | |
-| Caja | _pendiente review_ | |
+| Setup | **PASS** | asistente por pasos, familia visual del login. |
+| Inicio | **MINOR** → hecho | saludo "Buenos días/tardes/noches, <usuario>" + fecha; no card-soup. |
+| Abonados (lista) | **MINOR** | tabla+toolbar+filtros OK; **pendiente: drawer preview al click (patrón EntityDrawer §5)**. |
+| Abonado 360 | **MINOR** → hecho | pestaña renombrada a "Solicitudes" (8 pestañas §11). |
+| Nuevo Servicio | **PASS** | asistente 4 pasos, lenguaje humano. |
+| Cobro (POS) | **MINOR** → hecho | + stepper "Buscar → Seleccionar → Pago → Confirmar"; 3 columnas + métodos visibles. |
+| Caja | **PASS** | patrón WORKSPACE (Estado/Cobros/Arqueo/Historial). |

@@ -13,6 +13,8 @@ import {EmptyState,Metric,Skeleton} from '../design-system/primitives';
 
 type Financial={balance?:number|null;income?:number|null;expense?:number|null};
 
+const greeting=()=>{const h=new Date().getHours();return h<12?'Buenos días':h<19?'Buenas tardes':'Buenas noches';};
+
 const ICONS:Record<string,React.ReactNode>={
   '/abonados':<Users size={18}/>,'/fichas-abonados':<IdCard size={18}/>,'/pagos':<ReceiptText size={18}/>,
   '/tarifas':<BadgeDollarSign size={18}/>,'/operaciones':<Wrench size={18}/>,'/compras':<PackagePlus size={18}/>,
@@ -55,7 +57,7 @@ export function Home(){
     <header className="ja-home-head">
       <div>
         <span className="ja-home-eyebrow">{roleLabel(auth.has)} · {new Date().toLocaleDateString('es-HN',{weekday:'long',day:'numeric',month:'long'})}</span>
-        <h1>Hola, {auth.profile?.full_name?.split(' ')[0]??'bienvenido'}</h1>
+        <h1>{greeting()}, {auth.profile?.full_name?.split(' ')[0]??'bienvenido'}</h1>
         <p>Esto es lo que requiere su atención hoy.</p>
       </div>
       {cash!=null&&<Link to="/caja" className={`ja-home-cash${cash?' ja-home-cash-open':''}`}>

@@ -192,6 +192,16 @@ export function Payments(){
       </div>
     </header>
 
+    <ol className="ja-pos-steps" aria-label="Progreso del cobro">
+      {['Buscar','Seleccionar','Pago','Confirmar'].map((label,i)=>{
+        const done=(i===0&&Boolean(selected))||(i===1&&allocations.length>0)||(i===2&&canConfirm);
+        const current=(i===0&&!selected)||(i===1&&selected&&allocations.length===0)||(i===2&&allocations.length>0&&!canConfirm)||(i===3&&canConfirm);
+        return <li key={label} className={cn('ja-pos-step',done&&'ja-pos-step-done',current&&'ja-pos-step-current')}>
+          <span>{i+1}</span>{label}
+        </li>;
+      })}
+    </ol>
+
     {error&&<div className="ja-banner ja-banner-warning" role="alert">{error}</div>}
     {message&&<div className="ja-banner ja-banner-info" role="status">{message}</div>}
 

@@ -312,3 +312,12 @@
 .ja-pos-recent-head{display:flex;justify-content:space-between;align-items:center}
 .ja-pos-recent-head h2{margin:0;font-size:var(--ja-text-base);font-weight:700}
 @media(max-width:1024px){.ja-pos-grid{grid-template-columns:1fr}.ja-pos-calc{grid-template-columns:1fr}}
+
+/* POS stepper (§12 Tesorería) */
+.ja-pos-steps{display:flex;flex-wrap:wrap;gap:.4rem;list-style:none;margin:0;padding:0}
+.ja-pos-step{display:flex;align-items:center;gap:.4rem;font-size:var(--ja-text-xs);color:var(--ja-text-muted);padding:.3rem .5rem;border:1px solid var(--ja-border);border-radius:var(--ja-radius-full)}
+.ja-pos-step span{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--ja-surface-muted);font-size:10px;font-weight:700}
+.ja-pos-step-current{color:var(--ja-text);border-color:var(--ja-primary)}
+.ja-pos-step-current span{background:var(--ja-primary);color:#fff}
+.ja-pos-step-done{color:var(--ja-success);border-color:rgba(6,118,71,.3)}
+.ja-pos-step-done span{background:var(--ja-success);color:#fff}
