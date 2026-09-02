@@ -14,6 +14,7 @@
 # Milestone F: -src/pages/Abonado360.tsx (ficha 360 sobre design system, sin UUID).
 # Milestone G: -src/pages/Caja.tsx (espacio propio §46) -src/pages/Payments.tsx (POS §43 sobre design system).
 # Milestone H: -src/pages/Bancos.tsx (conciliación §38) -src/pages/Morosidad.tsx (convenios §36) +src/pages/Cartera.tsx (§34 nace sobre design system).
+# Milestone I: -src/pages/Expenses.tsx (§40) -src/pages/Compras.tsx (§41) -src/pages/Budget.tsx (§42) sobre design system.
 # Milestone C: -src/App.tsx (router modularizado a src/app/router/*, sin markup legacy).
 
 src/components/Layout.tsx
@@ -23,17 +24,14 @@ src/pages/Asamblea.tsx
 src/pages/Audit.tsx
 src/pages/Backups.tsx
 src/pages/Bodega.tsx
-src/pages/Budget.tsx
 src/pages/Calendario.tsx
 src/pages/Calidad.tsx
 src/pages/Cloracion.tsx
 src/pages/Comites.tsx
-src/pages/Compras.tsx
 src/pages/Comunicaciones.tsx
 src/pages/Continuidad.tsx
 src/pages/DocumentSettings.tsx
 src/pages/Ersaps.tsx
-src/pages/Expenses.tsx
 src/pages/FieldReadings.tsx
 src/pages/FinancialDocuments.tsx
 src/pages/Fuentes.tsx
