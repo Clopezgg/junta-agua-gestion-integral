@@ -11,3 +11,7 @@ export async function listResolutions(){const {data,error}=await db().from('reso
 export async function listProjects(){const {data,error}=await db().from('projects').select('id,code,name,status,funding,budget,start_date,end_date').order('created_at',{ascending:false}).limit(100);if(error)throw new Error(error.message);return data??[];}
 export async function listMeetings(){const {data,error}=await db().from('meetings').select('id,reunion_type,status,title,scheduled_at,place').order('scheduled_at',{ascending:false}).limit(100);if(error)throw new Error(error.message);return data??[];}
 export async function getGovernanceSummary(){const {data,error}=await db().rpc('get_governance_summary');check(error);return data;}
+export async function listGovernancePersons(query?:string){const {data,error}=await db().rpc('list_governance_persons',{p_query:query??null});check(error);return (data??[]) as Array<{id:string;full_name:string;document_number:string|null;sector:string|null}>;}
+export async function createPerson(payload:Record<string,unknown>){const {data,error}=await db().rpc('create_person',payload);check(error);return data as string;}
+export async function listCommittees(){const {data,error}=await db().rpc('list_committees');check(error);return (data??[]) as Array<Record<string,any>>;}
+export async function createCommittee(name:string,type:string,purpose:string|null){const {data,error}=await db().rpc('create_committee',{p_name:name,p_type:type,p_purpose:purpose});check(error);return data as string;}

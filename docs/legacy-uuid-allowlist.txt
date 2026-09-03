@@ -7,4 +7,5 @@
 #
 # Snapshot inicial: 2026-09-01 (Milestone B).
 
-src/pages/JuntaDirectiva.tsx
+
+# Milestone O (2026-09-03): JuntaDirectiva migrado a persona-picker (select del registro maestro). Lista vacía.

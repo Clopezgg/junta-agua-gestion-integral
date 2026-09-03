@@ -4,17 +4,17 @@
 
 | Campo | Valor |
 |---|---|
-| CURRENT_PHASE | Milestone N (M cerrado: Agua y Ambiente en DS) |
+| CURRENT_PHASE | Milestone O — Junta / Gobierno (EN PROGRESO). H–N ya integrados en la rama. |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
-| CURRENT_SHA | `pending-push` (Milestone H) |
-| LAST_GREEN_SHA | `3a2183e` (5/5 CI verde) — 215 tests, lint OK, tsc OK, build OK |
-| LAST_COMPLETED_MILESTONE | M — Agua y Ambiente (Calidad/Cloración/Fuentes/Continuidad/Microcuenca) |
-| NEXT_ACTION | Milestone H bajo Visual Contract (Tesorería = banking backoffice §12): Cartera (§49) con estados sin suspensión automática, Convenios (§50), Bancos + Conciliación (§47-48). Draft PR: #22. |
-| TEST_COUNT | 249 (vitest) — +agua y ambiente (§54-58) |
+| CURRENT_SHA | `pending-push` (O parcial: JuntaDirectiva persona-picker + Asamblea en DS + N cerrado) sobre `978fe74` |
+| LAST_GREEN_SHA | `978fe74` (CI PR #22 4/4 verde: validate, db, functions, browser/E2E) — 252 tests, lint OK, tsc OK, build OK |
+| LAST_COMPLETED_MILESTONE | N — Solicitudes (service desk §61) + Comunicaciones (plantillas §62). Antes: M (Agua y Ambiente), L (Campo/PWA), K (GIS), J (Operación), I (Finanzas/Compras), H (Cartera/Convenios/Bancos). |
+| NEXT_ACTION | Terminar O: Reuniones/Actas/Resoluciones/Tareas/Proyectos/Comités sobre design system (siguen en el allowlist legacy) + selector de comité real en nombramientos. Luego P (Cumplimiento). Draft PR: #22. |
+| TEST_COUNT | 252 (vitest) — +service desk / comunicaciones (§61-62) +gobierno persona-picker |
 | E2E_COUNT | 9 tests Playwright (smoke.spec: login/MFA, navegación, búsqueda, responsive, POS+Caja, Nuevo servicio, 360, command palette, logout) + 1 sim |
-| LEGACY_FILES_REMAINING | 12 CSS legacy (~74KB) + 48 `.tsx` en `docs/legacy-ui-allowlist.txt` (−App, −Home, −Abonado360, −Caja, −Payments, −Bancos, −Morosidad, −Expenses, −Compras, −Budget, −Operations, −Incidents) + **1** en `docs/legacy-uuid-allowlist.txt`. El gate impide que las listas crezcan. |
-| MIGRATION_HEAD | `202609010014_v6_portfolio.sql` (get_portfolio_overview: aging/sector/mayores saldos; list_arrangements_workspace: estado derivado, sólo lectura). Prev: `202609010013_v6_receipt_snapshot.sql` (snapshot balance_before/after §24; get_payment_receipt_data + previous_balance/new_balance/concept). Prev: `202609010012_v6_caja.sql` (`get_cash_session_report` + `list_cash_sessions` — arqueo, diferencias, historial). Tipos DB: regenerar tras aplicar a cloud (post-merge, §141). |
-| OPEN_BLOCKERS | Ninguno. E2E **VERDE** de nuevo (fix `17e99d9` producto + `0046b54` helper). A–G re-certificados end-to-end. Branch protection `main` activa. |
+| LEGACY_FILES_REMAINING | 0 CSS legacy en `src/` · **32** `.tsx` en `docs/legacy-ui-allowlist.txt` (−JuntaDirectiva, −Asamblea, −Solicitudes, −Comunicaciones en este ciclo) · **0** en `docs/legacy-uuid-allowlist.txt` (JuntaDirectiva migrado a persona-picker). El gate impide que las listas crezcan o queden entradas obsoletas. |
+| MIGRATION_HEAD | `202609010015_v6_governance_persons.sql` (list_governance_persons: persona-picker de cargos §64; list_committees — sólo lectura). Prev: `202609010014_v6_portfolio.sql` (get_portfolio_overview; list_arrangements_workspace). Tipos DB: regenerar tras aplicar a cloud (post-merge, §141). |
+| OPEN_BLOCKERS | Ninguno interno. Externos para el cierre total (merge→cloud→Render→smoke): requieren credenciales/permiso de escritura en Supabase Cloud, Render y GitHub merge — ver COMPLETION REPORT al pie. |
 | STAGING_STATE | No configurado. Plan: Render PR Preview + Supabase local/CI. Sin servicios pagados nuevos. |
 | PRODUCTION_UNCHANGED | SÍ. Prod (`junta-agua-gestion-integral.onrender.com`) sirve `main`/`c677335`. No se toca durante desarrollo. |
 
@@ -51,4 +51,11 @@ No hay `.claude/` ni `skills/` dentro del repo. No hay MCP servers de dominio.
 | E — Inicio (Command Center) | ✅ COMPLETE | `c534738` | `Home.tsx` reconstruido sobre `src/design-system` como command center (§26): "Requiere atención" (unificado con NotificationsCenter vía `deriveNotifications`, §133), Panorama y Acciones rápidas role-aware (§27) — lógica extraída a `src/features/dashboard/roleView.ts`. Sale de la allowlist legacy. §39: elimina "L 400" hardcodeado. +home-dashboard test. |
 | F — Abonados + 360 + Nuevo Servicio | ✅ COMPLETE | `08d1420` | **§33** `AbonadosList` + RPC `list_subscribers` (mig. 010). **§34** `Abonado360.tsx` en `/abonados/:id` — 8 pestañas + barra de acciones desde 1 RPC `get_subscriber_expediente` (mig. 011). **§35** detección de duplicados en el alta. **§36** `NuevoServicio.tsx` en `/abonados/nuevo-servicio` — asistente de 4 pasos (Solicitante/Punto de servicio/Solicitud/Revisión) que orquesta abonado+pegue+solicitud con borrador local y bitácora del trámite hasta activación (`src/features/subscribers/nuevoServicio.ts`). **§32** sin UUID. **§37** ya OK (`next_connection_code` atómico). +3 suites de test, +3 E2E. |
 | G — Cobro + Recibos + Caja | ✅ COMPLETE | `bbc834d` | **§46** `Caja.tsx` espacio propio (WORKSPACE: Estado/Cobros/Arqueo/Historial) + mig. `202609010012`. **§43** `Payments.tsx` POS sobre DS (patrón TRANSACTION): búsqueda, selección de obligaciones, 5 métodos + mixto, resumen, contabilización. **§44** integridad conservada y verificada (idempotencia, componentes, allocations, el fallo de PDF no revierte el pago; void/refund con AAL2 sin borrar original). **§45** recibo inmutable + reimpresión con snapshot de marca histórico. **§87** entrega por wa.me manual + correo. Consola de caja fuera de Pagos. Ambas salen de la allowlist. `ENTERPRISE-ARCHITECTURE.md §5b` documenta el lifecycle. |
-| H — Cartera + Convenios + Bancos | PENDIENTE | — | — |
+| H — Cartera + Convenios + Bancos/Conciliación | ✅ COMPLETE | `c64acb3` | Banking backoffice §34-38, §49-50. `get_portfolio_overview` (mig. 014, siempre devuelve el objeto). Sin suspensión automática. |
+| I — Gastos + Compras + Presupuesto | ✅ COMPLETE | `cfa45c1` | §40-42 sobre design system con workflows completos. |
+| J — Operación + Incidentes + Órdenes | ✅ COMPLETE | `51b662f` | §46-48 como workspace operativo. |
+| K — Centro operativo / GIS command center | ✅ COMPLETE | `91a2851` | §49-50, lenguaje visual C (dark map). |
+| L — Campo (PWA técnico de órdenes) | ✅ COMPLETE | `5d4a79a` | §53. Offline seguro; sin pagos/aprobaciones/tarifas offline. |
+| M — Agua y Ambiente | ✅ COMPLETE | `978fe74` | §54-58: Calidad/Cloración/Fuentes/Continuidad/Microcuenca sobre design system, sin `window.prompt`. |
+| N — Solicitudes + Comunicaciones | ✅ COMPLETE | `pending-push` | §61 service desk (SLA, asignación, estados, derivación a incidencia/orden) + §62 plantillas contextuales (8) por 3 canales. Ambas fuera del allowlist. |
+| O — Junta / Gobierno | 🔶 EN PROGRESO | `pending-push` | JuntaDirectiva: persona-picker del registro maestro (mig. 015 `list_governance_persons`, alta de persona inline) — sale del allowlist UUID (§64). Asamblea: sobre design system. Falta: Reuniones/Actas/Resoluciones/Tareas/Proyectos/Comités. |
