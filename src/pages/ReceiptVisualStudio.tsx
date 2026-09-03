@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState} from 'react';
 import {BadgeCheck,CalendarDays,Download,Droplets,FileImage,IdCard,Palette,Printer,QrCode,Shield,Stamp,Upload,WalletCards} from 'lucide-react';
 import QRCode from 'qrcode';
 import {downloadReceiptPdf,type ReceiptBrand,type ReceiptInput} from '../features/finance/documents';
+import {Button} from '../design-system/primitives';
 
 type AssetKey='logoDataUrl'|'nationalEmblemDataUrl'|'signatureDataUrl'|'stampDataUrl';
 type PaymentState='paid'|'pending'|'overdue'|'voided'|'refunded'|'partially_refunded';
@@ -89,13 +90,13 @@ export function ReceiptVisualStudio(){
   async function upload(key:AssetKey,file?:File){try{const value=await readImage(file);if(value)setBrand(current=>({...current,[key]:value}));setMessage('Imagen cargada en la vista visual. Todavía no se guarda en Supabase.')}catch(error){setMessage((error as Error).message)}}
   async function download(){await downloadReceiptPdf(receipt);setMessage('PDF visual generado con la misma composición del recibo mostrado.')}
 
-  return <main className="content receipt-studio-page">
-    <div className="titlebar module-hero"><div><span className="eyebrow">Diseño primero · conexión después</span><h1>Estudio visual del recibo anual</h1><p>Construcción completa del diseño sin depender todavía de Supabase. Todos los datos mostrados están marcados como demostrativos.</p></div><button onClick={()=>void download()}><Download size={18}/>Descargar PDF visual</button></div>
-    {message&&<div className="notice">{message}</div>}
+  return <main className="ja-page receipt-studio-page">
+    <header className="ja-page-head"><div><h1>Estudio visual del recibo anual</h1><p>Construcción completa del diseño sin depender todavía de Supabase. Todos los datos mostrados están marcados como demostrativos.</p></div><Button icon={<Download size={15}/>} onClick={()=>void download()}>Descargar PDF visual</Button></header>
+    {message&&<div className="ja-banner ja-banner-info">{message}</div>}
 
     <div className="receipt-studio-layout">
-      <aside className="panel receipt-controls">
-        <div className="panel-heading"><div><h2><Palette size={19}/> Controles visuales</h2><p>Ajuste la composición y observe el resultado inmediatamente.</p></div></div>
+      <aside className="ja-list receipt-controls">
+        <h3 className="ja-list-heading"><Palette size={16}/> Controles visuales</h3>
         <label>Estado del documento<select value={status} onChange={event=>setStatus(event.target.value as PaymentState)}>{Object.entries(stateLabels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
         <label>Año de la cuota<input type="number" min="2020" max="2100" value={year} onChange={event=>setYear(Number(event.target.value))}/></label>
         <label>Cantidad de pegues<input type="number" min="1" max="20" value={connections} onChange={event=>setConnections(Math.max(1,Number(event.target.value)))}/></label>
@@ -112,7 +113,7 @@ export function ReceiptVisualStudio(){
         <div className="visual-warning"><BadgeCheck size={19}/><p>Esta pantalla es una vista visual. No registra pagos, no modifica saldos y no presenta los datos demostrativos como reales.</p></div>
       </aside>
 
-      <section className="receipt-preview-shell">
+      <section className="receipt-preview-frame">
         <div className="preview-ribbon">VISTA PREVIA VISUAL · DATOS DEMOSTRATIVOS</div>
         <article className={`annual-receipt-preview receipt-state-${status}`} style={{'--receipt-primary':brand.primaryColor,'--receipt-secondary':brand.secondaryColor} as React.CSSProperties}>
           <div className="receipt-top-lines"><span/><span/></div>

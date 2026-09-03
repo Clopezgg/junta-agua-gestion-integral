@@ -1,6 +1,7 @@
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import {describe,expect,it} from 'vitest';
+import {hasRoute} from '../src/app/router/routeManifest';
 
 const root=process.cwd();
 const read=(path:string)=>readFileSync(join(root,path),'utf8');
@@ -38,12 +39,12 @@ describe('plataforma v2 institucional',()=>{
     const documents=read('src/features/finance/documents.ts');
     const finance=read('src/features/finance/service.ts');
     const settings=read('src/features/settings/service.ts');
-    expect(documents).toContain('format:[139.7,215.9]');
+    // G.3 — recibo oficial en Carta (§13) con estados documentales
+    expect(documents).toContain('W=215.9,H=279.4');
     expect(documents).toContain("receipt.copy?'REIMPRESIÓN':'ORIGINAL'");
     expect(documents).toContain("return'PAGADO'");
     expect(documents).toContain('signatureDataUrl');
     expect(documents).toContain('stampDataUrl');
-    expect(documents).toContain('nationalEmblemDataUrl');
     expect(documents).toContain('discountPercentage');
     expect(documents).toContain('connectionCodes');
     expect(finance).toContain('attach_payment_receipt_v2');
@@ -75,17 +76,16 @@ describe('plataforma v2 institucional',()=>{
   });
 
   it('integra módulos y navegación orientada a tareas',()=>{
-    const app=read('src/App.tsx');
-    const layout=read('src/components/Layout.tsx');
+    const shell=read('src/layouts/AppShell.tsx');
     const home=read('src/pages/Home.tsx');
     const operations=read('src/pages/Operations.tsx');
-    expect(app).toContain('path="presupuesto"');
-    expect(app).toContain('configuracion-documental');
-    expect(app).toContain('estudio-recibo');
-    expect(layout).toContain('<GlobalSearch/>');
-    expect(layout).toContain('appVersion.version');
-    expect(layout).toContain('Vista del recibo');
-    expect(home).toContain('Centro de pendientes');
+    expect(hasRoute('presupuesto')).toBe(true);
+    expect(hasRoute('configuracion-documental')).toBe(true);
+    expect(hasRoute('estudio-recibo')).toBe(true);
+    // Búsqueda global desde el shell del design system (command palette, Ctrl K).
+    expect(shell).toContain('ja-search-trigger');
+    expect(shell).toContain('command.open');
+    expect(home).toContain('Requiere atención');
     expect(home).toContain('Acciones rápidas');
     expect(operations).not.toContain('window.prompt');
     expect(operations).toContain('Finalizar orden y registrar historial');

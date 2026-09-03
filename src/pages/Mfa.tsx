@@ -15,7 +15,12 @@ export function Mfa(){
   const hasFactor=a.hasVerifiedFactor||a.hasTotpFactor;
 
   if(!a.session)return <Navigate to="/login" replace/>;
-  if(a.mfaVerified)return <Navigate to={a.profile?'/':'/setup'} replace/>;
+  if(a.mfaVerified){
+    // Mientras la autorización aún carga, el profile puede estar transitoriamente
+    // en null: no redirigir a /setup por error (regresión Milestone D).
+    if(a.loading)return <div className="ja-auth ja-auth-brand" role="status">Verificando acceso…</div>;
+    return <Navigate to={a.profile?'/':'/setup'} replace/>;
+  }
 
   async function begin(){
     setError('');setLoading(true);
@@ -68,6 +73,7 @@ export function Mfa(){
           <small className="ja-mfa-secret">Si no puede escanear el código, escriba esta clave manualmente:<code>{enrollment.secret}</code></small>
         </div>}
         {(hasFactor||enrollment)&&codeInput}
+        <button type="button" className="ja-auth-link ja-auth-back" onClick={()=>void a.signOut()}>Volver</button>
       </form>
     </div>
     <footer className="ja-auth-footer">Acceso exclusivo para personal autorizado.</footer>

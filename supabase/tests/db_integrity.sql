@@ -99,5 +99,72 @@ begin
     and column_name in ('retention_days','pruned_at','pruned_by');
   if n<>3 then raise exception 'RETENCION_RESPALDOS_INCOMPLETA: %', n; end if;
   raise notice 'Retención de respaldos (migración 035) verificada: OK';
+
+  -- 11) Asistente de configuración inicial (migración 202609010009)
+  select count(*) into n
+  from information_schema.columns
+  where table_schema='public' and table_name='organizations'
+    and column_name in ('department','municipality','community','legal_representative_name',
+      'legal_representative_title','incorporation_reference','founding_date','service_type',
+      'metering_enabled','setup_progress','setup_completed_at');
+  if n<>11 then raise exception 'PERFIL_INSTITUCIONAL_INCOMPLETO: %', n; end if;
+  if to_regprocedure('public.save_setup_progress(jsonb)') is null then raise exception 'FALTA save_setup_progress'; end if;
+  if to_regprocedure('public.complete_setup(jsonb)') is null then raise exception 'FALTA complete_setup'; end if;
+  -- update_organization_settings ya no borra claves ausentes (merge por clave)
+  if position('p_payload ? ' in pg_get_functiondef('public.update_organization_settings(jsonb)'::regprocedure))=0
+    then raise exception 'update_organization_settings NO hace merge por clave (riesgo de pérdida de datos)'; end if;
+  raise notice 'Asistente de configuración inicial (migración 009) verificado: OK';
+
+  -- 12) Listado profesional de abonados (migración 202609010010)
+  if to_regprocedure('public.list_subscribers(text,text,text,text,boolean,int,int)') is null
+    then raise exception 'FALTA list_subscribers'; end if;
+  -- devuelve el contrato {total, rows, sectors} sin filas de ejemplo
+  if (public.list_subscribers()->'rows') is null or (public.list_subscribers()->>'total') is null
+    then raise exception 'list_subscribers NO devuelve el contrato esperado'; end if;
+  raise notice 'Listado de abonados (migración 010) verificado: OK';
+
+  -- 13) Expediente único del Abonado 360 (migración 202609010011)
+  if to_regprocedure('public.get_subscriber_expediente(uuid)') is null
+    then raise exception 'FALTA get_subscriber_expediente'; end if;
+  if position('has_permission' in pg_get_functiondef('public.get_subscriber_expediente(uuid)'::regprocedure))=0
+    then raise exception 'get_subscriber_expediente NO filtra por permisos'; end if;
+  -- devuelve NULL (no un objeto vacío) cuando el abonado no existe / sin permiso
+  if public.get_subscriber_expediente('00000000-0000-0000-0000-000000000000'::uuid) is not null
+    then raise exception 'get_subscriber_expediente debe devolver NULL para un abonado inexistente'; end if;
+  raise notice 'Expediente del Abonado 360 (migración 011) verificado: OK';
+
+  -- 14) Caja como espacio propio (migración 202609010012)
+  if to_regprocedure('public.get_cash_session_report(uuid)') is null
+    then raise exception 'FALTA get_cash_session_report'; end if;
+  if to_regprocedure('public.list_cash_sessions(int)') is null
+    then raise exception 'FALTA list_cash_sessions'; end if;
+  if jsonb_typeof(public.list_cash_sessions()) is distinct from 'array'
+    then raise exception 'list_cash_sessions no devuelve un array'; end if;
+  raise notice 'Caja como espacio propio (migración 012) verificado: OK';
+
+  -- 15) Recibo oficial: snapshot de saldo congelado en el pago (migración 202609010013, §24)
+  select count(*) into n from information_schema.columns
+  where table_schema='public' and table_name='payments'
+    and column_name in ('balance_before','balance_after');
+  if n<>2 then raise exception 'FALTA payments.balance_before/balance_after (snapshot del recibo)'; end if;
+  if position('previous_balance' in pg_get_functiondef('public.get_payment_receipt_data(uuid)'::regprocedure))=0
+    then raise exception 'get_payment_receipt_data NO expone previous_balance/new_balance'; end if;
+  if position('balance_after is null' in pg_get_functiondef('public.register_payment_with_document(jsonb)'::regprocedure))=0
+    then raise exception 'register_payment_with_document NO congela el snapshot de saldo una sola vez'; end if;
+  raise notice 'Recibo oficial — snapshot de saldo (migración 013) verificado: OK';
+
+  -- 16) Cartera y convenios (migración 202609010014, §34-36)
+  if to_regprocedure('public.get_portfolio_overview(date)') is null
+    then raise exception 'FALTA get_portfolio_overview'; end if;
+  if to_regprocedure('public.list_arrangements_workspace(text)') is null
+    then raise exception 'FALTA list_arrangements_workspace'; end if;
+  if jsonb_typeof(public.get_portfolio_overview()->'aging') is distinct from 'array'
+    then raise exception 'get_portfolio_overview.aging no es un array'; end if;
+  if jsonb_typeof(public.list_arrangements_workspace()) is distinct from 'array'
+    then raise exception 'list_arrangements_workspace no devuelve un array'; end if;
+  -- no debe existir automatismo de corte por antigüedad de saldo
+  if position('display_status' in pg_get_functiondef('public.list_arrangements_workspace(text)'::regprocedure))=0
+    then raise exception 'list_arrangements_workspace NO deriva display_status'; end if;
+  raise notice 'Cartera y convenios (migración 014) verificado: OK';
 end
 $$;

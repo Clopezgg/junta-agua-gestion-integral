@@ -1,5 +1,6 @@
 import {describe,expect,it} from 'vitest';
 import fs from 'node:fs';
+import {routePermission} from '../app/router/routeManifest';
 
 const webhook=fs.readFileSync('supabase/functions/whatsapp-webhook/index.ts','utf8');
 const createUser=fs.readFileSync('supabase/functions/admin-create-user/index.ts','utf8');
@@ -10,7 +11,6 @@ const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const readme=fs.readFileSync('README.md','utf8');
 const changelog=fs.readFileSync('CHANGELOG.md','utf8');
 const auth=fs.readFileSync('src/contexts/AuthContext.tsx','utf8');
-const app=fs.readFileSync('src/App.tsx','utf8');
 
 describe('endurecimiento de producción',()=>{
  it('el webhook de Meta verifica la firma y mantiene la verificación de suscripción',()=>{
@@ -47,8 +47,8 @@ describe('endurecimiento de producción',()=>{
   expect(auth).toContain('ACCOUNT_CONTEXT_NOT_FOUND');
   expect(auth).toContain('authError');
   expect(auth).not.toContain('sessionStorage.clear()');
-  expect(app).toContain('path="avance" element={<ProtectedRoute permission="updates.read"');
-  expect(app).toContain('path="seguridad" element={<ProtectedRoute permission="settings.read"');
+  expect(routePermission('avance')).toBe('updates.read');
+  expect(routePermission('seguridad')).toBe('settings.read');
  });
  it('la documentación principal refleja la migración 046 y el motor de tarifas',()=>{
    expect(readme).toContain('001` a `051');

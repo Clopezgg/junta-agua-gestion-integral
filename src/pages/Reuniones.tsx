@@ -1,34 +1,108 @@
-import {useEffect,useState} from 'react';
-import {CalendarDays,Plus} from 'lucide-react';
+import {useCallback,useEffect,useState} from 'react';
+import {CalendarDays,FileText,Plus,RefreshCw} from 'lucide-react';
 import {createMeeting,listMeetings,saveMinutes} from '../features/governance/service';
 import {useAuth} from '../contexts/AuthContext';
+import {Badge,Button,Dialog,EmptyState,ErrorState,Skeleton} from '../design-system/primitives';
+import {formatDateTime} from '../design-system/utils';
 
 type Meeting={id:string;reunion_type:string;status:string;title:string;scheduled_at:string;place:string|null};
 const TYPES=['asamblea_general','junta_directiva','comite','informe'];
+const TYPE_LABEL:Record<string,string>={asamblea_general:'Asamblea general',junta_directiva:'Junta directiva',comite:'Comité',informe:'Informe'};
+const STATUS_TONE:Record<string,'neutral'|'warning'|'success'>={programada:'warning',realizada:'success',cancelada:'neutral'};
 
 export function Reuniones(){
- const auth=useAuth();
- const [items,setItems]=useState<Meeting[]>([]);
- const [error,setError]=useState('');
- const [form,setForm]=useState({title:'',reunion_type:'junta_directiva',scheduled_at:'',place:''});
- const load=()=>{void listMeetings().then(setItems).catch(()=>setError('No se pudieron cargar las reuniones.'));};
- useEffect(load,[]);
- const submit=async(e:React.FormEvent)=>{e.preventDefault();try{await createMeeting({p_reunion_type:form.reunion_type,p_title:form.title,p_scheduled_at:form.scheduled_at,p_place:form.place||null});setForm({title:'',reunion_type:'junta_directiva',scheduled_at:'',place:''});load();}catch(err){setError((err as Error).message);}};
- const acta=async(m:Meeting)=>{const content=prompt('Contenido del acta');if(!content)return;try{await saveMinutes(m.id,content);load();}catch(err){setError((err as Error).message);}};
- return <main className="content">
-  <div className="titlebar module-hero"><div><span className="eyebrow">Gobierno</span><h1>Reuniones y actas</h1><p>Registro de reuniones y sus actas (borrador → aprobada → firmada).</p></div></div>
-  {error&&<div className="notice">{error}</div>}
-  {auth.has('governance.manage')&&<section className="panel"><div className="panel-heading"><h2><Plus size={18}/> Programar reunión</h2></div>
-   <form className="form-grid" onSubmit={submit}>
-    <label>Título<input required value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/></label>
-    <label>Tipo<select value={form.reunion_type} onChange={e=>setForm({...form,reunion_type:e.target.value})}>{TYPES.map(t=><option key={t} value={t}>{t}</option>)}</select></label>
-    <label>Fecha y hora<input type="datetime-local" required value={form.scheduled_at} onChange={e=>setForm({...form,scheduled_at:e.target.value})}/></label>
-    <label>Lugar<input value={form.place} onChange={e=>setForm({...form,place:e.target.value})}/></label>
-    <button className="primary">Programar</button>
-   </form></section>}
-  <div className="cards" style={{marginTop:'1rem'}}>
-   {items.length===0&&<div className="panel"><div className="empty empty-state"><CalendarDays size={22}/><p>Sin reuniones registradas.</p></div></div>}
-   {items.map(m=><article key={m.id} className="panel"><strong>{m.title}</strong><span>{m.reunion_type} · {m.status}</span><small>{new Date(m.scheduled_at).toLocaleString('es-HN')}{m.place?` · ${m.place}`:''}</small>{auth.has('governance.manage')&&<button className="outline" style={{marginTop:'0.5rem'}} onClick={()=>acta(m)}>Redactar acta</button>}</article>)}
-  </div>
- </main>;
+  const auth=useAuth();
+  const manage=auth.has('governance.manage');
+  const [items,setItems]=useState<Meeting[]>([]);
+  const [loading,setLoading]=useState(true);
+  const [error,setError]=useState('');
+  const [notice,setNotice]=useState('');
+  const [open,setOpen]=useState(false);
+  const [form,setForm]=useState({title:'',reunion_type:'junta_directiva',scheduled_at:'',place:''});
+  const [acta,setActa]=useState<{meeting:Meeting;content:string}|null>(null);
+
+  const load=useCallback(()=>{
+    setLoading(true);
+    void listMeetings()
+      .then(d=>{setItems((d as Meeting[])??[]);setError('');})
+      .catch(e=>setError((e as Error).message))
+      .finally(()=>setLoading(false));
+  },[]);
+  useEffect(load,[load]);
+
+  async function submit(e:React.FormEvent){
+    e.preventDefault();
+    try{
+      await createMeeting({p_reunion_type:form.reunion_type,p_title:form.title.trim(),p_scheduled_at:form.scheduled_at,p_place:form.place.trim()||null});
+      setForm({title:'',reunion_type:'junta_directiva',scheduled_at:'',place:''});
+      setOpen(false);setNotice('Reunión programada.');load();
+    }catch(err){setError((err as Error).message);}
+  }
+  async function submitActa(e:React.FormEvent){
+    e.preventDefault();
+    if(!acta)return;
+    try{
+      await saveMinutes(acta.meeting.id,acta.content.trim());
+      setActa(null);setNotice('Acta guardada.');load();
+    }catch(err){setError((err as Error).message);}
+  }
+
+  return <main className="ja-page">
+    <header className="ja-page-head">
+      <div><h1>Reuniones y actas</h1><p>Registro de reuniones y sus actas (borrador → aprobada → firmada).</p></div>
+      {manage&&<Button icon={<Plus size={15}/>} onClick={()=>setOpen(true)}>Programar reunión</Button>}
+      <button type="button" className="ja-tab" onClick={load}><RefreshCw size={14}/> Actualizar</button>
+    </header>
+
+    {notice&&<div className="ja-banner ja-banner-info">{notice}</div>}
+    {error&&<ErrorState error={error} onRetry={load}/>}
+    {loading&&items.length===0&&<Skeleton className="ja-360-skel"/>}
+
+    {!loading&&<section className="ja-list">
+      {items.length===0
+        ?<EmptyState icon={<CalendarDays size={22}/>} title="Sin reuniones registradas" description="Programe la próxima reunión de la Junta."/>
+        :items.map(m=><article key={m.id} className="ja-list-row">
+          <div>
+            <strong>{m.title}</strong>
+            <span className="ja-cell-sub">{TYPE_LABEL[m.reunion_type]??m.reunion_type} · {formatDateTime(m.scheduled_at)}{m.place?` · ${m.place}`:''}</span>
+          </div>
+          <div className="ja-row-actions">
+            <Badge tone={STATUS_TONE[m.status]??'neutral'}>{m.status}</Badge>
+            {manage&&<Button variant="secondary" icon={<FileText size={14}/>} onClick={()=>setActa({meeting:m,content:''})}>Redactar acta</Button>}
+          </div>
+        </article>)}
+    </section>}
+
+    <Dialog open={open} onClose={()=>setOpen(false)} title="Programar reunión">
+      <form className="ja-pos-fields" onSubmit={submit}>
+        <label className="ja-field"><span className="ja-field-label">Título</span>
+          <input className="ja-control" required minLength={3} value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>
+        </label>
+        <div className="ja-pos-grid">
+          <label className="ja-field"><span className="ja-field-label">Tipo</span>
+            <select className="ja-control" value={form.reunion_type} onChange={e=>setForm({...form,reunion_type:e.target.value})}>
+              {TYPES.map(t=><option key={t} value={t}>{TYPE_LABEL[t]}</option>)}
+            </select>
+          </label>
+          <label className="ja-field"><span className="ja-field-label">Fecha y hora</span>
+            <input className="ja-control" type="datetime-local" required value={form.scheduled_at} onChange={e=>setForm({...form,scheduled_at:e.target.value})}/>
+          </label>
+        </div>
+        <label className="ja-field"><span className="ja-field-label">Lugar</span>
+          <input className="ja-control" value={form.place} onChange={e=>setForm({...form,place:e.target.value})}/>
+        </label>
+        <Button type="submit">Programar</Button>
+      </form>
+    </Dialog>
+
+    <Dialog open={!!acta} onClose={()=>setActa(null)} title={acta?`Acta — ${acta.meeting.title}`:'Acta'}
+      description="El acta nace como borrador y luego se aprueba y firma.">
+      <form className="ja-pos-fields" onSubmit={submitActa}>
+        <label className="ja-field"><span className="ja-field-label">Contenido del acta</span>
+          <textarea className="ja-control" rows={8} required minLength={20} value={acta?.content??''} onChange={e=>setActa(a=>a&&{...a,content:e.target.value})}/>
+        </label>
+        <Button type="submit">Guardar acta</Button>
+      </form>
+    </Dialog>
+  </main>;
 }

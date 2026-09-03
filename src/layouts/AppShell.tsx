@@ -2,7 +2,7 @@ import {useEffect,useRef,useState} from 'react';
 import {NavLink,Outlet,useNavigate} from 'react-router-dom';
 import {Droplets,LogOut,Menu,PanelLeftClose,PanelLeftOpen,Search,Settings,X} from 'lucide-react';
 import {useAuth} from '../contexts/AuthContext';
-import {GlobalSearch} from '../components/GlobalSearch';
+import {CommandPaletteProvider,useCommandPalette} from '../app/commands/CommandPalette';
 import {institutionName,loadInstitutionName} from './org';
 import {mobileNav,primaryNav,visibleNav} from './navigation';
 import {QuickCreate} from './QuickCreate';
@@ -11,8 +11,13 @@ import {UserMenu} from './UserMenu';
 import {initials} from '../design-system/utils';
 
 export function AppShell(){
+  return <CommandPaletteProvider><AppShellInner/></CommandPaletteProvider>;
+}
+
+function AppShellInner(){
   const auth=useAuth();
   const navigate=useNavigate();
+  const command=useCommandPalette();
   const sidebarRef=useRef<HTMLDivElement>(null);
   const[collapsed,setCollapsed]=useState(()=>localStorage.getItem('ja-shell-collapsed')==='1');
   const[mobileOpen,setMobileOpen]=useState(false);
@@ -25,7 +30,7 @@ export function AppShell(){
   return <div className={`ja-shell${collapsed?' ja-shell-collapsed':''}`}>
     <a className="ja-skip-link" href="#ja-main">Saltar al contenido principal</a>
     {mobileOpen&&<button className="ja-sidebar-backdrop" aria-label="Cerrar navegación" onClick={closeMobile}/>}
-    <div className="ja-sidebar" ref={sidebarRef}>
+    <div className={`ja-sidebar${mobileOpen?' ja-mobile-open':''}`} ref={sidebarRef}>
       <div className="ja-brand">
         <span className="ja-brand-mark"><Droplets size={18}/></span>
         <span className="ja-org-name"><strong>Junta de Agua</strong><small>{inst||'Gestión integral'}</small></span>
@@ -50,11 +55,9 @@ export function AppShell(){
         </button>
         <button type="button" className="ja-icon-btn ja-mobile-menu-btn" aria-label="Abrir navegación" onClick={()=>setMobileOpen(true)}><Menu size={20}/></button>
         <div className="ja-topbar-search">
-          <GlobalSearch trigger={({open})=>(
-            <button type="button" className="ja-search-trigger" onClick={open} aria-haspopup="dialog" aria-label="Búsqueda global">
-              <Search size={15}/><span>Buscar abonado, recibo, orden…</span><kbd>Ctrl K</kbd>
-            </button>
-          )}/>
+          <button type="button" className="ja-search-trigger" onClick={command.open} aria-haspopup="dialog" aria-label="Búsqueda global">
+            <Search size={15}/><span>Buscar abonado, recibo, orden…</span><kbd>Ctrl K</kbd>
+          </button>
         </div>
         <div className="ja-topbar-actions">
           <QuickCreate/>
@@ -67,9 +70,7 @@ export function AppShell(){
       </div>
       <nav className="ja-mobile-nav" aria-label="Navegación móvil principal">
         {mobileNav.map(item=>item.action==='search'
-          ?<GlobalSearch key={item.key} trigger={({open})=>(
-            <button type="button" className="ja-nav-mobile-link" onClick={open} aria-label="Buscar">{item.icon}<span>{item.label}</span></button>
-          )}/>
+          ?<button key={item.key} type="button" className="ja-nav-mobile-link" onClick={command.open} aria-label="Buscar">{item.icon}<span>{item.label}</span></button>
           :<NavLink key={item.key} to={item.to!} className={({isActive})=>`ja-nav-mobile-link${isActive?' ja-nav-active':''}`}>{item.icon}<span>{item.label}</span></NavLink>
         )}
         <button type="button" className="ja-nav-mobile-link" onClick={()=>setMobileOpen(true)}><Menu size={20}/><span>Más</span></button>

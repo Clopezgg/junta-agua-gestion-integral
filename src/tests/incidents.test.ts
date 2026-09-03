@@ -1,11 +1,10 @@
 import {describe,expect,it} from 'vitest';
 import fs from 'node:fs';
+import {routePermission} from '../app/router/routeManifest';
 
 const migration=fs.readFileSync('supabase/migrations/202609010003_v5_incidents.sql','utf8');
 const service=fs.readFileSync('src/features/operations/service.ts','utf8');
 const page=fs.readFileSync('src/pages/Incidents.tsx','utf8');
-const app=fs.readFileSync('src/App.tsx','utf8');
-const layout=fs.readFileSync('src/components/Layout.tsx','utf8');
 const security=fs.readFileSync('src/lib/security.ts','utf8');
 
 describe('Incidencias (semántica de incidencia en Operación)',()=>{
@@ -35,13 +34,14 @@ describe('Incidencias (semántica de incidencia en Operación)',()=>{
   expect(page).toContain('createIncident');
   expect(page).toContain('updateIncident');
   expect(page).toContain('createWorkOrder');
-  expect(page).toContain('Incidencia y reportes');
+  expect(page).toContain('Incidencias y reportes');
+  // Milestone J: workspace operativo sobre design system, sin CSS legacy
+  expect(page).toContain("from '../design-system/primitives'");
+  expect(page).not.toContain('className="content"');
+  expect(page).not.toContain('className="modal"');
  });
  it('la ruta y navegación usan el permiso incidents.read',()=>{
-  expect(app).toContain('path="incidencias"');
-  expect(app).toContain('permission="incidents.read"');
-  expect(layout).toContain("'/incidencias'");
-  expect(layout).toContain("'incidents.read'");
+  expect(routePermission('incidencias')).toBe('incidents.read');
   expect(security).toContain("'incidents.read'|'incidents.manage'");
  });
 });

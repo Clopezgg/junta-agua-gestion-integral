@@ -1,79 +1,193 @@
-import {useCallback,useEffect,useState} from 'react';
-import {Building2,ChevronRight,CircleDot,Crosshair,FileSignature,MapPin,Plus,Search,UserRound} from 'lucide-react';
+import {useCallback,useEffect,useMemo,useState} from 'react';
+import {Link,useNavigate,useParams} from 'react-router-dom';
+import {
+  ArrowLeft,BadgeCheck,ClipboardList,Droplet,FileText,History,MessageSquare,Receipt,
+  ShieldAlert,Wallet,Wrench,
+} from 'lucide-react';
 import {useAuth} from '../contexts/AuthContext';
-import {getAbonado360,registerServiceContract,searchAbonados} from '../features/identity/service';
+import {getSubscriberDocumentUrl,getSubscriberExpediente,type SubscriberExpediente} from '../features/subscribers/service';
+import {Badge,EmptyState,ErrorState,Skeleton} from '../design-system/primitives';
+import {cn,formatDate,formatDateTime,formatMoney,initials} from '../design-system/utils';
 
-type AbonadoRow={abonado_id:string;person_id:string;subscriber_id:string|null;full_name:string;masked_document:string|null;category:string;status:string;subscriber_code:string|null;sector:string|null;connection_count:number};
+const TABS=['resumen','servicio','cuenta','pagos','atencion','trabajo','documentos','historial'] as const;
+type Tab=typeof TABS[number];
+const TAB_LABEL:Record<Tab,string>={resumen:'Resumen',servicio:'Servicio',cuenta:'Cuenta',pagos:'Pagos',atencion:'Solicitudes',trabajo:'Trabajo',documentos:'Documentos',historial:'Historial'};
 
-const date=(v:unknown)=>v==null||v===''?'—':new Date(String(v)).toLocaleDateString('es-HN',{day:'2-digit',month:'2-digit',year:'numeric'});
-const text=(v:unknown)=>v==null||v===''?'—':String(v);
-const initials=(name='')=>name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'PA';
+const S=(v:unknown)=>v==null||v===''?'—':String(v);
+const M=(v:unknown)=>formatMoney(typeof v==='number'||typeof v==='string'?v:0);
+const connStatusTone=(s:string)=>s==='active'?'success':s==='suspended'?'danger':'neutral';
 
 export function Abonado360(){
- const auth=useAuth();
- const [query,setQuery]=useState('');
- const [rows,setRows]=useState<AbonadoRow[]>([]);
- const [selected,setSelected]=useState('');
- const [view,setView]=useState<any>(null);
- const [error,setError]=useState('');
- const [info,setInfo]=useState('');
- const [contractForm,setContractForm]=useState({connection_id:'',contract_type:'servicio_agua'});
+  const {id=''}=useParams();
+  const auth=useAuth();
+  const navigate=useNavigate();
+  const [data,setData]=useState<SubscriberExpediente|null>(null);
+  const [photo,setPhoto]=useState('');
+  const [loading,setLoading]=useState(true);
+  const [error,setError]=useState('');
+  const [tab,setTab]=useState<Tab>('resumen');
 
- const load=useCallback(async(q='')=>{try{setRows(await searchAbonados(q) as AbonadoRow[]);}catch(e){setError(e instanceof Error?e.message:'No se pudo consultar abonados.');}},[setRows,setError]);
- useEffect(()=>{void load();},[load]);
+  const load=useCallback(()=>{
+    setLoading(true);
+    void getSubscriberExpediente(id)
+      .then(async exp=>{
+        setData(exp);setError('');
+        const p=exp?.subscriber?.photo_path;
+        if(typeof p==='string'&&p)setPhoto(await getSubscriberDocumentUrl(p).catch(()=>''));
+      })
+      .catch(e=>setError((e as Error).message))
+      .finally(()=>setLoading(false));
+  },[id]);
+  useEffect(load,[load]);
 
- async function open(id:string){setSelected(id);setError('');try{setView(await getAbonado360(id));}catch(e){setError(e instanceof Error?e.message:'No se pudo abrir la ficha 360.');}}
+  const sub=data?.subscriber;
+  const name=S(sub?.full_name);
+  const account=data?.account;
 
- async function registerContract(e:React.FormEvent){e.preventDefault();setError('');setInfo('');try{const id=await registerServiceContract({p_abonado_id:selected,p_location_id:null,p_connection_id:contractForm.connection_id||null,p_contract_type:contractForm.contract_type});setInfo(`Contrato registrado: ${id}`);setContractForm({connection_id:'',contract_type:'servicio_agua'});await open(selected);}catch(err){setError((err as Error).message);}}
+  const actions=useMemo(()=>[
+    auth.has('payments.create')&&{label:'Cobrar',icon:<Wallet size={15}/>,to:`/pagos?abonado=${id}`},
+    auth.has('subscribers.create')&&{label:'Nuevo servicio',icon:<Droplet size={15}/>,to:`/abonados/nuevo-servicio`},
+    auth.has('subscribers.read')&&{label:'Solicitud',icon:<ClipboardList size={15}/>,to:`/solicitudes?abonado=${id}`},
+    auth.has('operations.manage')&&{label:'Orden',icon:<Wrench size={15}/>,to:`/operaciones?abonado=${id}`},
+    auth.has('obligations.read')&&{label:'Estado de cuenta',icon:<Receipt size={15}/>,to:`/estados-cuenta?abonado=${id}`},
+    auth.has('communications.send')&&{label:'Comunicar',icon:<MessageSquare size={15}/>,to:`/comunicaciones?abonado=${id}`},
+  ].filter(Boolean) as {label:string;icon:React.ReactNode;to:string}[],[auth,id]);
 
- const persona=view?.persona as Record<string,unknown>|undefined;
- const abonado=view?.abonado as Record<string,unknown>|undefined;
- const subscriber=view?.subscriber as Record<string,unknown>|undefined;
- const contracts=(view?.contracts as Array<Record<string,unknown>>)??[];
- const connections=(view?.connections as Array<Record<string,unknown>>)??[];
- const locations=(view?.locations as Array<Record<string,unknown>>)??[];
- const fullName=text(persona?.full_name);
- const identityLine=(persona?.document_type||abonado?.id)?`${String(persona?.document_type??'').toUpperCase()||'ID'} · ${subscriber?.code??String(abonado?.id??'').slice(0,8)}`:'';
+  if(loading&&!data)return <main className="ja-page"><Skeleton className="ja-360-skel"/></main>;
+  if(error)return <main className="ja-page"><ErrorState error={error} onRetry={load}/></main>;
+  if(!data||!sub)return <main className="ja-page"><EmptyState title="Abonado no encontrado" description="No existe un expediente para este identificador o no tiene permiso para verlo." action={<Link className="ja-btn ja-btn-outline ja-btn-md" to="/abonados">Volver a Abonados</Link>}/></main>;
 
- return <main className="content">
-  <div className="titlebar module-hero"><div><span className="eyebrow">Usuarios y servicio</span><h1>Abonado 360</h1><p>Vista integral: persona, abonado, predios, contratos y pegues en una sola ficha.</p></div></div>
-  <div className="search command-search"><Search size={18}/><input placeholder="Buscar por nombre, documento, código o sector" value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')void load(query);}}/><button onClick={()=>void load(query)}>Buscar</button></div>
-  {error&&<div className="notice danger">{error}</div>}
-  {info&&<div className="notice">{info}</div>}
-  <div className="subscriber-master-layout">
-   <section className="panel subscriber-list-panel"><div className="panel-heading"><div><h2>Directorio de abonados 360</h2><p>{rows.length} registro{rows.length===1?'':'s'}</p></div></div>
-    <div className="subscriber-list">{rows.map(r=><button className={`subscriber-row-card ${selected===r.abonado_id?'active':''}`} key={r.abonado_id} onClick={()=>void open(r.abonado_id)}><span className="avatar avatar-sm">{initials(r.full_name)}</span><span className="subscriber-row-main"><strong>{r.full_name}</strong><small>{r.masked_document??'sin identidad'} · {r.subscriber_code??'sin abonado legacy'}</small><span><MapPin size={13}/>{r.sector??'Sector no definido'}</span></span><span className="subscriber-row-state"><span className="status-badge approved">{r.status}</span><ChevronRight size={17}/></span></button>)}</div>
-    {rows.length===0&&<div className="empty-state"><UserRound size={36}/><h3>Sin abonados 360</h3><p>No hay abonados para ese criterio. Cree la relación de abonado (sobre una persona) para ver aquí la ficha integral.</p></div>}
-   </section>
+  return <main className="ja-page ja-360">
+    <button className="ja-back" onClick={()=>navigate('/abonados')}><ArrowLeft size={15}/>Abonados</button>
 
-   <section className="panel subscriber-profile-panel">
-    {view&&abonado&&persona?<>
-     <div className="profile-cover"><div className="profile-photo-wrap"><div className="profile-photo">{initials(fullName)}</div></div><div className="profile-heading"><span className="eyebrow">Ficha 360</span><h2>{fullName}</h2><p>{identityLine}</p><div className="profile-tags"><span className="status-badge approved"><CircleDot size={13}/>{String(abonado.category??'')}</span><span className={`status-badge ${String(abonado.status)==='activo'?'approved':'draft'}`}>{String(abonado.status??'')}</span></div></div></div>
-     <div className="profile-summary-grid">
-      <article><UserRound size={18}/><span><small>Persona</small><strong>{fullName}</strong></span></article>
-      <article><Building2 size={18}/><span><small>Abonado desde</small><strong>{date(abonado.since_date)}</strong></span></article>
-      <article><FileSignature size={18}/><span><small>Contratos</small><strong>{contracts.length}</strong></span></article>
-      <article><CircleDot size={18}/><span><small>Pegues</small><strong>{connections.length}</strong></span></article>
-      <article><Crosshair size={18}/><span><small>Predios</small><strong>{locations.length}</strong></span></article>
-     </div>
+    <header className="ja-360-head">
+      <div className="ja-360-avatar">{photo?<img src={photo} alt=""/>:<span>{initials(name)}</span>}</div>
+      <div className="ja-360-id">
+        <h1>{name}</h1>
+        <p><span className="ja-mono">{S(sub.code)}</span> · {S(data.identities[0]?.masked_number??data.identities[0]?.masked_document)}</p>
+        <div className="ja-360-tags">
+          <Badge tone={sub.status==='active'?'success':'neutral'}>{S(sub.status)==='active'?'Activo':S(sub.status)}</Badge>
+          {account&&!account.solvent&&<Badge tone="danger">Debe {formatMoney(account.total_pending)}</Badge>}
+          {account?.solvent&&<Badge tone="success"><BadgeCheck size={12}/> Al día</Badge>}
+          {data.benefits.some(b=>['eligible','active'].includes(String(b.status)))&&<Badge tone="info">Beneficio</Badge>}
+        </div>
+      </div>
+      <div className="ja-360-actions">
+        {actions.map(a=><Link key={a.label} to={a.to} className="ja-btn ja-btn-secondary ja-btn-sm">{a.icon}{a.label}</Link>)}
+      </div>
+    </header>
 
-     <div className="profile-section"><div className="section-heading"><div><h3>Contratos de servicio</h3><p>Relación abonado → predio → pegue.</p></div></div>
-      {contracts.length===0&&<div className="empty-state"><FileSignature size={28}/><p>Sin contratos registrados.</p></div>}
-      {contracts.map((c,idx)=><div className="data-row" key={idx}><span className="data-icon"><FileSignature size={17}/></span><span><strong>{String(c.contract_type??'servicio')}</strong><small>{c.connection_id?`pegue ${String(c.connection_id).slice(0,8)}`:'sin pegue'} · inicio {date(c.start_date)}</small></span><span className={`status-badge ${String(c.status)==='activo'?'approved':'draft'}`}>{String(c.status??'—')}</span></div>)}
-      {auth.has('subscribers.update')&&<details className="expand-form"><summary><Plus size={16}/> Registrar contrato</summary><form className="form-grid" onSubmit={registerContract} style={{marginTop:'0.75rem'}}><label>ID del pegue (water_connection)<input placeholder="Opcional" value={contractForm.connection_id} onChange={e=>setContractForm({...contractForm,connection_id:e.target.value})}/></label><label>Tipo de contrato<select value={contractForm.contract_type} onChange={e=>setContractForm({...contractForm,contract_type:e.target.value})}><option value="servicio_agua">Servicio de agua</option><option value="servicio_alcantarillado">Alcantarillado</option><option value="ambos">Ambos</option></select></label><button className="primary">Registrar contrato</button></form></details>}
-     </div>
+    <nav className="ja-tabs" role="tablist">
+      {TABS.map(t=>(
+        <button key={t} role="tab" aria-selected={tab===t} className={cn('ja-tab',tab===t&&'ja-tab-active')} onClick={()=>setTab(t)}>
+          {TAB_LABEL[t]}
+          {t==='cuenta'&&account&&account.overdue_count>0&&<span className="ja-tab-badge">{account.overdue_count}</span>}
+          {t==='atencion'&&data.requests.length>0&&<span className="ja-tab-badge">{data.requests.length}</span>}
+        </button>
+      ))}
+    </nav>
 
-     <div className="profile-section"><div className="section-heading"><div><h3>Pegues (conexiones)</h3><p>Puntos de servicio vinculados por contrato.</p></div></div>
-      {connections.length===0&&<div className="empty-state"><CircleDot size={28}/><p>Sin pegues vinculados.</p></div>}
-      {connections.map((w,idx)=><div className="data-row" key={idx}><span className="data-icon"><CircleDot size={17}/></span><span><strong>{String(w.code??'')}</strong><small>{String(w.sector??'')} · {String(w.address??'')}</small></span><span className="status-badge approved">{String(w.status??'activo')}</span></div>)}
-     </div>
+    <section className="ja-360-body" role="tabpanel">
+      {tab==='resumen'&&<div className="ja-360-grid">
+        <Field label="Teléfono" value={S(sub.whatsapp)}/>
+        <Field label="Correo" value={S(sub.email)}/>
+        <Field label="Sector" value={S(sub.sector)}/>
+        <Field label="Dirección" value={S(sub.address)}/>
+        <Field label="Pegues activos" value={String(data.connections.filter(c=>c.status!=='cancelled').length)}/>
+        <Field label="Saldo pendiente" value={account?formatMoney(account.total_pending):'—'}/>
+        {data.person_link&&<Field label="Categoría" value={S(data.person_link.category)}/>}
+      </div>}
 
-     <div className="profile-section"><div className="section-heading"><div><h3>Predios / ubicaciones de servicio</h3></div></div>
-      {locations.length===0&&<div className="empty-state"><Crosshair size={28}/><p>Sin predios registrados.</p></div>}
-      {locations.map((l,idx)=><div className="data-row" key={idx}><span className="data-icon"><Crosshair size={17}/></span><span><strong>{String(l.code??'')}</strong><small>{String(l.address??'')} · {String(l.sector??'')}</small></span><span className="status-badge draft">{String(l.property_type??'')}</span></div>)}
-     </div>
-    </>:<div className="empty-state tall"><Crosshair size={48}/><h3>Seleccione un abonado</h3><p>Abra una ficha del directorio para ver la vista 360 completa del cliente.</p></div>}
-   </section>
-  </div>
- </main>;
+      {tab==='servicio'&&<div className="ja-list">
+        {data.connections.length===0?<EmptyState icon={<Droplet size={24}/>} title="Sin pegues" description="Este abonado aún no tiene conexiones registradas."/>
+          :data.connections.map(c=><article key={String(c.id)} className="ja-list-row">
+            <div><strong className="ja-mono">{S(c.code)}</strong><span className="ja-cell-sub">{S(c.address)} · {S(c.sector)}</span></div>
+            <div className="ja-cell-sub">{S(c.service_type)}{c.meter_number?` · medidor ${S(c.meter_number)}`:' · sin medidor'}</div>
+            <Badge tone={connStatusTone(String(c.status))}>{S(c.status)}</Badge>
+          </article>)}
+        {data.contracts.length>0&&<>
+          <h3 className="ja-list-heading">Contratos</h3>
+          {data.contracts.map((ct,i)=><article key={i} className="ja-list-row">
+            <div><strong>{S(ct.contract_type)}</strong><span className="ja-cell-sub">Inicio {formatDate(ct.start_date as string)}</span></div>
+            <Badge tone={ct.status==='activo'?'success':'neutral'}>{S(ct.status)}</Badge>
+          </article>)}
+        </>}
+      </div>}
+
+      {tab==='cuenta'&&<div className="ja-list">
+        {account&&<div className="ja-360-grid">
+          <Field label="Total pendiente" value={formatMoney(account.total_pending)}/>
+          <Field label="Vencido" value={formatMoney(account.overdue_amount)}/>
+          <Field label="Obligaciones vencidas" value={String(account.overdue_count)}/>
+          <Field label="Más antigua" value={account.oldest_due_date?formatDate(account.oldest_due_date):'—'}/>
+        </div>}
+        {data.obligations.length===0?<EmptyState title="Sin obligaciones" description="No hay cuotas ni cargos registrados."/>
+          :data.obligations.map(o=><article key={String(o.id)} className="ja-list-row">
+            <div><strong>{S(o.description)}</strong><span className="ja-cell-sub">{S(o.tariff_name)} · vence {formatDate(o.due_date as string)}{o.connection_code?` · ${S(o.connection_code)}`:''}</span></div>
+            <div className="ja-td-num">{M(o.balance)}</div>
+            <Badge tone={o.state==='overdue'?'danger':o.state==='paid'?'success':'warning'}>{S(o.state)}</Badge>
+          </article>)}
+      </div>}
+
+      {tab==='pagos'&&<div className="ja-list">
+        {data.payments.length===0?<EmptyState icon={<Receipt size={24}/>} title="Sin pagos" description="Aún no se ha registrado ningún pago de este abonado."/>
+          :data.payments.map(p=><article key={String(p.id)} className="ja-list-row">
+            <div><strong className="ja-mono">{S(p.receipt_number)}</strong><span className="ja-cell-sub">{formatDateTime(p.created_at as string)} · {S(p.method)}</span></div>
+            <div className="ja-td-num">{M(p.total)}</div>
+            <div className="ja-row-actions">
+              <Badge tone={p.status==='voided'?'neutral':p.status==='confirmed'?'success':'warning'}>{S(p.status)}</Badge>
+              {typeof p.verification_token==='string'&&<Link className="ja-link" to={`/verificar-recibo/${p.verification_token}`} target="_blank" rel="noreferrer">Ver recibo</Link>}
+            </div>
+          </article>)}
+      </div>}
+
+      {tab==='atencion'&&<div className="ja-list">
+        {data.requests.length===0?<EmptyState icon={<ClipboardList size={24}/>} title="Sin solicitudes" description="No hay solicitudes ni reclamos para este abonado."/>
+          :data.requests.map(r=><article key={String(r.id)} className="ja-list-row">
+            <div><strong>{S(r.code)} · {S(r.subject)}</strong><span className="ja-cell-sub">{S(r.type)} · {formatDate(r.created_at as string)}</span></div>
+            <Badge tone={r.priority==='urgente'?'danger':r.priority==='alta'?'warning':'neutral'}>{S(r.priority)}</Badge>
+            <Badge tone={r.status==='resuelta'||r.status==='cerrada'?'success':'warning'}>{S(r.status)}</Badge>
+          </article>)}
+      </div>}
+
+      {tab==='trabajo'&&<div className="ja-list">
+        {data.work_orders.length===0?<EmptyState icon={<Wrench size={24}/>} title="Sin órdenes de trabajo" description="No hay trabajo técnico asociado a este abonado."/>
+          :data.work_orders.map(w=><article key={String(w.id)} className="ja-list-row">
+            <div><strong className="ja-mono">{S(w.order_number)}</strong><span className="ja-cell-sub">{S(w.type)} · {formatDate(w.created_at as string)}</span></div>
+            <Badge tone={String(w.priority)==='urgent'?'danger':'neutral'}>{S(w.priority)}</Badge>
+            <Badge tone={w.status==='completed'?'success':w.status==='cancelled'?'neutral':'warning'}>{S(w.status)}</Badge>
+          </article>)}
+      </div>}
+
+      {tab==='documentos'&&<div className="ja-list">
+        {data.identities.length===0?<EmptyState icon={<FileText size={24}/>} title="Sin documentos" description="No hay documentos de identidad adjuntos."/>
+          :data.identities.map(d=><article key={String(d.id)} className="ja-list-row">
+            <div><span className="ja-list-icon"><ShieldAlert size={16}/></span><span><strong>{S(d.document_type).toString().toUpperCase()} · {S(d.masked_number)}</strong><span className="ja-cell-sub">{d.has_file?'Documento protegido adjunto':'Sin archivo adjunto'}</span></span></div>
+            <Badge tone="neutral">Privado</Badge>
+          </article>)}
+        <p className="ja-hint">La gestión de archivos (adjuntar identidad, fotografía) se realiza desde el expediente de registro. <Link className="ja-link" to={`/abonados/registro?abrir=${id}`}>Abrir</Link></p>
+      </div>}
+
+      {tab==='historial'&&<div className="ja-list">
+        {data.audit.length===0?<EmptyState icon={<History size={24}/>} title="Sin historial visible" description="No hay eventos de auditoría o no tiene permiso para verlos."/>
+          :data.audit.map((a,i)=><article key={i} className="ja-list-row ja-audit-row">
+            <div><strong>{humanAction(String(a.action))}</strong><span className="ja-cell-sub">{S(a.reason)}</span></div>
+            <span className="ja-cell-sub">{formatDateTime(a.created_at as string)}</span>
+          </article>)}
+      </div>}
+    </section>
+  </main>;
+}
+
+function Field({label,value}:{label:string;value:string}){
+  return <div className="ja-field-ro"><small>{label}</small><strong>{value}</strong></div>;
+}
+
+function humanAction(action:string):string{
+  const map:Record<string,string>={
+    create:'Alta',update:'Modificación',bootstrap:'Inicialización',
+    'payment.void':'Pago anulado','payment.refund':'Pago devuelto',
+    'work_order.create':'Orden creada','work_order.update':'Orden actualizada',
+  };
+  return map[action]??action.replace(/[._]/g,' ');
 }

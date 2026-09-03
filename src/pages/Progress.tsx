@@ -1,15 +1,17 @@
 import {useCallback,useEffect,useMemo,useState} from 'react';
-import {AlertTriangle,CheckCircle2,CircleDashed,RefreshCw,ShieldCheck,XCircle} from 'lucide-react';
+import {AlertTriangle,CheckCircle2,RefreshCw,ShieldCheck,XCircle} from 'lucide-react';
 import {appVersion} from '../lib/version';
 import {getSystemReadiness} from '../features/integrations/service';
+import {Badge,ErrorState,Skeleton} from '../design-system/primitives';
+import {formatDateTime} from '../design-system/utils';
 
 type Check={key:string;area:string;label:string;status:'pass'|'warning'|'fail';detail:string};
 type Result={generated_at?:string;checks:Check[];summary:{pass:number;warning:number;fail:number}};
 
 export function Progress(){
-  const[data,setData]=useState<Result>({checks:[],summary:{pass:0,warning:0,fail:0}});
-  const[loading,setLoading]=useState(true);
-  const[error,setError]=useState('');
+  const [data,setData]=useState<Result>({checks:[],summary:{pass:0,warning:0,fail:0}});
+  const [loading,setLoading]=useState(true);
+  const [error,setError]=useState('');
 
   const load=useCallback(async()=>{
     setLoading(true);
@@ -19,41 +21,58 @@ export function Progress(){
         {key:'build_version',area:'Aplicación',label:'Versión compilada',status:appVersion.version&&appVersion.commit?'pass':'fail',detail:`v${appVersion.version} · commit ${appVersion.commit}`},
         {key:'pwa_manifest',area:'Aplicación',label:'Manifiesto PWA',status:document.querySelector('link[rel="manifest"]')?'pass':'fail',detail:'El navegador detecta el manifiesto instalable.'},
         {key:'service_worker',area:'Aplicación',label:'Service worker',status:'serviceWorker' in navigator?'pass':'warning',detail:'Disponible para caché del shell; las operaciones financieras siguen requiriendo conexión.'},
-        {key:'secure_context',area:'Seguridad',label:'Contexto seguro HTTPS',status:window.isSecureContext?'pass':'warning',detail:window.isSecureContext?'La aplicación se ejecuta en contexto seguro.':'Localhost puede funcionar; producción debe usar HTTPS.'}
+        {key:'secure_context',area:'Seguridad',label:'Contexto seguro HTTPS',status:window.isSecureContext?'pass':'warning',detail:window.isSecureContext?'La aplicación se ejecuta en contexto seguro.':'Localhost puede funcionar; producción debe usar HTTPS.'},
       ];
       const checks=[...(remote.checks??[]),...clientChecks];
-      setData({
-        ...remote,checks,
-        summary:{
-          pass:checks.filter(check=>check.status==='pass').length,
-          warning:checks.filter(check=>check.status==='warning').length,
-          fail:checks.filter(check=>check.status==='fail').length
-        }
-      });
+      setData({...remote,checks,summary:{
+        pass:checks.filter(c=>c.status==='pass').length,
+        warning:checks.filter(c=>c.status==='warning').length,
+        fail:checks.filter(c=>c.status==='fail').length,
+      }});
       setError('');
-    }catch(e){setError((e as Error).message)}finally{setLoading(false)}
+    }catch(e){setError((e as Error).message);}finally{setLoading(false);}
   },[]);
-  useEffect(()=>{void load()},[load]);
+  useEffect(()=>{void load();},[load]);
 
   const percent=useMemo(()=>{
     const total=data.checks.length;
     return total?Math.round(((data.summary.pass+data.summary.warning*.5)/total)*100):0;
   },[data]);
 
-  return <main className="content">
-    <div className="titlebar"><div><h1>Diagnóstico de preparación</h1><p>Estado calculado desde la base, la sesión, los conectores y la compilación actual.</p></div><button className="outline" onClick={()=>void load()}><RefreshCw size={17}/>Recalcular</button></div>
-    {error&&<div className="error">{error}</div>}
-    <div className="cards readiness-summary">
-      <article><CheckCircle2/><small>Correctas</small><h3>{data.summary.pass}</h3></article>
-      <article><AlertTriangle/><small>Requieren configuración</small><h3>{data.summary.warning}</h3></article>
-      <article><XCircle/><small>Fallidas</small><h3>{data.summary.fail}</h3></article>
-      <article><ShieldCheck/><small>Preparación ponderada</small><h3>{percent}%</h3></article>
+  return <main className="ja-page">
+    <header className="ja-page-head">
+      <div><h1>Diagnóstico de preparación</h1><p>Estado calculado desde la base, la sesión, los conectores y la compilación actual.</p></div>
+      <button type="button" className="ja-tab" onClick={()=>void load()}><RefreshCw size={14}/> Recalcular</button>
+    </header>
+
+    {error&&<ErrorState error={error} onRetry={()=>void load()}/>}
+
+    <div className="ja-home-metrics">
+      <article className="ja-metric"><small>Correctas</small><strong>{data.summary.pass}</strong></article>
+      <article className="ja-metric"><small>Requieren configuración</small><strong>{data.summary.warning}</strong></article>
+      <article className="ja-metric"><small>Fallidas</small><strong>{data.summary.fail}</strong></article>
+      <article className="ja-metric"><small>Preparación ponderada</small><strong>{percent}%</strong></article>
     </div>
-    <section className="panel" style={{marginTop:'1rem'}}>
-      <div className="progress readiness-progress"><span style={{width:`${percent}%`}}/></div>
-      <p className="help">Una advertencia no equivale a una función verificada: normalmente indica credenciales, despliegue o prueba externa pendiente.</p>
-    </section>
-    <div className="progress-list">{loading?<section className="panel"><CircleDashed/> Calculando comprobaciones…</section>:data.checks.map(check=><section className={`panel readiness-check ${check.status}`} key={check.key}><div className="phase-head">{check.status==='pass'?<CheckCircle2 className="ok"/>:check.status==='warning'?<AlertTriangle className="warn"/>:<XCircle className="danger-text"/>}<div><strong>{check.area}: {check.label}</strong><small>{check.detail}</small></div><span className={`status-badge ${check.status==='pass'?'approved':check.status==='warning'?'fair':'critical'}`}>{check.status==='pass'?'Verificado':check.status==='warning'?'Pendiente externo':'Fallo'}</span></div></section>)}</div>
-    {data.generated_at&&<p className="help">Diagnóstico de base generado: {new Date(data.generated_at).toLocaleString('es-HN')}.</p>}
+
+    <div className="ja-banner ja-banner-info">
+      Una advertencia no equivale a una función verificada: normalmente indica credenciales, despliegue o prueba externa pendiente.
+    </div>
+
+    {loading
+      ?<Skeleton className="ja-360-skel"/>
+      :<section className="ja-list">
+        {data.checks.map(check=><article key={check.key} className="ja-list-row">
+          <div style={{display:'flex',gap:'.6rem',alignItems:'flex-start'}}>
+            {check.status==='pass'?<CheckCircle2 size={16} style={{color:'var(--ja-success)'}}/>:check.status==='warning'?<AlertTriangle size={16} style={{color:'var(--ja-warning)'}}/>:<XCircle size={16} style={{color:'var(--ja-danger)'}}/>}
+            <span><strong>{check.area}: {check.label}</strong><span className="ja-cell-sub">{check.detail}</span></span>
+          </div>
+          <Badge tone={check.status==='pass'?'success':check.status==='warning'?'warning':'danger'}>
+            {check.status==='pass'?'Verificado':check.status==='warning'?'Pendiente externo':'Fallo'}
+          </Badge>
+        </article>)}
+      </section>}
+
+    {data.generated_at&&<p style={{color:'var(--ja-text-muted)',fontSize:'.8rem'}}>Diagnóstico de base generado: {formatDateTime(data.generated_at)}.</p>}
+    <p style={{color:'var(--ja-text-muted)',fontSize:'.8rem'}}><ShieldCheck size={12}/> {appVersion.version} · {appVersion.commit}</p>
   </main>;
 }

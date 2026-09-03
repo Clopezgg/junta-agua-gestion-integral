@@ -1,0 +1,11 @@
+# LEGACY UUID-IN-FORM ALLOWLIST — Enterprise Rebuild
+#
+# Archivos con formularios que todavía exponen IDs técnicos / UUID al usuario (§32, §72).
+# Deben migrarse a pickers humanos. Ningún archivo nuevo puede añadirse.
+# El gate falla si un archivo fuera de esta lista liga un <input> de texto a un
+# campo `*_id` o muestra "UUID" en placeholder/label.
+#
+# Snapshot inicial: 2026-09-01 (Milestone B).
+
+
+# Milestone O (2026-09-03): JuntaDirectiva migrado a persona-picker (select del registro maestro). Lista vacía.

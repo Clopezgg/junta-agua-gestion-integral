@@ -1,17 +1,18 @@
 import {describe,expect,it} from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
+import {hasRoute} from '../app/router/routeManifest';
 
 const root=process.cwd();
 const read=(file:string)=>fs.readFileSync(path.join(root,file),'utf8');
 
 describe('plataforma completa V3',()=>{
   it('conecta portal, documentos financieros y rutas protegidas',()=>{
-    const app=read('src/App.tsx');
-    expect(app).toContain('path="/portal"');
-    expect(app).toContain('path="/mi-cuenta"');
-    expect(app).toContain('PortalRoute');
-    expect(app).toContain('documentos-financieros');
+    const router=read('src/app/router/AppRouter.tsx');
+    expect(router).toContain('path="/portal"');
+    expect(router).toContain('path="/mi-cuenta"');
+    expect(router).toContain('PortalRoute');
+    expect(hasRoute('documentos-financieros')).toBe(true);
   });
 
   it('implementa acceso del abonado con DNI y contraseña, no con DNI solo',()=>{
@@ -40,19 +41,21 @@ describe('plataforma completa V3',()=>{
   });
 
   it('prioriza cuota anual y oculta medición en la navegación principal',()=>{
-    const layout=read('src/components/Layout.tsx');
+    const nav=read('src/layouts/navigation.tsx');
     const home=read('src/pages/Home.tsx');
-    expect(layout).not.toContain('Medición y consumo');
-    expect(home).toContain('Generar cuota anual');
-    expect(home).toContain('L 400 por pegue');
+    const roleView=read('src/features/dashboard/roleView.ts');
+    expect(nav).not.toContain('Medición');
+    expect(roleView).toContain('Generar cuota anual');
+    // §39: el monto de la cuota NO se hardcodea en la UI — viene de tarifas versionadas.
+    expect(home).not.toContain('L 400 por pegue');
+    expect(roleView).not.toContain('L 400');
   });
 
-  it('no muestra WhatsApp en cobros ni recibos',()=>{
+  it('el recibo PDF no menciona canales de entrega; el envío por WhatsApp usa wa.me (§43, §87)',()=>{
     const payments=read('src/pages/Payments.tsx');
     const receipt=read('src/features/finance/documents.ts');
-    expect(payments).not.toContain('sendWhatsApp');
-    expect(payments).not.toContain('MessageCircle');
-    expect(receipt).not.toContain('WhatsApp');
+    expect(payments).toContain('wa.me/');           // entrega manual sin API
+    expect(receipt).not.toContain('WhatsApp');      // el documento en sí no lo menciona
   });
 
   it('conecta fotografía y pestañas funcionales del expediente',()=>{

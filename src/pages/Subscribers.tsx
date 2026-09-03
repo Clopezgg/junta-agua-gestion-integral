@@ -1,6 +1,6 @@
 import {useCallback,useEffect,useMemo,useState} from 'react';
 import {BadgeCheck,CalendarDays,Camera,ChevronRight,FileText,History,IdCard,Mail,MapPin,Phone,Plus,Search,ShieldAlert,UserRound,WandSparkles,WalletCards} from 'lucide-react';
-import {Link} from 'react-router-dom';
+import {Link,useSearchParams} from 'react-router-dom';
 import {GoogleMapPicker} from '../components/maps/GoogleMapPicker';
 import {useAuth} from '../contexts/AuthContext';
 import {runOcr} from '../features/communications/service';
@@ -18,6 +18,13 @@ const age=(birthDate?:string)=>birthDate?Math.max(0,new Date().getFullYear()-new
 export function Subscribers(){
  const auth=useAuth();const[query,setQuery]=useState('');const[rows,setRows]=useState<any[]>([]);const[selected,setSelected]=useState<any>(null);const[activeTab,setActiveTab]=useState<Tab>('summary');const[showCreate,setShowCreate]=useState(false);const[form,setForm]=useState<SubscriberInput>(emptySubscriber);const[matches,setMatches]=useState<Match[]>([]);const[validated,setValidated]=useState(false);const[note,setNote]=useState('');const[matchedId,setMatchedId]=useState('');const[message,setMessage]=useState('');const[connection,setConnection]=useState<ConnectionInput>(emptyConnection);const[pendingDocument,setPendingDocument]=useState('');const[ocrText,setOcrText]=useState('');const[ocrBusy,setOcrBusy]=useState(false);const[editForm,setEditForm]=useState<Record<string,string>>(emptyEdit);const[connAction,setConnAction]=useState<{connection_id:string;status:string;reason:string}>({connection_id:'',status:'',reason:''});
  const load=useCallback(async(q='')=>{try{setRows(await searchSubscribers(q))}catch(e){setMessage(e instanceof Error?e.message:'No se pudo consultar.')}},[]);useEffect(()=>{void load()},[load]);
+ const [params,setParams]=useSearchParams();
+ useEffect(()=>{
+  if(params.get('crear')==='1'&&auth.has('subscribers.create')){setShowCreate(true);params.delete('crear');setParams(params,{replace:true});}
+  const abrir=params.get('abrir');
+  if(abrir){void open(abrir);params.delete('abrir');setParams(params,{replace:true});}
+ // eslint-disable-next-line react-hooks/exhaustive-deps
+ },[params]);
  const selectedAge=useMemo(()=>age(selected?.subscriber?.birth_date),[selected]);
  async function hydrate(id:string){const detail=await getSubscriberDetail(id);const photoPath=detail?.subscriber?.photo_path;const photoUrl=photoPath?await getSubscriberDocumentUrl(photoPath).catch(()=> ''):'';return{...detail,subscriber:{...detail.subscriber,photo_url:photoUrl}};}
  async function validate(){setMessage('');const parsed=subscriberSchema.safeParse(form);if(!parsed.success){setMessage(parsed.error.issues[0]?.message??'Revise los datos.');return;}try{const data=await checkDuplicates(parsed.data) as Match[];setMatches(data);setValidated(true);const exact=data.find(x=>x.exact_document);if(exact)setMessage(`Registro bloqueado: la identidad ya pertenece a ${exact.full_name} (${exact.subscriber_code}).`)}catch(e){setMessage(e instanceof Error?e.message:'No se pudo validar.')}}

@@ -1,23 +1,163 @@
-import {useEffect,useMemo,useState} from 'react';
-import {CalendarPlus,History,Plus,Save,X} from 'lucide-react';
+import {useCallback,useEffect,useMemo,useState} from 'react';
+import {CalendarPlus,History,Plus,RefreshCw} from 'lucide-react';
 import {useAuth} from '../contexts/AuthContext';
 import {createTariff,createTariffVersion,generateAnnualObligations,listTariffs} from '../features/billing/service';
 import {annualGenerationSchema,tariffSchema,type TariffInput} from '../features/billing/validation';
+import {Badge,Button,Dialog,ErrorState} from '../design-system/primitives';
+import {formatMoney} from '../design-system/utils';
 
+type Row=Record<string,any>;
+const M=(v:unknown)=>formatMoney(typeof v==='number'||typeof v==='string'?v:0);
 const initial:TariffInput={code:'AUTO',name:'',category:'annual_fee',description:'',applies_to_service:'',is_annual:true,amount:400,valid_from:new Date().toISOString().slice(0,10),valid_to:'',notes:''};
-const money=(value:unknown)=>new Intl.NumberFormat('es-HN',{style:'currency',currency:'HNL'}).format(Number(value??0));
-function makeCode(category:string,name:string){const prefix=({annual_fee:'ANUAL',new_connection:'PEGUE',reconnection:'RECON',late_fee:'MORA',repair:'REPAR',ownership_change:'CAMBIO',inspection:'INSP',fine:'MULTA',other:'SERV'} as Record<string,string>)[category]??'SERV';const suffix=name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_|_$/g,'').toUpperCase().slice(0,18);return `${prefix}_${suffix||Date.now().toString().slice(-6)}`;}
+
+function makeCode(category:string,name:string){
+  const prefix=({annual_fee:'ANUAL',new_connection:'PEGUE',reconnection:'RECON',late_fee:'MORA',repair:'REPAR',ownership_change:'CAMBIO',inspection:'INSP',fine:'MULTA',other:'SERV'} as Record<string,string>)[category]??'SERV';
+  const suffix=name.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_|_$/g,'').toUpperCase().slice(0,18);
+  return `${prefix}_${suffix||Date.now().toString().slice(-6)}`;
+}
 
 export function Tariffs(){
- const auth=useAuth();const[rows,setRows]=useState<any[]>([]);const[form,setForm]=useState<TariffInput>(initial);const[show,setShow]=useState(false);const[message,setMessage]=useState('');const[versionFor,setVersionFor]=useState<any>(null);const[version,setVersion]=useState({amount:0,valid_from:'',valid_to:'',notes:''});const[annual,setAnnual]=useState({tariff_definition_id:'',year:new Date().getFullYear(),due_date:`${new Date().getFullYear()}-11-30`});
- const generatedCode=useMemo(()=>makeCode(form.category,form.name),[form.category,form.name]);
- async function load(){try{setRows(await listTariffs())}catch(e){setMessage(e instanceof Error?e.message:'No se pudieron consultar las tarifas.')}}useEffect(()=>{void load()},[]);
- async function save(){const payload={...form,code:generatedCode};const parsed=tariffSchema.safeParse(payload);if(!parsed.success){setMessage(parsed.error.issues[0]?.message??'Revise los datos.');return;}try{await createTariff(parsed.data);setMessage(`Tarifa creada con código automático ${generatedCode}.`);setShow(false);setForm(initial);await load()}catch(e){setMessage(e instanceof Error?e.message:'No se pudo crear la tarifa.')}}
- async function saveVersion(){if(!versionFor||version.amount<0||!version.valid_from){setMessage('Ingrese valor y fecha de vigencia.');return;}try{await createTariffVersion(versionFor.definition_id,version);setMessage('Nueva versión creada sin alterar el historial anterior.');setVersionFor(null);setVersion({amount:0,valid_from:'',valid_to:'',notes:''});await load()}catch(e){setMessage(e instanceof Error?e.message:'No se pudo versionar la tarifa.')}}
- async function generate(){const parsed=annualGenerationSchema.safeParse(annual);if(!parsed.success){setMessage(parsed.error.issues[0]?.message??'Revise la anualidad.');return;}try{const result:any=await generateAnnualObligations(parsed.data);setMessage(`Anualidad generada: ${result.created} obligaciones nuevas para ${result.year}.`)}catch(e){setMessage(e instanceof Error?e.message:'No se pudo generar la anualidad.')}}
- return <main className="content"><div className="titlebar"><div><h1>Tarifas, anualidades y servicios</h1><p>El sistema genera los códigos automáticamente y conserva todas las versiones históricas.</p></div>{auth.has('tariffs.manage')&&<button onClick={()=>setShow(true)}><Plus size={18}/>Nueva tarifa</button>}</div>{message&&<div className={message.includes('No ')||message.includes('permiso')||message.includes('existe')?'error':'notice'}>{message}</div>}
- {auth.has('obligations.manage')&&<section className="panel"><h2><CalendarPlus size={20}/>Generar cuota anual</h2><p className="help">La cuota ordinaria se genera por cada pegue activo. La fecha límite predeterminada es el 30 de noviembre.</p><div className="inline-form"><select value={annual.tariff_definition_id} onChange={e=>setAnnual({...annual,tariff_definition_id:e.target.value})}><option value="">Seleccione tarifa anual</option>{rows.filter(row=>row.is_annual&&row.status==='active').map(row=><option key={row.definition_id} value={row.definition_id}>{row.name} · {money(row.amount)}</option>)}</select><input type="number" min="2000" max="2100" value={annual.year} onChange={e=>setAnnual({...annual,year:Number(e.target.value)})}/><input type="date" value={annual.due_date} onChange={e=>setAnnual({...annual,due_date:e.target.value})}/><button onClick={()=>void generate()}><CalendarPlus size={17}/>Generar sin duplicar</button></div></section>}
- <section className="panel"><div className="table-scroll"><table><thead><tr><th>Código automático</th><th>Tarifa</th><th>Categoría</th><th>Servicio</th><th>Versión</th><th>Valor</th><th>Vigente desde</th><th>Acción</th></tr></thead><tbody>{rows.map(row=><tr key={row.definition_id}><td><code>{row.code}</code></td><td><strong>{row.name}</strong>{row.is_annual&&<span className="pill">Anual</span>}</td><td>{row.category}</td><td>{row.applies_to_service||'Todos'}</td><td>v{row.version_number??'-'}</td><td>{money(row.amount)}</td><td>{row.valid_from??'-'}</td><td>{auth.has('tariffs.manage')&&<button className="outline compact" onClick={()=>{setVersionFor(row);setVersion({amount:Number(row.amount),valid_from:'',valid_to:'',notes:''})}}><History size={16}/>Versionar</button>}</td></tr>)}</tbody></table></div>{rows.length===0&&<p className="empty">No hay tarifas registradas.</p>}</section>
- {show&&<div className="modal"><div className="modal-card"><div className="titlebar"><div><h2>Nueva tarifa o servicio</h2><p>El código será generado por el sistema.</p></div><button className="outline" onClick={()=>setShow(false)}><X size={17}/>Cerrar</button></div><div className="auto-code-preview"><small>Código automático</small><strong>{generatedCode}</strong></div><div className="form-grid"><label>Nombre profesional<input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej.: Cambio de tubería domiciliaria"/></label><label>Categoría<select value={form.category} onChange={e=>setForm({...form,category:e.target.value as TariffInput['category']})}><option value="annual_fee">Cuota anual</option><option value="new_connection">Nuevo pegue</option><option value="reconnection">Reconexión</option><option value="late_fee">Mora</option><option value="repair">Reparación o cambio de tubería</option><option value="ownership_change">Cambio de propietario</option><option value="inspection">Inspección</option><option value="fine">Multa</option><option value="other">Otro servicio</option></select></label><label>Tipo de servicio<select value={form.applies_to_service} onChange={e=>setForm({...form,applies_to_service:e.target.value as TariffInput['applies_to_service']})}><option value="">Todos</option><option value="residential">Residencial</option><option value="commercial">Comercial</option><option value="community">Comunitario</option><option value="institutional">Institucional</option></select></label><label>Valor<input type="number" step="0.01" min="0" value={form.amount} onChange={e=>setForm({...form,amount:Number(e.target.value)})}/></label><label>Vigente desde<input type="date" value={form.valid_from} onChange={e=>setForm({...form,valid_from:e.target.value})}/></label><label className="check"><input type="checkbox" checked={form.is_annual} onChange={e=>setForm({...form,is_annual:e.target.checked})}/>Genera obligación anual por pegue</label><label className="span-2">Descripción<textarea value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/></label></div><button disabled={!form.name.trim()} onClick={()=>void save()}><Save size={17}/>Guardar tarifa</button></div></div>}
- {versionFor&&<div className="modal"><div className="modal-card"><div className="titlebar"><h2>Nueva versión · {versionFor.name}</h2><button className="outline" onClick={()=>setVersionFor(null)}><X size={17}/>Cerrar</button></div><div className="form-grid"><label>Nuevo valor<input type="number" step="0.01" min="0" value={version.amount} onChange={e=>setVersion({...version,amount:Number(e.target.value)})}/></label><label>Vigente desde<input type="date" value={version.valid_from} onChange={e=>setVersion({...version,valid_from:e.target.value})}/></label><label>Vigente hasta, opcional<input type="date" value={version.valid_to} onChange={e=>setVersion({...version,valid_to:e.target.value})}/></label><label>Justificación<textarea value={version.notes} onChange={e=>setVersion({...version,notes:e.target.value})}/></label></div><button onClick={()=>void saveVersion()}><History size={17}/>Crear nueva versión</button></div></div>}</main>;
+  const auth=useAuth();
+  const manage=auth.has('tariffs.manage');
+  const [rows,setRows]=useState<Row[]>([]);
+  const [loading,setLoading]=useState(true);
+  const [error,setError]=useState('');
+  const [notice,setNotice]=useState('');
+  const [newOpen,setNewOpen]=useState(false);
+  const [form,setForm]=useState<TariffInput>(initial);
+  const [versionFor,setVersionFor]=useState<Row|null>(null);
+  const [version,setVersion]=useState({amount:0,valid_from:'',valid_to:'',notes:''});
+  const [annual,setAnnual]=useState({tariff_definition_id:'',year:new Date().getFullYear(),due_date:`${new Date().getFullYear()}-11-30`});
+
+  const generatedCode=useMemo(()=>makeCode(form.category,form.name),[form.category,form.name]);
+
+  const load=useCallback(()=>{
+    setLoading(true);
+    void listTariffs()
+      .then(r=>{setRows((r as Row[])??[]);setError('');})
+      .catch(e=>setError((e as Error).message))
+      .finally(()=>setLoading(false));
+  },[]);
+  useEffect(()=>{void load();},[load]);
+
+  async function save(){
+    const parsed=tariffSchema.safeParse({...form,code:generatedCode});
+    if(!parsed.success){setError(parsed.error.issues[0]?.message??'Revise los datos.');return;}
+    try{await createTariff(parsed.data);setNewOpen(false);setForm(initial);setNotice(`Tarifa creada con código automático ${generatedCode}.`);load();}
+    catch(e){setError((e as Error).message);}
+  }
+  async function saveVersion(){
+    if(!versionFor||version.amount<0||!version.valid_from){setError('Ingrese valor y fecha de vigencia.');return;}
+    try{await createTariffVersion(versionFor.definition_id,version);setVersionFor(null);setVersion({amount:0,valid_from:'',valid_to:'',notes:''});setNotice('Nueva versión creada sin alterar el historial anterior.');load();}
+    catch(e){setError((e as Error).message);}
+  }
+  async function generate(){
+    const parsed=annualGenerationSchema.safeParse(annual);
+    if(!parsed.success){setError(parsed.error.issues[0]?.message??'Revise la anualidad.');return;}
+    try{const result=await generateAnnualObligations(parsed.data) as Row;setNotice(`Anualidad generada: ${result.created} obligaciones nuevas para ${result.year}.`);}
+    catch(e){setError((e as Error).message);}
+  }
+
+  return <main className="ja-page">
+    <header className="ja-page-head">
+      <div><h1>Tarifas, anualidades y servicios</h1><p>El sistema genera los códigos automáticamente y conserva todas las versiones históricas.</p></div>
+      {manage&&<Button icon={<Plus size={15}/>} onClick={()=>setNewOpen(true)}>Nueva tarifa</Button>}
+      <button type="button" className="ja-tab" onClick={load}><RefreshCw size={14}/> Actualizar</button>
+    </header>
+
+    {notice&&<div className="ja-banner ja-banner-info">{notice}</div>}
+    {error&&<ErrorState error={error} onRetry={()=>setError('')}/>}
+
+    {auth.has('obligations.manage')&&<section className="ja-list">
+      <h3 className="ja-list-heading"><CalendarPlus size={16}/> Generar cuota anual</h3>
+      <p style={{color:'var(--ja-text-muted)',margin:'0 0 .6rem'}}>La cuota ordinaria se genera por cada pegue activo. La fecha límite predeterminada es el 30 de noviembre.</p>
+      <div className="ja-toolbar">
+        <select className="ja-control" style={{maxWidth:'18rem'}} value={annual.tariff_definition_id} onChange={e=>setAnnual({...annual,tariff_definition_id:e.target.value})}>
+          <option value="">Seleccione tarifa anual</option>
+          {rows.filter(r=>r.is_annual&&r.status==='active').map(r=><option key={r.definition_id} value={r.definition_id}>{r.name} · {M(r.amount)}</option>)}
+        </select>
+        <input className="ja-control" style={{maxWidth:'7rem'}} type="number" min="2000" max="2100" value={annual.year} onChange={e=>setAnnual({...annual,year:Number(e.target.value)})}/>
+        <input className="ja-control" style={{maxWidth:'10rem'}} type="date" value={annual.due_date} onChange={e=>setAnnual({...annual,due_date:e.target.value})}/>
+        <Button variant="secondary" icon={<CalendarPlus size={15}/>} onClick={()=>void generate()}>Generar sin duplicar</Button>
+      </div>
+    </section>}
+
+    <section className="ja-table-scroll">
+      <table className="ja-table">
+        <thead><tr><th>Código</th><th>Tarifa</th><th>Categoría</th><th>Servicio</th><th>Versión</th><th className="ja-td-num">Valor</th><th>Vigente desde</th><th>Acción</th></tr></thead>
+        <tbody>
+          {rows.length===0
+            ?<tr><td colSpan={8} className="ja-table-empty">{loading?'Cargando…':'No hay tarifas registradas.'}</td></tr>
+            :rows.map(r=><tr key={r.definition_id}>
+              <td><code style={{fontSize:'.75rem'}}>{r.code}</code></td>
+              <td><strong>{r.name}</strong>{r.is_annual&&<> <Badge tone="neutral">Anual</Badge></>}</td>
+              <td>{r.category}</td>
+              <td>{r.applies_to_service||'Todos'}</td>
+              <td>v{r.version_number??'-'}</td>
+              <td className="ja-td-num">{M(r.amount)}</td>
+              <td>{r.valid_from??'-'}</td>
+              <td>{manage&&<Button variant="secondary" icon={<History size={13}/>} onClick={()=>{setVersionFor(r);setVersion({amount:Number(r.amount),valid_from:'',valid_to:'',notes:''});}}>Versionar</Button>}</td>
+            </tr>)}
+        </tbody>
+      </table>
+    </section>
+
+    <Dialog open={newOpen} onClose={()=>setNewOpen(false)} title="Nueva tarifa o servicio" description="El código será generado por el sistema.">
+      <form className="ja-pos-fields" onSubmit={e=>{e.preventDefault();void save();}}>
+        <div className="ja-banner ja-banner-info">Código automático: <strong>{generatedCode}</strong></div>
+        <label className="ja-field"><span className="ja-field-label">Nombre profesional</span>
+          <input className="ja-control" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej.: Cambio de tubería domiciliaria"/>
+        </label>
+        <div className="ja-pos-grid">
+          <label className="ja-field"><span className="ja-field-label">Categoría</span>
+            <select className="ja-control" value={form.category} onChange={e=>setForm({...form,category:e.target.value as TariffInput['category']})}>
+              <option value="annual_fee">Cuota anual</option><option value="new_connection">Nuevo pegue</option><option value="reconnection">Reconexión</option>
+              <option value="late_fee">Mora</option><option value="repair">Reparación o cambio de tubería</option><option value="ownership_change">Cambio de propietario</option>
+              <option value="inspection">Inspección</option><option value="fine">Multa</option><option value="other">Otro servicio</option>
+            </select>
+          </label>
+          <label className="ja-field"><span className="ja-field-label">Tipo de servicio</span>
+            <select className="ja-control" value={form.applies_to_service} onChange={e=>setForm({...form,applies_to_service:e.target.value as TariffInput['applies_to_service']})}>
+              <option value="">Todos</option><option value="residential">Residencial</option><option value="commercial">Comercial</option>
+              <option value="community">Comunitario</option><option value="institutional">Institucional</option>
+            </select>
+          </label>
+          <label className="ja-field"><span className="ja-field-label">Valor</span>
+            <input className="ja-control" type="number" step="0.01" min="0" value={form.amount} onChange={e=>setForm({...form,amount:Number(e.target.value)})}/>
+          </label>
+          <label className="ja-field"><span className="ja-field-label">Vigente desde</span>
+            <input className="ja-control" type="date" value={form.valid_from} onChange={e=>setForm({...form,valid_from:e.target.value})}/>
+          </label>
+        </div>
+        <label className="ja-field" style={{flexDirection:'row',alignItems:'center',gap:'.5rem'}}>
+          <input type="checkbox" checked={form.is_annual} onChange={e=>setForm({...form,is_annual:e.target.checked})}/>
+          <span className="ja-field-label" style={{margin:0}}>Genera obligación anual por pegue</span>
+        </label>
+        <label className="ja-field"><span className="ja-field-label">Descripción</span>
+          <textarea className="ja-control" rows={2} value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/>
+        </label>
+        <Button type="submit" disabled={!form.name.trim()}>Guardar tarifa</Button>
+      </form>
+    </Dialog>
+
+    <Dialog open={!!versionFor} onClose={()=>setVersionFor(null)} title={versionFor?`Nueva versión · ${versionFor.name}`:'Nueva versión'}>
+      <form className="ja-pos-fields" onSubmit={e=>{e.preventDefault();void saveVersion();}}>
+        <div className="ja-pos-grid">
+          <label className="ja-field"><span className="ja-field-label">Nuevo valor</span>
+            <input className="ja-control" type="number" step="0.01" min="0" value={version.amount} onChange={e=>setVersion({...version,amount:Number(e.target.value)})}/>
+          </label>
+          <label className="ja-field"><span className="ja-field-label">Vigente desde</span>
+            <input className="ja-control" type="date" value={version.valid_from} onChange={e=>setVersion({...version,valid_from:e.target.value})}/>
+          </label>
+          <label className="ja-field"><span className="ja-field-label">Vigente hasta (opcional)</span>
+            <input className="ja-control" type="date" value={version.valid_to} onChange={e=>setVersion({...version,valid_to:e.target.value})}/>
+          </label>
+        </div>
+        <label className="ja-field"><span className="ja-field-label">Justificación</span>
+          <textarea className="ja-control" rows={2} value={version.notes} onChange={e=>setVersion({...version,notes:e.target.value})}/>
+        </label>
+        <Button type="submit" icon={<History size={15}/>}>Crear nueva versión</Button>
+      </form>
+    </Dialog>
+  </main>;
 }

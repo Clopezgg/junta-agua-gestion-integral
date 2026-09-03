@@ -6,6 +6,18 @@ const mfa=fs.readFileSync('src/pages/Mfa.tsx','utf8');
 const setup=fs.readFileSync('src/pages/Setup.tsx','utf8');
 const route=fs.readFileSync('src/components/ProtectedRoute.tsx','utf8');
 
+describe('regresión Milestone D — no atrapar al admin en /setup',()=>{
+ it('Mfa no redirige a /setup mientras la autorización aún carga (profile transitorio null)',()=>{
+  expect(mfa).toContain('if(a.mfaVerified){');
+  expect(mfa).toMatch(/if\(a\.loading\)return .*Verificando/);
+ });
+ it('Setup manda al dashboard a un admin ya inicializado, salvo asistente explícito',()=>{
+  expect(setup).toContain("if(!wizardRequested())return <Navigate to=\"/\" replace/>;");
+  expect(setup).toContain('requestWizard()');       // sólo tras bootstrap
+  expect(setup).toContain('clearWizard()');         // al terminar/omitir
+ });
+});
+
 describe('flujo MFA del primer administrador (pre-bootstrap)',()=>{
  it('A) sesión sin profile con TOTP verified en AAL1: expone desafío MFA, sin QR',()=>{
   // La determinación del factor ocurre ANTES de depender del profile.
@@ -28,9 +40,12 @@ describe('flujo MFA del primer administrador (pre-bootstrap)',()=>{
  it('B) sesión sin profile con TOTP verified en AAL2: redirige a /setup',()=>{
   // Mfa envía a /setup cuando hay MFA verificado pero no profile.
   expect(mfa).toContain("a.profile?'/':'/setup'");
-  // Setup muestra el formulario solo tras MFA verificado y con profile null.
+  // Setup exige MFA verificado; sin profile muestra el bootstrap, con profile el asistente (§25).
   expect(setup).toContain("if(!auth.mfaVerified)return <Navigate to=\"/mfa\" replace/>;");
-  expect(setup).toContain("if(auth.profile)return <Navigate to=\"/\" replace/>;");
+  expect(setup).toContain("if(!auth.profile)return <BootstrapStep/>;");
+  // El asistente redirige a la raíz sólo cuando la configuración ya fue completada.
+  expect(setup).toContain("if(completed)return <Navigate to=\"/\" replace/>;");
+  expect(setup).toContain("settings.setup_completed_at");
   // El estado sin profile/subscriber NO se convierte en ACCOUNT_CONTEXT_NOT_FOUND pre-bootstrap.
   expect(auth).toContain("setAccountKind('pre_bootstrap')");
   expect(auth).toContain("if(authorization?.profile)");

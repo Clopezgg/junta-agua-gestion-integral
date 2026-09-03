@@ -36,6 +36,14 @@ jobs:
         run: |
           set -o pipefail
           npm run lint 2>&1 | tee lint-output.log
+
+      - name: Gates estáticos del Enterprise Rebuild (legacy CSS / clases / UUID en formularios)
+        id: gates
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          node scripts/enterprise-gates.mjs 2>&1 | tee gates-output.log
       - name: Compilar
         id: build
         continue-on-error: true
@@ -64,6 +72,7 @@ jobs:
           path: |
             test-output.log
             lint-output.log
+            gates-output.log
             build-output.log
             publish-output.log
           if-no-files-found: warn
@@ -73,5 +82,6 @@ jobs:
         run: |
           test "${{ steps.tests.outcome }}" = "success"
           test "${{ steps.lint.outcome }}" = "success"
+          test "${{ steps.gates.outcome }}" = "success"
           test "${{ steps.build.outcome }}" = "success"
           test "${{ steps.publish.outcome }}" = "success"
