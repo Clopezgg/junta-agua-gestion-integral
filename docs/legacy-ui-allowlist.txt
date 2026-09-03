@@ -24,9 +24,6 @@
 
 src/components/Layout.tsx
 src/pages/Accounts.tsx
-src/pages/DocumentSettings.tsx
-src/pages/FieldReadings.tsx
-src/pages/Imports.tsx
 src/pages/ReceiptVisualStudio.tsx
 src/pages/SubscriberCards.tsx
 src/pages/SubscriberPortal.tsx
