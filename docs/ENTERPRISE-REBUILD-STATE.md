@@ -4,15 +4,15 @@
 
 | Campo | Valor |
 |---|---|
-| CURRENT_PHASE | Milestone Q — Centro documental. A–P integrados en la rama. |
+| CURRENT_PHASE | Milestone V — Legacy eradication (EN PROGRESO): 18 `.tsx` legacy restantes. Q/R/S/T/U/W/X/Y/Z pendientes. A–P integrados. |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
-| CURRENT_SHA | `pending-push` (Milestone P completo) sobre `d193322` |
+| CURRENT_SHA | `pending-push` (Milestone V lote 1: Security/Audit/Backups/MapView/Users/Tariffs en DS) sobre `879fea0` |
 | LAST_GREEN_SHA | `0fc6d89` (CI PR #22 en curso; `1418d7b` verde 4/4) — 256 tests, lint OK, tsc OK, build OK |
 | LAST_COMPLETED_MILESTONE | P — Cumplimiento (ERSAPS/Calendario/Transparencia/Reports sobre design system, sin claims falsos). Antes: O, N, M, L, K, J, I, H. |
-| NEXT_ACTION | Milestone Q (Centro documental §Q): storage privado, versiones, descarga autenticada, tipos de documento. Sin URLs públicas. Draft PR: #22. |
+| NEXT_ACTION | Seguir Milestone V: rebuild de las 18 pantallas legacy restantes sobre design system con paridad funcional; luego Q (Centro documental), S (admin + dedup rutas), R (portal DNI+foto), T/U/W/X/Y/Z. Draft PR: #22. |
 | TEST_COUNT | 260 (vitest) — +gobierno (O) +cumplimiento (P: DS, sin prompt, sin claims falsos, Reports/Annual Pack) |
 | E2E_COUNT | 9 tests Playwright (smoke.spec: login/MFA, navegación, búsqueda, responsive, POS+Caja, Nuevo servicio, 360, command palette, logout) + 1 sim |
-| LEGACY_FILES_REMAINING | 0 CSS legacy en `src/` · **24** `.tsx` en `docs/legacy-ui-allowlist.txt` (−Asamblea/JuntaDirectiva/Reuniones/Resoluciones/Proyectos/Comités en O; −Ersaps/Calendario/Transparencia/Reports en P) · **0** en `docs/legacy-uuid-allowlist.txt`. Restan: Layout + Accounts/Admin/Audit/Backups/Bodega/DocumentSettings/FieldReadings/FinancialDocuments/Imports/Integrations/MapView/Metering/PeguesContratos/Progress/ReceiptVisualStudio/Security/Settings/SubscriberCards/SubscriberPortal/Subscribers/Tariffs/Users/VerifyReceipt (milestones Q/R/S/V). El gate impide que las listas crezcan o queden entradas obsoletas. |
+| LEGACY_FILES_REMAINING | 0 CSS legacy en `src/` · **18** `.tsx` en `docs/legacy-ui-allowlist.txt` · **0** en `docs/legacy-uuid-allowlist.txt`. Restan: Layout + Accounts/Admin/Bodega/DocumentSettings/FieldReadings/FinancialDocuments/Imports/Integrations/Metering/PeguesContratos/Progress/ReceiptVisualStudio/Settings/SubscriberCards/SubscriberPortal/Subscribers/VerifyReceipt (milestones V/Q/S). El gate impide que las listas crezcan o queden entradas obsoletas. |
 | MIGRATION_HEAD | `202609010015_v6_governance_persons.sql` (list_governance_persons: persona-picker de cargos §64; list_committees — sólo lectura). Prev: `202609010014_v6_portfolio.sql` (get_portfolio_overview; list_arrangements_workspace). Tipos DB: regenerar tras aplicar a cloud (post-merge, §141). |
 | OPEN_BLOCKERS | Ninguno interno. Externos para el cierre total (merge→cloud→Render→smoke): requieren credenciales/permiso de escritura en Supabase Cloud, Render y GitHub merge — ver COMPLETION REPORT al pie. |
 | STAGING_STATE | No configurado. Plan: Render PR Preview + Supabase local/CI. Sin servicios pagados nuevos. |
