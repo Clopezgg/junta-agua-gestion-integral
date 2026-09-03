@@ -1,25 +1,81 @@
-import {useEffect,useState} from 'react';
-import {Users,UserPlus} from 'lucide-react';
+import {useCallback,useEffect,useState} from 'react';
+import {RefreshCw,UserPlus,Users} from 'lucide-react';
+import {createCommittee,listCommittees} from '../features/governance/service';
 import {useAuth} from '../contexts/AuthContext';
+import {Badge,Button,Dialog,EmptyState,ErrorState,Skeleton} from '../design-system/primitives';
 
-type Committee={id:string;name:string;committee_type:string;purpose:string;active:boolean};
+type Committee={id:string;name:string;committee_type:string;purpose:string|null;active:boolean};
+const TYPES=['agua','saneamiento','ambiente','control_fiscal','compras','protocolo','otro'];
+const TYPE_LABEL:Record<string,string>={agua:'Agua',saneamiento:'Saneamiento',ambiente:'Ambiente',control_fiscal:'Control fiscal',compras:'Compras',protocolo:'Protocolo',otro:'Otro'};
 
 export function Comites(){
- const auth=useAuth();
- const [items,setItems]=useState<Committee[]>([]);
- const [error,setError]=useState('');
- useEffect(()=>{if(!auth.has('governance.read'))return;
-  (async()=>{const {supabase}=await import('../lib/supabase');const {data,error}=await supabase!.from('committees').select('id,name,committee_type,purpose,active').order('name');if(error)setError(error.message);else if(data)setItems(data);})();},[auth]);
- const create=async()=>{const name=prompt('Nombre del comité');if(!name)return;
-  const type=prompt('Tipo (agua/saneamiento/ambiente/control_fiscal/compras/protocolo/otro)')||'otro';
-  const {supabase}=await import('../lib/supabase');const {error}=await supabase!.rpc('create_committee',{p_name:name,p_type:type,p_purpose:null});if(error)setError(error.message);else {const {data}=await supabase!.from('committees').select('id,name,committee_type,purpose,active');if(data)setItems(data);}};
- return <main className="content">
-  <div className="titlebar module-hero"><div><span className="eyebrow">Gobierno</span><h1>Comités</h1><p>Comités de la JAA (agua, saneamiento, ambiente, control fiscal, entre otros).</p></div></div>
-  {error&&<div className="notice">{error}</div>}
-  {auth.has('governance.manage')&&<button className="primary" onClick={create}><UserPlus size={16}/> Nuevo comité</button>}
-  <div className="cards" style={{marginTop:'1rem'}}>
-   {items.length===0&&<div className="panel"><div className="empty empty-state"><Users size={22}/><p>Sin comités registrados.</p></div></div>}
-   {items.map(c=><article key={c.id} className="panel"><strong>{c.name}</strong><span>{c.committee_type}</span><small>{c.purpose||'Sin propósito'}</small></article>)}
-  </div>
- </main>;
+  const auth=useAuth();
+  const manage=auth.has('governance.manage');
+  const [items,setItems]=useState<Committee[]>([]);
+  const [loading,setLoading]=useState(true);
+  const [error,setError]=useState('');
+  const [notice,setNotice]=useState('');
+  const [open,setOpen]=useState(false);
+  const [form,setForm]=useState({name:'',committee_type:'otro',purpose:''});
+
+  const load=useCallback(()=>{
+    if(!auth.has('governance.read')){setLoading(false);return;}
+    setLoading(true);
+    void listCommittees()
+      .then(d=>{setItems((d as Committee[])??[]);setError('');})
+      .catch(e=>setError((e as Error).message))
+      .finally(()=>setLoading(false));
+  },[auth]);
+  useEffect(load,[load]);
+
+  async function submit(e:React.FormEvent){
+    e.preventDefault();
+    try{
+      await createCommittee(form.name.trim(),form.committee_type,form.purpose.trim()||null);
+      setForm({name:'',committee_type:'otro',purpose:''});
+      setOpen(false);setNotice('Comité registrado.');load();
+    }catch(err){setError((err as Error).message);}
+  }
+
+  return <main className="ja-page">
+    <header className="ja-page-head">
+      <div><h1>Comités</h1><p>Comités de la Junta Administradora de Agua (agua, saneamiento, ambiente, control fiscal, entre otros).</p></div>
+      {manage&&<Button icon={<UserPlus size={15}/>} onClick={()=>setOpen(true)}>Nuevo comité</Button>}
+      <button type="button" className="ja-tab" onClick={load}><RefreshCw size={14}/> Actualizar</button>
+    </header>
+
+    {notice&&<div className="ja-banner ja-banner-info">{notice}</div>}
+    {error&&<ErrorState error={error} onRetry={load}/>}
+    {loading&&items.length===0&&<Skeleton className="ja-360-skel"/>}
+
+    {!loading&&<section className="ja-list">
+      {items.length===0
+        ?<EmptyState icon={<Users size={22}/>} title="Sin comités registrados" description="Registre los comités de trabajo de la JAA."/>
+        :items.map(c=><article key={c.id} className="ja-list-row">
+          <div>
+            <strong>{c.name}</strong>
+            <span className="ja-cell-sub">{c.purpose||'Sin propósito registrado'}</span>
+          </div>
+          <Badge tone={c.active?'success':'neutral'}>{TYPE_LABEL[c.committee_type]??c.committee_type}</Badge>
+        </article>)}
+    </section>}
+
+    <Dialog open={open} onClose={()=>setOpen(false)} title="Nuevo comité"
+      description="Registre un comité de trabajo de la Junta.">
+      <form className="ja-pos-fields" onSubmit={submit}>
+        <label className="ja-field"><span className="ja-field-label">Nombre</span>
+          <input className="ja-control" required minLength={3} value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/>
+        </label>
+        <label className="ja-field"><span className="ja-field-label">Tipo</span>
+          <select className="ja-control" value={form.committee_type} onChange={e=>setForm({...form,committee_type:e.target.value})}>
+            {TYPES.map(t=><option key={t} value={t}>{TYPE_LABEL[t]}</option>)}
+          </select>
+        </label>
+        <label className="ja-field"><span className="ja-field-label">Propósito</span>
+          <textarea className="ja-control" rows={3} value={form.purpose} onChange={e=>setForm({...form,purpose:e.target.value})}/>
+        </label>
+        <Button type="submit">Registrar comité</Button>
+      </form>
+    </Dialog>
+  </main>;
 }

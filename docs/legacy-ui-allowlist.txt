@@ -28,7 +28,6 @@ src/pages/Audit.tsx
 src/pages/Backups.tsx
 src/pages/Bodega.tsx
 src/pages/Calendario.tsx
-src/pages/Comites.tsx
 src/pages/DocumentSettings.tsx
 src/pages/Ersaps.tsx
 src/pages/FieldReadings.tsx
@@ -39,11 +38,8 @@ src/pages/MapView.tsx
 src/pages/Metering.tsx
 src/pages/PeguesContratos.tsx
 src/pages/Progress.tsx
-src/pages/Proyectos.tsx
 src/pages/ReceiptVisualStudio.tsx
 src/pages/Reports.tsx
-src/pages/Resoluciones.tsx
-src/pages/Reuniones.tsx
 src/pages/Security.tsx
 src/pages/Settings.tsx
 src/pages/SubscriberCards.tsx

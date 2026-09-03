@@ -4,15 +4,15 @@
 
 | Campo | Valor |
 |---|---|
-| CURRENT_PHASE | Milestone O — Junta / Gobierno (EN PROGRESO). H–N ya integrados en la rama. |
+| CURRENT_PHASE | Milestone P — Cumplimiento (ERSAPS/Calendario/Transparencia). A–O integrados en la rama. |
 | CURRENT_BRANCH | `work/junta-enterprise-rebuild` |
-| CURRENT_SHA | `pending-push` (O parcial: JuntaDirectiva persona-picker + Asamblea en DS + N cerrado) sobre `978fe74` |
+| CURRENT_SHA | `6891a1b` (Milestone O completo) — pendiente de confirmación E2E en CI antes de push |
 | LAST_GREEN_SHA | `978fe74` (CI PR #22 4/4 verde: validate, db, functions, browser/E2E) — 252 tests, lint OK, tsc OK, build OK |
 | LAST_COMPLETED_MILESTONE | N — Solicitudes (service desk §61) + Comunicaciones (plantillas §62). Antes: M (Agua y Ambiente), L (Campo/PWA), K (GIS), J (Operación), I (Finanzas/Compras), H (Cartera/Convenios/Bancos). |
-| NEXT_ACTION | Terminar O: Reuniones/Actas/Resoluciones/Tareas/Proyectos/Comités sobre design system (siguen en el allowlist legacy) + selector de comité real en nombramientos. Luego P (Cumplimiento). Draft PR: #22. |
-| TEST_COUNT | 252 (vitest) — +service desk / comunicaciones (§61-62) +gobierno persona-picker |
+| NEXT_ACTION | Milestone P (Cumplimiento): ERSAPS, Calendario (§P), Annual Pack, Transparencia, Reporting sobre design system, sin claims sin evidencia. Draft PR: #22. |
+| TEST_COUNT | 256 (vitest) — +service desk/comunicaciones (§61-62) +gobierno (persona-picker, DS, sin prompt) |
 | E2E_COUNT | 9 tests Playwright (smoke.spec: login/MFA, navegación, búsqueda, responsive, POS+Caja, Nuevo servicio, 360, command palette, logout) + 1 sim |
-| LEGACY_FILES_REMAINING | 0 CSS legacy en `src/` · **32** `.tsx` en `docs/legacy-ui-allowlist.txt` (−JuntaDirectiva, −Asamblea, −Solicitudes, −Comunicaciones en este ciclo) · **0** en `docs/legacy-uuid-allowlist.txt` (JuntaDirectiva migrado a persona-picker). El gate impide que las listas crezcan o queden entradas obsoletas. |
+| LEGACY_FILES_REMAINING | 0 CSS legacy en `src/` · **28** `.tsx` en `docs/legacy-ui-allowlist.txt` (−Asamblea, −JuntaDirectiva, −Solicitudes, −Comunicaciones, −Reuniones, −Resoluciones, −Proyectos, −Comités en este ciclo) · **0** en `docs/legacy-uuid-allowlist.txt`. Restan: Layout + Accounts/Admin/Audit/Backups/Bodega/Calendario/DocumentSettings/Ersaps/FieldReadings/FinancialDocuments/Imports/Integrations/MapView/Metering/PeguesContratos/Progress/ReceiptVisualStudio/Reports/Security/Settings/SubscriberCards/SubscriberPortal/Subscribers/Tariffs/Transparencia/Users/VerifyReceipt (milestones P/Q/R/S/V). El gate impide que las listas crezcan o queden entradas obsoletas. |
 | MIGRATION_HEAD | `202609010015_v6_governance_persons.sql` (list_governance_persons: persona-picker de cargos §64; list_committees — sólo lectura). Prev: `202609010014_v6_portfolio.sql` (get_portfolio_overview; list_arrangements_workspace). Tipos DB: regenerar tras aplicar a cloud (post-merge, §141). |
 | OPEN_BLOCKERS | Ninguno interno. Externos para el cierre total (merge→cloud→Render→smoke): requieren credenciales/permiso de escritura en Supabase Cloud, Render y GitHub merge — ver COMPLETION REPORT al pie. |
 | STAGING_STATE | No configurado. Plan: Render PR Preview + Supabase local/CI. Sin servicios pagados nuevos. |
@@ -58,4 +58,4 @@ No hay `.claude/` ni `skills/` dentro del repo. No hay MCP servers de dominio.
 | L — Campo (PWA técnico de órdenes) | ✅ COMPLETE | `5d4a79a` | §53. Offline seguro; sin pagos/aprobaciones/tarifas offline. |
 | M — Agua y Ambiente | ✅ COMPLETE | `978fe74` | §54-58: Calidad/Cloración/Fuentes/Continuidad/Microcuenca sobre design system, sin `window.prompt`. |
 | N — Solicitudes + Comunicaciones | ✅ COMPLETE | `pending-push` | §61 service desk (SLA, asignación, estados, derivación a incidencia/orden) + §62 plantillas contextuales (8) por 3 canales. Ambas fuera del allowlist. |
-| O — Junta / Gobierno | 🔶 EN PROGRESO | `pending-push` | JuntaDirectiva: persona-picker del registro maestro (mig. 015 `list_governance_persons`, alta de persona inline) — sale del allowlist UUID (§64). Asamblea: sobre design system. Falta: Reuniones/Actas/Resoluciones/Tareas/Proyectos/Comités. |
+| O — Junta / Gobierno | ✅ COMPLETE | `6891a1b` | JuntaDirectiva: persona-picker del registro maestro (mig. 015 `list_governance_persons` + alta inline) — allowlist UUID vacío (§64). Asamblea/Reuniones/Resoluciones/Proyectos/Comités sobre design system, actas y comités en Dialog (sin `window.prompt`). Cargo institucional ≠ rol del sistema. Suite `governance-milestone-o`. |
