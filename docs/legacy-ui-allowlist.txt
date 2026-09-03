@@ -38,7 +38,6 @@ src/pages/Metering.tsx
 src/pages/PeguesContratos.tsx
 src/pages/Progress.tsx
 src/pages/ReceiptVisualStudio.tsx
-src/pages/Reports.tsx
 src/pages/Security.tsx
 src/pages/Settings.tsx
 src/pages/SubscriberCards.tsx

@@ -1,7 +1,7 @@
 import {describe,expect,it} from 'vitest';
 import {readFileSync} from 'node:fs';
 
-const PAGES=['Ersaps','Calendario','Transparencia'] as const;
+const PAGES=['Ersaps','Calendario','Transparencia','Reports'] as const;
 const src=Object.fromEntries(PAGES.map(p=>[p,readFileSync(`src/pages/${p}.tsx`,'utf8')])) as Record<typeof PAGES[number],string>;
 const allowlist=readFileSync('docs/legacy-ui-allowlist.txt','utf8');
 
@@ -27,5 +27,13 @@ describe('Milestone P — Cumplimiento (ERSAPS / Calendario / Transparencia)',()
     expect(src.Transparencia).toContain('getTransparencyReport');
     expect(src.Calendario).toContain('listCalendarEvents');
     expect(src.Calendario).toContain('createCalendarEvent');
+  });
+
+  it('Reports (Annual Pack / Reporting) conserva export XLS, impresión y evidencias sobre el DS',()=>{
+    expect(src.Reports).toContain('downloadWorkbookXml');
+    expect(src.Reports).toContain('getExpenseEvidenceUrl');
+    expect(src.Reports).toContain('window.print');
+    expect(src.Reports).not.toContain('className="content"');
+    expect(src.Reports).not.toContain('className="panel chart"');
   });
 });
