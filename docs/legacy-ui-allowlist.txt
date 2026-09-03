@@ -24,19 +24,14 @@
 
 src/components/Layout.tsx
 src/pages/Accounts.tsx
-src/pages/Admin.tsx
-src/pages/Bodega.tsx
 src/pages/DocumentSettings.tsx
 src/pages/FieldReadings.tsx
-src/pages/FinancialDocuments.tsx
 src/pages/Imports.tsx
 src/pages/Integrations.tsx
 src/pages/Metering.tsx
-src/pages/PeguesContratos.tsx
 src/pages/Progress.tsx
 src/pages/ReceiptVisualStudio.tsx
 src/pages/Settings.tsx
 src/pages/SubscriberCards.tsx
 src/pages/SubscriberPortal.tsx
 src/pages/Subscribers.tsx
-src/pages/VerifyReceipt.tsx
