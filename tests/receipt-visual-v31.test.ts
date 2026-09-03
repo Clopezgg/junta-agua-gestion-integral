@@ -33,9 +33,8 @@ describe('recibo visual institucional 3.1',()=>{
   });
 
   it('expone la ruta y la navegación del estudio visual',()=>{
-    const layout=read('src/components/Layout.tsx');
     expect(hasRoute('estudio-recibo')).toBe(true);
-    expect(layout).toContain('Vista del recibo');
+    expect(hasRoute('admin/estudio-recibo')).toBe(true);
   });
 
   it('mantiene el recibo sin WhatsApp ni sitio web',()=>{

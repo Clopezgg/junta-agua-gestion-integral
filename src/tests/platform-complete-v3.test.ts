@@ -41,10 +41,10 @@ describe('plataforma completa V3',()=>{
   });
 
   it('prioriza cuota anual y oculta medición en la navegación principal',()=>{
-    const layout=read('src/components/Layout.tsx');
+    const nav=read('src/layouts/navigation.tsx');
     const home=read('src/pages/Home.tsx');
     const roleView=read('src/features/dashboard/roleView.ts');
-    expect(layout).not.toContain('Medición y consumo');
+    expect(nav).not.toContain('Medición');
     expect(roleView).toContain('Generar cuota anual');
     // §39: el monto de la cuota NO se hardcodea en la UI — viene de tarifas versionadas.
     expect(home).not.toContain('L 400 por pegue');

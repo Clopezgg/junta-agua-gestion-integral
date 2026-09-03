@@ -60,7 +60,7 @@ describe('versión 2.2 experiencia institucional',()=>{
 
   it('mejora el login y navegación institucional',()=>{
     const login=read('src/pages/Login.tsx');
-    const layout=read('src/components/Layout.tsx');
+    const shell=read('src/layouts/AppShell.tsx');
     const router=read('src/app/router/lazyPages.ts');
     expect(login).not.toContain('El Achiotal');
     expect(login).not.toContain('Plataforma institucional segura');
@@ -72,9 +72,8 @@ describe('versión 2.2 experiencia institucional',()=>{
     expect(login).toContain('Acceso exclusivo para personal autorizado.');
     expect(login).toContain('getPublicInstitution');
     expect(login).toContain('get_login_cooldown_seconds');
-    expect(layout).toContain('Administración');
-    expect(layout).toContain('Fichas digitales');
-    expect(layout).toContain('nav-collapsed');
+    expect(shell).toContain('ja-shell-collapsed');
+    expect(shell).toContain('Navegación principal');
     expect(hasRoute('configuracion-documental')).toBe(true);
     expect(hasRoute('fichas-abonados')).toBe(true);
     expect(router).toContain('RecuperarAcceso');

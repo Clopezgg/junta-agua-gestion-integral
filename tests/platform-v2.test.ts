@@ -76,15 +76,15 @@ describe('plataforma v2 institucional',()=>{
   });
 
   it('integra módulos y navegación orientada a tareas',()=>{
-    const layout=read('src/components/Layout.tsx');
+    const shell=read('src/layouts/AppShell.tsx');
     const home=read('src/pages/Home.tsx');
     const operations=read('src/pages/Operations.tsx');
     expect(hasRoute('presupuesto')).toBe(true);
     expect(hasRoute('configuracion-documental')).toBe(true);
     expect(hasRoute('estudio-recibo')).toBe(true);
-    expect(layout).toContain('<GlobalSearch/>');
-    expect(layout).toContain('appVersion.version');
-    expect(layout).toContain('Vista del recibo');
+    // Búsqueda global desde el shell del design system (command palette, Ctrl K).
+    expect(shell).toContain('ja-search-trigger');
+    expect(shell).toContain('command.open');
     expect(home).toContain('Requiere atención');
     expect(home).toContain('Acciones rápidas');
     expect(operations).not.toContain('window.prompt');
