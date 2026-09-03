@@ -18,7 +18,8 @@
 # Milestone J: -src/pages/Operations.tsx (§46) -src/pages/Incidents.tsx (§47) workspace operativo sobre design system.
 # Milestone M: -src/pages/{Calidad,Cloracion,Fuentes,Continuidad,Microcuenca}.tsx (§54-58) sobre design system, sin window.prompt.
 # Milestone N: -src/pages/Solicitudes.tsx (§61 service desk) -src/pages/Comunicaciones.tsx (§62 plantillas) sobre design system.
-# Milestone O: -src/pages/JuntaDirectiva.tsx (§64 persona picker, sin UUID) -src/pages/Asamblea.tsx (gobierno sobre design system).
+# Milestone O: -src/pages/{JuntaDirectiva,Asamblea,Reuniones,Resoluciones,Proyectos,Comites}.tsx (§63-66) sobre design system, sin window.prompt, persona-picker.
+# Milestone P: -src/pages/{Ersaps,Calendario,Transparencia}.tsx (§P cumplimiento) sobre design system, sin window.prompt.
 # Milestone C: -src/App.tsx (router modularizado a src/app/router/*, sin markup legacy).
 
 src/components/Layout.tsx
@@ -27,9 +28,7 @@ src/pages/Admin.tsx
 src/pages/Audit.tsx
 src/pages/Backups.tsx
 src/pages/Bodega.tsx
-src/pages/Calendario.tsx
 src/pages/DocumentSettings.tsx
-src/pages/Ersaps.tsx
 src/pages/FieldReadings.tsx
 src/pages/FinancialDocuments.tsx
 src/pages/Imports.tsx
@@ -46,6 +45,5 @@ src/pages/SubscriberCards.tsx
 src/pages/SubscriberPortal.tsx
 src/pages/Subscribers.tsx
 src/pages/Tariffs.tsx
-src/pages/Transparencia.tsx
 src/pages/Users.tsx
 src/pages/VerifyReceipt.tsx
