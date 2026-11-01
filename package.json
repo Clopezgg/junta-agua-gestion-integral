@@ -28,7 +28,7 @@
     "read-excel-file": "9.3.0",
     "recharts": "3.9.2",
     "saxen": "11.0.2",
-    "zod": "3.25.76"
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",
